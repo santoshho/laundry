@@ -1,0 +1,118 @@
+<!-- Converted from PHP to EJS (best-effort). Check TODO comments for dynamic parts. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%-- TODO: converted PHP code removed. Original snippet: echo $page_title . &#x27; - &#x27; . APP_NAME; --%></title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="../assets/css/style.css" rel="stylesheet">
+    
+    <style>
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .stats-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .stats-card.info {
+            border-left-color: #0dcaf0;
+        }
+        
+        .stats-card.success {
+            border-left-color: #198754;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stats-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .stats-icon {
+            font-size: 2.5rem;
+            color: #0d6efd;
+            opacity: 0.7;
+        }
+        
+        .welcome-text {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/admin/dashboard">
+                <i class="bi bi-shield-check me-2"></i>
+                <%-- TODO: converted PHP code removed. Original snippet: echo APP_NAME; --%> Admin
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link <%-- TODO: converted PHP code removed. Original snippet: echo basename($_SERVER[&#x27;PHP_SELF&#x27;]) == &#x27;dashboard.php&#x27; ? &#x27;active&#x27; : &#x27;&#x27;; --%>" href="/admin/dashboard">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%-- TODO: converted PHP code removed. Original snippet: echo basename($_SERVER[&#x27;PHP_SELF&#x27;]) == &#x27;requests.php&#x27; ? &#x27;active&#x27; : &#x27;&#x27;; --%>" href="/admin/requests">
+                            <i class="bi bi-list-check me-1"></i>Requests
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%-- TODO: converted PHP code removed. Original snippet: echo basename($_SERVER[&#x27;PHP_SELF&#x27;]) == &#x27;users.php&#x27; ? &#x27;active&#x27; : &#x27;&#x27;; --%>" href="/admin/users">
+                            <i class="bi bi-people me-1"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%-- TODO: converted PHP code removed. Original snippet: echo basename($_SERVER[&#x27;PHP_SELF&#x27;]) == &#x27;pricing.php&#x27; ? &#x27;active&#x27; : &#x27;&#x27;; --%>" href="/admin/pricing">
+                            <i class="bi bi-currency-dollar me-1"></i>Pricing
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <%-- TODO: converted PHP code removed. Original snippet: echo $_SESSION[&#x27;user_name&#x27;] ?? &#x27;Admin&#x27;; --%>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/"><i class="bi bi-house me-2"></i>View Site</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid py-4">

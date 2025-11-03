@@ -1,0 +1,337 @@
+<%- include('../partials/header') %>
+<!-- Converted from PHP to EJS (best-effort). Check TODO comments for dynamic parts. -->
+<%-- TODO: converted PHP code removed. Original snippet: require_once &#x27;../config/config.php&#x27;; --%>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-graph-up me-2"></i>Reports & Analytics
+    </h2>
+    <a href="/admin/dashboard" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Report Controls -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="report_type" class="form-label">Report Type</label>
+                <select class="form-select" id="report_type" name="report_type">
+                    <option value="overview" <%-- TODO: converted PHP code removed. Original snippet: echo $report_type === &#x27;overview&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Overview</option>
+                    <option value="monthly" <%-- TODO: converted PHP code removed. Original snippet: echo $report_type === &#x27;monthly&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Monthly Trends</option>
+                    <option value="customers" <%-- TODO: converted PHP code removed. Original snippet: echo $report_type === &#x27;customers&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Customer Analysis</option>
+                </select>
+            </div>
+            <%-- TODO: converted PHP code removed. Original snippet: if ($report_type !== &#x27;monthly&#x27;): --%>
+            <div class="col-md-3">
+                <label for="date_from" class="form-label">From Date</label>
+                <input type="date" class="form-control" id="date_from" name="date_from" 
+                       value="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($date_from); --%>">
+            </div>
+            <div class="col-md-3">
+                <label for="date_to" class="form-label">To Date</label>
+                <input type="date" class="form-control" id="date_to" name="date_to" 
+                       value="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($date_to); --%>">
+            </div>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i>Generate Report
+                </button>
+                <button type="button" class="btn btn-outline-success" onclick="exportReport()">
+                    <i class="bi bi-download me-1"></i>Export
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%-- TODO: converted PHP code removed. Original snippet: if ($report_type === &#x27;overview&#x27;): --%>
+    <!-- Overview Report -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary"><%-- TODO: converted PHP code removed. Original snippet: echo $overview[&#x27;total_requests&#x27;] ?? 0; --%></h3>
+                    <p class="text-muted mb-0">Total Requests</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success"><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($overview[&#x27;total_revenue&#x27;] ?? 0); --%></h3>
+                    <p class="text-muted mb-0">Total Revenue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info"><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($overview[&#x27;avg_order_value&#x27;] ?? 0); --%></h3>
+                    <p class="text-muted mb-0">Avg Order Value</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning"><%-- TODO: converted PHP code removed. Original snippet: echo $overview[&#x27;unique_customers&#x27;] ?? 0; --%></h3>
+                    <p class="text-muted mb-0">Unique Customers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Status Breakdown -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Request Status Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <%-- TODO: converted PHP code removed. Original snippet: if (empty($status_breakdown)): --%>
+                        <p class="text-muted">No data available for the selected period.</p>
+                    <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                        <%-- TODO: converted PHP code removed. Original snippet: foreach ($status_breakdown as $status): --%>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><%-- TODO: converted PHP code removed. Original snippet: echo ucfirst(str_replace(&#x27;_&#x27;, &#x27; &#x27;, $status[&#x27;status&#x27;])); --%></span>
+                                    <span class="fw-bold"><%-- TODO: converted PHP code removed. Original snippet: echo $status[&#x27;count&#x27;]; --%></span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar <%-- TODO: converted PHP code removed. Original snippet: echo get_status_badge_class($status[&#x27;status&#x27;]); --%>" 
+                                         style="width: <%-- TODO: converted PHP code removed. Original snippet: echo ($status[&#x27;count&#x27;] / max(array_column($status_breakdown, &#x27;count&#x27;))) * 100; --%>%"></div>
+                                </div>
+                            </div>
+                        <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service Type Breakdown -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Popular Services</h5>
+                </div>
+                <div class="card-body">
+                    <%-- TODO: converted PHP code removed. Original snippet: if (empty($service_breakdown)): --%>
+                        <p class="text-muted">No data available for the selected period.</p>
+                    <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                        <%-- TODO: converted PHP code removed. Original snippet: foreach ($service_breakdown as $service): --%>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($service[&#x27;laundry_type&#x27;]); --%></span>
+                                    <span class="fw-bold"><%-- TODO: converted PHP code removed. Original snippet: echo $service[&#x27;count&#x27;]; --%></span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" 
+                                         style="width: <%-- TODO: converted PHP code removed. Original snippet: echo ($service[&#x27;count&#x27;] / max(array_column($service_breakdown, &#x27;count&#x27;))) * 100; --%>%"></div>
+                                </div>
+                                <small class="text-muted"><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($service[&#x27;revenue&#x27;]); --%> revenue</small>
+                            </div>
+                        <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Daily Trends Chart -->
+    <%-- TODO: converted PHP code removed. Original snippet: if (!empty($daily_trends)): --%>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Daily Trends</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="dailyTrendsChart" width="400" height="100"></canvas>
+        </div>
+    </div>
+    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+
+<%-- TODO: converted PHP code removed. Original snippet: elseif ($report_type === &#x27;monthly&#x27;): --%>
+    <!-- Monthly Report -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Monthly Performance (Last 12 Months)</h5>
+        </div>
+        <div class="card-body">
+            <%-- TODO: converted PHP code removed. Original snippet: if (empty($monthly_data)): --%>
+                <p class="text-muted">No monthly data available.</p>
+            <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Requests</th>
+                                <th>Revenue</th>
+                                <th>Unique Customers</th>
+                                <th>Avg Order Value</th>
+                                <th>Growth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%-- TODO: converted PHP code removed. Original snippet: $prev_revenue = 0; --%>
+                                <tr>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo date(&#x27;F Y&#x27;, strtotime($month[&#x27;month&#x27;] . &#x27;-01&#x27;)); --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo $month[&#x27;requests&#x27;]; --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($month[&#x27;revenue&#x27;]); --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo $month[&#x27;unique_customers&#x27;]; --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($month[&#x27;avg_order_value&#x27;]); --%></td>
+                                    <td>
+                                        <%-- TODO: converted PHP code removed. Original snippet: if ($index &gt; 0): --%>
+                                            <span class="badge <%-- TODO: converted PHP code removed. Original snippet: echo $growth &gt;= 0 ? &#x27;bg-success&#x27; : &#x27;bg-danger&#x27;; --%>">
+                                                <%-- TODO: converted PHP code removed. Original snippet: echo ($growth &gt;= 0 ? &#x27;+&#x27; : &#x27;&#x27;) . number_format($growth, 1); --%>%
+                                            </span>
+                                        <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                                            <span class="text-muted">-</span>
+                                        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                                    </td>
+                                </tr>
+                            <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                        </tbody>
+                    </table>
+                </div>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        </div>
+    </div>
+
+<%-- TODO: converted PHP code removed. Original snippet: elseif ($report_type === &#x27;customers&#x27;): --%>
+    <!-- Customer Report -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Customer Analysis</h5>
+        </div>
+        <div class="card-body">
+            <%-- TODO: converted PHP code removed. Original snippet: if (empty($customer_data)): --%>
+                <p class="text-muted">No customer data available for the selected period.</p>
+            <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Total Requests</th>
+                                <th>Total Spent</th>
+                                <th>Avg Order Value</th>
+                                <th>First Order</th>
+                                <th>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%-- TODO: converted PHP code removed. Original snippet: foreach ($customer_data as $customer): --%>
+                                <tr>
+                                    <td>
+                                        <a href="/admin/user-details?id=<%= customer.id %>" class="text-decoration-none">
+                                            <%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($customer[&#x27;first_name&#x27;] . &#x27; &#x27; . $customer[&#x27;last_name&#x27;]); --%>
+                                        </a>
+                                    </td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($customer[&#x27;email&#x27;]); --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo $customer[&#x27;total_requests&#x27;]; --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($customer[&#x27;total_spent&#x27;]); --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($customer[&#x27;total_spent&#x27;] / max(1, $customer[&#x27;total_requests&#x27;])); --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo $customer[&#x27;first_order_date&#x27;] ? format_date($customer[&#x27;first_order_date&#x27;]) : &#x27;-&#x27;; --%></td>
+                                    <td><%-- TODO: converted PHP code removed. Original snippet: echo $customer[&#x27;last_order_date&#x27;] ? format_date($customer[&#x27;last_order_date&#x27;]) : &#x27;-&#x27;; --%></td>
+                                </tr>
+                            <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                        </tbody>
+                    </table>
+                </div>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        </div>
+    </div>
+<%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+
+<%-- TODO: converted PHP code removed. Original snippet: include &#x27;../includes/footer.php&#x27;; --%>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Daily trends chart
+<%-- TODO: converted PHP code removed. Original snippet: if ($report_type === &#x27;overview&#x27; &amp;&amp; !empty($daily_trends)): --%>
+const ctx = document.getElementById('dailyTrendsChart').getContext('2d');
+const dailyTrendsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [<%-- TODO: converted PHP code removed. Original snippet: echo implode(&#x27;,&#x27;, array_map(function($d) { return &#x27;&quot;&#x27; . date(&#x27;M j&#x27;, strtotime($d[&#x27;date&#x27;])) . &#x27;&quot;&#x27;; }, $daily_trends)); --%>],
+        datasets: [{
+            label: 'Requests',
+            data: [<%-- TODO: converted PHP code removed. Original snippet: echo implode(&#x27;,&#x27;, array_column($daily_trends, &#x27;requests&#x27;)); --%>],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            yAxisID: 'y'
+        }, {
+            label: 'Revenue ($)',
+            data: [<%-- TODO: converted PHP code removed. Original snippet: echo implode(&#x27;,&#x27;, array_column($daily_trends, &#x27;revenue&#x27;)); --%>],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            tension: 0.1,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        scales: {
+            x: {
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Date'
+                }
+            },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Requests'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Revenue ($)'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        }
+    }
+});
+<%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+
+// Export function
+function exportReport() {
+    const reportType = '<%-- TODO: converted PHP code removed. Original snippet: echo $report_type; --%>';
+    const dateFrom = '<%-- TODO: converted PHP code removed. Original snippet: echo $date_from; --%>';
+    const dateTo = '<%-- TODO: converted PHP code removed. Original snippet: echo $date_to; --%>';
+    
+    let filename = `${reportType}_report_${dateFrom}_to_${dateTo}.csv`;
+    
+    // Find the main table on the page
+    const table = document.querySelector('.table');
+    if (table) {
+        exportTableToCSV(table, filename);
+    } else {
+        showAlert('No data available to export.', 'warning');
+    }
+}
+</script>
+
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,143 @@
+<!-- Converted from PHP to EJS (best-effort). Check TODO comments for dynamic parts. -->
+<%-- TODO: converted PHP code removed. Original snippet: /** --%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Laundry Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2 class="mb-0">
+                            <i class="bi bi-gear me-2"></i>
+                            Laundry Management System Installation
+                        </h2>
+                    </div>
+                    <div class="card-body p-5">
+                        <%-- TODO: converted PHP code removed. Original snippet: if (isset($installation_complete) &amp;&amp; $installation_complete): --%>
+                            <div class="text-center">
+                                <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                                <h3 class="text-success mt-3">Installation Successful!</h3>
+                                <p class="text-muted mb-4">Your Laundry Management System has been installed successfully.</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h5>Admin Panel</h5>
+                                                <p class="text-muted">Manage your laundry business</p>
+                                                <a href="/admin/login" class="btn btn-primary">
+                                                    <i class="bi bi-shield-lock me-2"></i>Admin Login
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h5>Customer Portal</h5>
+                                                <p class="text-muted">Customer registration and orders</p>
+                                                <a href="/" class="btn btn-success">
+                                                    <i class="bi bi-house me-2"></i>Customer Portal
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-4">
+                                    <h6><i class="bi bi-info-circle me-2"></i>Admin Login Details:</h6>
+                                    <p class="mb-0">
+                                        <strong>Email:</strong> <%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($admin_email); --%><br>
+                                        <strong>Password:</strong> [The password you entered]
+                                    </p>
+                                </div>
+                            </div>
+                        <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                            <%-- TODO: converted PHP code removed. Original snippet: if (!empty($errors)): --%>
+                                <div class="alert alert-danger">
+                                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Installation Errors:</h6>
+                                    <ul class="mb-0">
+                                        <%-- TODO: converted PHP code removed. Original snippet: foreach ($errors as $error): --%>
+                                            <li><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($error); --%></li>
+                                        <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                                    </ul>
+                                </div>
+                            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                            
+                            <%-- TODO: converted PHP code removed. Original snippet: if (!empty($success_messages)): --%>
+                                <div class="alert alert-success">
+                                    <h6><i class="bi bi-check-circle me-2"></i>Progress:</h6>
+                                    <ul class="mb-0">
+                                        <%-- TODO: converted PHP code removed. Original snippet: foreach ($success_messages as $message): --%>
+                                            <li><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($message); --%></li>
+                                        <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+                                    </ul>
+                                </div>
+                            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                            
+                            <form method="POST">
+                                <div class="alert alert-info">
+                                    <h6><i class="bi bi-info-circle me-2"></i>File-Based Installation</h6>
+                                    <p class="mb-0">This system uses file-based storage. No database server required!</p>
+                                </div>
+                                
+                                <h4 class="mb-4">Admin Account Setup</h4>
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="admin_first_name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="admin_first_name" name="admin_first_name" 
+                                               value="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($_POST[&#x27;admin_first_name&#x27;] ?? &#x27;&#x27;); --%>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="admin_last_name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="admin_last_name" name="admin_last_name" 
+                                               value="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($_POST[&#x27;admin_last_name&#x27;] ?? &#x27;&#x27;); --%>" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="admin_email" class="form-label">Admin Email</label>
+                                    <input type="email" class="form-control" id="admin_email" name="admin_email" 
+                                           value="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($_POST[&#x27;admin_email&#x27;] ?? &#x27;&#x27;); --%>" required>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="admin_password" class="form-label">Admin Password</label>
+                                    <input type="password" class="form-control" id="admin_password" name="admin_password" 
+                                           minlength="6" required>
+                                    <div class="form-text">Password must be at least 6 characters long.</div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-download me-2"></i>Install System
+                                    </button>
+                                </div>
+                            </form>
+                        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Laundry Management System v1.0
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

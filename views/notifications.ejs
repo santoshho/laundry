@@ -1,0 +1,165 @@
+<%- include('../partials/header') %>
+<!-- Converted from PHP to EJS (best-effort). Check TODO comments for dynamic parts. -->
+<%-- TODO: converted PHP code removed. Original snippet: require_once &#x27;config/config.php&#x27;; --%>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>
+            <i class="bi bi-bell me-2"></i>Notifications
+            <%-- TODO: converted PHP code removed. Original snippet: if ($unread_count &gt; 0): --%>
+                <span class="badge bg-danger"><%-- TODO: converted PHP code removed. Original snippet: echo $unread_count; --%></span>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        </h2>
+    </div>
+    <div>
+        <%-- TODO: converted PHP code removed. Original snippet: if ($unread_count &gt; 0): --%>
+            <a href="?mark_all_read=1" class="btn btn-outline-primary me-2">
+                <i class="bi bi-check-all me-1"></i>Mark All Read
+            </a>
+        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" id="type" name="type">
+                    <option value="">All Types</option>
+                    <option value="info" <%-- TODO: converted PHP code removed. Original snippet: echo $type_filter === &#x27;info&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Info</option>
+                    <option value="success" <%-- TODO: converted PHP code removed. Original snippet: echo $type_filter === &#x27;success&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Success</option>
+                    <option value="warning" <%-- TODO: converted PHP code removed. Original snippet: echo $type_filter === &#x27;warning&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Warning</option>
+                    <option value="error" <%-- TODO: converted PHP code removed. Original snippet: echo $type_filter === &#x27;error&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Error</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="read" class="form-label">Status</label>
+                <select class="form-select" id="read" name="read">
+                    <option value="">All</option>
+                    <option value="unread" <%-- TODO: converted PHP code removed. Original snippet: echo $read_filter === &#x27;unread&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Unread</option>
+                    <option value="read" <%-- TODO: converted PHP code removed. Original snippet: echo $read_filter === &#x27;read&#x27; ? &#x27;selected&#x27; : &#x27;&#x27;; --%>>Read</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <a href="/notifications" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Summary -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">
+        Showing <%-- TODO: converted PHP code removed. Original snippet: echo min($offset + 1, $total_records); --%> to <%-- TODO: converted PHP code removed. Original snippet: echo min($offset + $limit, $total_records); --%> 
+        of <%-- TODO: converted PHP code removed. Original snippet: echo $total_records; --%> notifications
+    </p>
+    <%-- TODO: converted PHP code removed. Original snippet: if (!empty($type_filter) || !empty($read_filter)): --%>
+        <small class="text-muted">
+            Filtered by: 
+            <%-- TODO: converted PHP code removed. Original snippet: if (!empty($type_filter)): --%>
+                Type: <%-- TODO: converted PHP code removed. Original snippet: echo ucfirst($type_filter); --%>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+            <%-- TODO: converted PHP code removed. Original snippet: if (!empty($read_filter)): --%>
+                Status: <%-- TODO: converted PHP code removed. Original snippet: echo ucfirst($read_filter); --%>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        </small>
+    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+</div>
+
+<!-- Notifications List -->
+<div class="card">
+    <div class="card-body">
+        <%-- TODO: converted PHP code removed. Original snippet: if (empty($notifications)): --%>
+            <div class="text-center py-5">
+                <i class="bi bi-bell-slash text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-muted mt-3">No notifications found</h4>
+                <%-- TODO: converted PHP code removed. Original snippet: if (!empty($type_filter) || !empty($read_filter)): --%>
+                    <p class="text-muted">Try adjusting your filters</p>
+                    <a href="/notifications" class="btn btn-outline-primary">Clear Filters</a>
+                <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+                    <p class="text-muted">You don't have any notifications yet</p>
+                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+            </div>
+        <%-- TODO: converted PHP code removed. Original snippet: else: --%>
+            <div class="list-group list-group-flush">
+                <%-- TODO: converted PHP code removed. Original snippet: foreach ($notifications as $notification): --%>
+                    <div class="list-group-item border-0 px-0 py-3 <%-- TODO: converted PHP code removed. Original snippet: echo !$notification[&#x27;is_read&#x27;] ? &#x27;bg-light&#x27; : &#x27;&#x27;; --%>">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    <%-- TODO: converted PHP code removed. Original snippet: $type_icons = [ --%>
+                                    <i class="bi bi-<%-- TODO: converted PHP code removed. Original snippet: echo $icon_class; --%> me-2"></i>
+                                    <h6 class="mb-0 <%-- TODO: converted PHP code removed. Original snippet: echo !$notification[&#x27;is_read&#x27;] ? &#x27;fw-bold&#x27; : &#x27;&#x27;; --%>">
+                                        <%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($notification[&#x27;title&#x27;]); --%>
+                                    </h6>
+                                    <%-- TODO: converted PHP code removed. Original snippet: if (!$notification[&#x27;is_read&#x27;]): --%>
+                                        <span class="badge bg-primary ms-2">New</span>
+                                    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                                </div>
+                                <p class="mb-2 text-muted"><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($notification[&#x27;message&#x27;]); --%></p>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <%-- TODO: converted PHP code removed. Original snippet: echo format_datetime($notification[&#x27;created_at&#x27;]); --%>
+                                </small>
+                            </div>
+                            <div class="ms-3">
+                                <%-- TODO: converted PHP code removed. Original snippet: if (!$notification[&#x27;is_read&#x27;]): --%>
+                                    <a href="?mark_read=<%-- TODO: converted PHP code removed. Original snippet: echo $notification[&#x27;id&#x27;]; --%>&<%-- TODO: converted PHP code removed. Original snippet: echo http_build_query($_GET); --%>" 
+                                       class="btn btn-sm btn-outline-primary" title="Mark as read">
+                                        <i class="bi bi-check"></i>
+                                    </a>
+                                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                            </div>
+                        </div>
+                    </div>
+                <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
+            </div>
+            
+            <!-- Pagination -->
+            <%-- TODO: converted PHP code removed. Original snippet: if ($total_pages &gt; 1): --%>
+                <nav aria-label="Notifications pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <%-- TODO: converted PHP code removed. Original snippet: if ($page &gt; 1): --%>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%-- TODO: converted PHP code removed. Original snippet: echo $page - 1; --%>&type=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($type_filter); --%>&read=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($read_filter); --%>">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                        
+                        <%-- TODO: converted PHP code removed. Original snippet: $start_page = max(1, $page - 2); --%>
+                            <li class="page-item <%-- TODO: converted PHP code removed. Original snippet: echo $i === $page ? &#x27;active&#x27; : &#x27;&#x27;; --%>">
+                                <a class="page-link" href="?page=<%-- TODO: converted PHP code removed. Original snippet: echo $i; --%>&type=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($type_filter); --%>&read=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($read_filter); --%>">
+                                    <%-- TODO: converted PHP code removed. Original snippet: echo $i; --%>
+                                </a>
+                            </li>
+                        <%-- TODO: converted PHP code removed. Original snippet: endfor; --%>
+                        
+                        <%-- TODO: converted PHP code removed. Original snippet: if ($page &lt; $total_pages): --%>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%-- TODO: converted PHP code removed. Original snippet: echo $page + 1; --%>&type=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($type_filter); --%>&read=<%-- TODO: converted PHP code removed. Original snippet: echo urlencode($read_filter); --%>">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+                    </ul>
+                </nav>
+            <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+        <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+    </div>
+</div>
+
+<%-- TODO: converted PHP code removed. Original snippet: include &#x27;includes/footer.php&#x27;; --%>
+
+
+<%- include('../partials/footer') %>

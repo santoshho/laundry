@@ -1,0 +1,261 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                <i class="bi bi-person me-2"></i>User Details
+            </h2>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <p class="text-muted mb-0"><%= user.first_name %> <%= user.last_name %></p>
+            <% } %>
+        </div>
+        <div>
+            <a href="/admin/users" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Users
+            </a>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/admin/requests?user_id=<%= user.id %>" class="btn btn-primary ms-2">
+                    <i class="bi bi-list me-2"></i>View Requests
+                </a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- User Information -->
+        <div class="col-lg-8">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <!-- Basic Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person-circle me-2"></i>Basic Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Full Name</h6>
+                                <p class="mb-3"><%= user.first_name %> <%= user.last_name %></p>
+                                
+                                <h6 class="text-muted">Email Address</h6>
+                                <p class="mb-3">
+                                    <a href="mailto:<%= user.email %>" class="text-decoration-none">
+                                        <%= user.email %>
+                                    </a>
+                                </p>
+                                
+                                <% if (user.phone) { %>
+                                    <h6 class="text-muted">Phone Number</h6>
+                                    <p class="mb-3">
+                                        <a href="tel:<%= user.phone %>" class="text-decoration-none">
+                                            <%= user.phone %>
+                                        </a>
+                                    </p>
+                                <% } %>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Account Status</h6>
+                                <p class="mb-3">
+                                    <span class="badge bg-<%= user.status === 'inactive' ? 'danger' : 'success' %>">
+                                        <%= user.status || 'Active' %>
+                                    </span>
+                                </p>
+                                
+                                <h6 class="text-muted">Member Since</h6>
+                                <p class="mb-3">
+                                    <%= user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A' %>
+                                </p>
+                                
+                                <h6 class="text-muted">User ID</h6>
+                                <p class="mb-3"><%= user.id %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Statistics -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-graph-up me-2"></i>Order Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-primary">
+                                        <%= orders ? orders.filter(o => o.name === user.first_name + ' ' + user.last_name).length : 0 %>
+                                    </h3>
+                                    <p class="text-muted mb-0">Total Orders</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-success">$0.00</h3>
+                                    <p class="text-muted mb-0">Total Spent</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-info">$0.00</h3>
+                                    <p class="text-muted mb-0">Avg Order Value</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-warning">0</h3>
+                                    <p class="text-muted mb-0">Days Active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history me-2"></i>Recent Orders
+                        </h5>
+                        <a href="/admin/requests?user_id=<%= user.id %>" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <% 
+                        const userOrders = orders ? orders.filter(o => o.name === user.first_name + ' ' + user.last_name) : [];
+                        %>
+                        <% if (userOrders.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Items</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% userOrders.slice(0, 5).forEach(function(order) { %>
+                                            <tr>
+                                                <td>
+                                                    <a href="/admin/request-details?id=<%= order.id %>" class="text-decoration-none">
+                                                        #<%= order.id %>
+                                                    </a>
+                                                </td>
+                                                <td><%= order.items %></td>
+                                                <td>
+                                                    <span class="badge bg-<%= order.status === 'pending' ? 'warning' : order.status === 'done' ? 'success' : 'info' %>">
+                                                        <%= order.status %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <%= order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <a href="/admin/request-details?id=<%= order.id %>" 
+                                                       class="btn btn-sm btn-outline-primary" title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                <h6 class="text-muted mt-3">No orders yet</h6>
+                                <p class="text-muted">This customer hasn't placed any orders</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-exclamation-triangle text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">User not found</h4>
+                        <p class="text-muted">The requested user could not be found.</p>
+                        <a href="/admin/users" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Users
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <!-- Quick Actions -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-lightning me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="mailto:<%= user.email %>" class="btn btn-outline-primary">
+                                <i class="bi bi-envelope me-2"></i>Send Email
+                            </a>
+                            <% if (user.phone) { %>
+                                <a href="tel:<%= user.phone %>" class="btn btn-outline-success">
+                                    <i class="bi bi-telephone me-2"></i>Call Customer
+                                </a>
+                            <% } %>
+                            <a href="/admin/requests?user_id=<%= user.id %>" class="btn btn-outline-info">
+                                <i class="bi bi-list me-2"></i>View All Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>Account Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-muted">User ID</h6>
+                            <p class="mb-0"><%= user.id %></p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="text-muted">Account Type</h6>
+                            <p class="mb-0">
+                                <span class="badge bg-primary">Customer</span>
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="text-muted">Registration Date</h6>
+                            <p class="mb-0">
+                                <%= user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A' %>
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h6 class="text-muted">Status</h6>
+                            <p class="mb-0">
+                                <span class="badge bg-<%= user.status === 'inactive' ? 'danger' : 'success' %>">
+                                    <%= user.status || 'Active' %>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
