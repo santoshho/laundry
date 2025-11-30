@@ -50,24 +50,22 @@ app.use(
 // =============================
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
-    res.locals.admin = req.session.admin || null;
     next();
 });
 
 // =============================
-// HOME ROUTE
+// HOME ROUTE (IMPORTANT! MUST BE FIRST)
 // =============================
 app.get("/", (req, res) => {
     res.render("index");
 });
 
 // =============================
+// LOGIN ROUTES
 // =============================
-// USER AUTH
-// =============================
-// =============================
-app.get("/login", (req, res) => res.render("login"));
-app.get("/register", (req, res) => res.render("register"));
+app.get("/login", (req, res) => {
+    res.render("login");
+});
 
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
@@ -87,6 +85,13 @@ app.post("/login", (req, res) => {
     };
 
     res.redirect("/user/dashboard");
+});
+
+// =============================
+// REGISTER ROUTES
+// =============================
+app.get("/register", (req, res) => {
+    res.render("register");
 });
 
 app.post("/register", (req, res) => {
@@ -149,87 +154,24 @@ app.get("/user/notifications", (req, res) => {
 });
 
 // =============================
-// USER REQUEST DETAILS
+// SAVE FORM
 // =============================
-app.get("/user/request-details", (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
-
-    const orders = readJSON("orders.json");
-    const order = orders.find(o => o.id === req.query.id);
-
-    res.render("user/request-details", { order });
+app.post("/save-form", (req, res) => {
+    const forms = readJSON("forms.json");
+    forms.push({ id: Date.now(), data: req.body });
+    writeJSON("forms.json", forms);
+    res.json({ success: true });
 });
 
 // =============================
-// =============================
-// ADMIN SYSTEM
-// =============================
-// =============================
-app.get("/admin/login", (req, res) => res.render("admin/login"));
-
-app.post("/admin/login", (req, res) => {
-    const { username, password } = req.body;
-
-    if (username === "admin" && password === "admin123") {
-        req.session.admin = true;
-        return res.redirect("/admin/dashboard");
-    }
-
-    res.render("admin/login", { error: "Invalid admin credentials" });
-});
-
-// ADMIN DASHBOARD
-app.get("/admin/dashboard", (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/login");
-
-    const orders = readJSON("orders.json");
-    res.render("admin/dashboard", { orders });
-});
-
-// ADMIN ORDER LIST
-app.get("/admin/orders", (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/login");
-
-    const orders = readJSON("orders.json");
-    res.render("admin/orders", { orders });
-});
-
-// ADMIN UPDATE ORDER STATUS — CREATES NOTIFICATION
-app.post("/admin/update-status", (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/login");
-
-    const { orderId, status } = req.body;
-    const orders = readJSON("orders.json");
-
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return res.redirect("/admin/orders");
-
-    order.status = status;
-    writeJSON("orders.json", orders);
-
-    // add notification
-    const notes = readJSON("notifications.json");
-
-    notes.push({
-        id: Date.now().toString(),
-        userId: order.userId,
-        phone: order.phone,
-        message: `Your order #${order.id} status is updated to ${status}`,
-        time: new Date().toISOString(),
-        read: false,
-    });
-
-    writeJSON("notifications.json", notes);
-
-    res.redirect("/admin/orders");
-});
-
-// =============================
-// WILDCARD MUST BE LAST — KEEP IT LAST
+// DYNAMIC PAGE (MUST BE LAST)
 // =============================
 app.get("/:page", (req, res) => {
-    const file = path.join(__dirname, "views", `${req.params.page}.ejs`);
-    if (fs.existsSync(file)) return res.render(req.params.page);
+    const page = req.params.page;
+
+    const file = path.join(__dirname, "views", `${page}.ejs`);
+    if (fs.existsSync(file)) return res.render(page);
+
     res.status(404).render("404");
 });
 
