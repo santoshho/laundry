@@ -119,16 +119,11 @@
         </div>
     </section>
 
-    <!-- =====================================
-           CUSTOMER REVIEWS SECTION (Added)
-    ====================================== -->
+    <!-- Reviews -->
     <section class="reviews py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-4">What Our Customers Say</h2>
-
             <div class="row g-4">
-
-                <!-- Review 1 -->
                 <div class="col-md-4">
                     <div class="card shadow-sm p-3 h-100">
                         <div class="d-flex align-items-center mb-2">
@@ -138,13 +133,10 @@
                                 <span class="text-warning">★★★★★</span>
                             </div>
                         </div>
-                        <p class="text-muted">
-                            Fast pickup, clean clothes, and affordable rates. Best laundry service in Gaindakot!
-                        </p>
+                        <p class="text-muted">Fast pickup, clean clothes, and affordable rates. Best laundry service in Gaindakot!</p>
                     </div>
                 </div>
 
-                <!-- Review 2 -->
                 <div class="col-md-4">
                     <div class="card shadow-sm p-3 h-100">
                         <div class="d-flex align-items-center mb-2">
@@ -154,13 +146,10 @@
                                 <span class="text-warning">★★★★★</span>
                             </div>
                         </div>
-                        <p class="text-muted">
-                            Their dry cleaning quality is excellent. Clothes look brand new every time!
-                        </p>
+                        <p class="text-muted">Their dry cleaning quality is excellent. Clothes look brand new every time!</p>
                     </div>
                 </div>
 
-                <!-- Review 3 -->
                 <div class="col-md-4">
                     <div class="card shadow-sm p-3 h-100">
                         <div class="d-flex align-items-center mb-2">
@@ -170,25 +159,20 @@
                                 <span class="text-warning">★★★★☆</span>
                             </div>
                         </div>
-                        <p class="text-muted">
-                            Same-day service really saved me during an urgent situation. Highly recommended!
-                        </p>
+                        <p class="text-muted">Same-day service saved me during an urgent situation. Highly recommended!</p>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
 
-    <!-- Services Section -->
+    <!-- Services -->
     <section id="services" class="py-5 bg-light">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center mb-5">
                     <h2 class="display-5 fw-bold text-dark">Our Services</h2>
-                    <p class="lead text-muted">
-                        Comprehensive laundry solutions for all your needs
-                    </p>
+                    <p class="lead text-muted">Comprehensive laundry solutions for all your needs</p>
                 </div>
             </div>
 
@@ -202,10 +186,12 @@
                                 </div>
                                 <div class="service-content">
                                     <h5><%= service.name %></h5>
-                                    <p class="text-muted mb-0">
-                                        <%= service.description %>
-                                    </p>
-                                    <small class="text-success fw-bold"><%= service.currency || "NPR" %> <%= service.price %>/kg</small>
+                                    <p class="text-muted mb-0"><%= service.description %></p>
+
+                                    <!-- FIXED: Removes duplicate NPR -->
+                                    <small class="text-success fw-bold">
+                                        NPR <%= service.price.replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -220,9 +206,7 @@
                         </div>
                         <div class="service-content">
                             <h5>Regular Wash & Dry</h5>
-                            <p class="text-muted mb-0">
-                                Standard washing and drying service for everyday clothes
-                            </p>
+                            <p class="text-muted mb-0">Standard washing and drying service for everyday clothes</p>
                             <small class="text-success fw-bold">Starting at NPR 5.00/kg</small>
                         </div>
                     </div>
@@ -235,9 +219,7 @@
                         </div>
                         <div class="service-content">
                             <h5>Dry Cleaning</h5>
-                            <p class="text-muted mb-0">
-                                Professional dry cleaning for delicate and formal wear
-                            </p>
+                            <p class="text-muted mb-0">Professional dry cleaning for delicate wear</p>
                             <small class="text-success fw-bold">Starting at NPR 15.00/kg</small>
                         </div>
                     </div>
@@ -250,9 +232,7 @@
                         </div>
                         <div class="service-content">
                             <h5>Express Service</h5>
-                            <p class="text-muted mb-0">
-                                Same-day wash and dry service for urgent needs
-                            </p>
+                            <p class="text-muted mb-0">Same-day wash and dry for urgent needs</p>
                             <small class="text-success fw-bold">Starting at NPR 8.00/kg</small>
                         </div>
                     </div>
@@ -265,36 +245,23 @@
                         </div>
                         <div class="service-content">
                             <h5>Delicate Care</h5>
-                            <p class="text-muted mb-0">
-                                Special care for delicate fabrics and premium garments
-                            </p>
+                            <p class="text-muted mb-0">Special care for premium and delicate fabrics</p>
                             <small class="text-success fw-bold">Starting at NPR 12.00/kg</small>
                         </div>
                     </div>
                 </div>
-
                 <% } %>
             </div>
         </div>
     </section>
 
-    <!-- Contact Section -->
+    <!-- Contact -->
     <section id="contact" class="py-5 bg-primary text-white">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
                     <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
-                    <p class="lead mb-4">
-                        Join thousands of satisfied customers who trust us with their laundry needs
-                    </p>
-                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-                        <a href="/register" class="btn btn-light btn-lg">
-                            <i class="bi bi-person-plus me-2"></i>Create Account
-                        </a>
-                        <a href="/login" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                        </a>
-                    </div>
+                    <p class="lead mb-4">Join thousands of satisfied customers</p>
 
                     <div class="row g-4 mt-4">
                         <div class="col-md-4">
@@ -335,23 +302,8 @@
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS Bundle -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
 
 </body>
 </html>
