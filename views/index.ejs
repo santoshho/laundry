@@ -28,7 +28,6 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
                 <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                 <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
@@ -67,6 +66,48 @@
                     <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-phone fs-2 text-danger"></i><h6 class="mt-2">24/7 Support</h6></div></div></div>
                 </div>
             </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Our Services (NOW MOVED ABOVE CALCULATOR) -->
+<section id="services" class="py-5 bg-light">
+    <div class="container">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Our Services</h2>
+            <p class="text-muted">Affordable & quality laundry solutions</p>
+        </div>
+
+        <div class="row g-4">
+
+            <% if (services && services.length > 0) { %>
+            <% services.forEach(function(service) { %>
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5><%= service.name %></h5>
+                        <p class="text-muted mb-1"><%= service.description %></p>
+
+                        <small class="text-success fw-bold">
+                            NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <% }) %>
+            <% } else { %>
+
+            <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>
+            <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>
+            <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>
+            <div class="col-lg-6"><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div>
+
+            <% } %>
 
         </div>
     </div>
@@ -137,7 +178,7 @@ function calculatePrice() {
 }
 </script>
 
-<!-- Reviews (STATIC, NO SLIDE) -->
+<!-- REVIEWS (NOW MOVED TO LAST BEFORE CONTACT) -->
 <section class="py-5 bg-light">
     <div class="container">
         <h2 class="text-center mb-4">What Our Customers Say</h2>
@@ -178,48 +219,6 @@ function calculatePrice() {
     </div>
 </section>
 
-<!-- Services -->
-<section id="services" class="py-5 bg-light">
-    <div class="container">
-
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Our Services</h2>
-            <p class="text-muted">Affordable & quality laundry solutions</p>
-        </div>
-
-        <div class="row g-4">
-
-            <% if (services && services.length > 0) { %>
-            <% services.forEach(function(service) { %>
-
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5><%= service.name %></h5>
-                        <p class="text-muted mb-1"><%= service.description %></p>
-
-                        <small class="text-success fw-bold">
-                            NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <% }) %>
-            <% } else { %>
-
-            <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>
-            <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>
-            <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>
-            <div class="col-lg-6"><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div>
-
-            <% } %>
-
-        </div>
-    </div>
-</section>
-
 <!-- Contact -->
 <section id="contact" class="py-5 bg-primary text-white">
     <div class="container text-center">
@@ -231,7 +230,7 @@ function calculatePrice() {
             <div class="col-md-4">
                 <i class="bi bi-telephone fs-2 mb-2"></i>
                 <h6>Call Us</h6>
-                <p>9825482689</p>
+                <p>98254822689</p>
             </div>
 
             <div class="col-md-4">
