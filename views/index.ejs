@@ -36,303 +36,174 @@
         }
 
         @keyframes popupFade {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* WhatsApp floating button */
-        .wa-btn {
+        .fixed-whatsapp {
             position: fixed;
-            bottom: 20px;
             right: 20px;
-            background: #25D366;
-            color: white;
-            border-radius: 50%;
-            padding: 15px 18px;
-            font-size: 26px;
-            z-index: 1500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            bottom: 20px;
+            z-index: 2000;
         }
-        .wa-btn:hover { opacity: 0.9; }
     </style>
-
 </head>
 
 <body>
 
-<!-- WhatsApp Floating Button -->
-<a href="https://wa.me/9825481209" class="wa-btn" target="_blank">
-    <i class="bi bi-whatsapp"></i>
-</a>
-
-<!-- Random Popup -->
-<div id="activityPopup" class="activity-popup">
-    Someone just placed an order!
-</div>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">
-            <i class="bi bi-droplet-half me-2"></i>Laundry System
-        </a>
-
-        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
-                <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
-            </ul>
+    <!-- ⭐ TOP BAR RESTORED -->
+    <div class="bg-dark text-white py-2">
+        <div class="container d-flex justify-content-between small">
+            <span><i class="bi bi-envelope"></i> support@laundry.com</span>
+            <span><i class="bi bi-phone"></i> +1 234 567 890</span>
+            <span><i class="bi bi-geo-alt"></i> New York, USA</span>
         </div>
     </div>
-</nav>
 
-<!-- Hero Section -->
-<section class="hero-section py-5">
-    <div class="container">
-        <div class="row align-items-center min-vh-50">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">LaundryPro</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold text-primary mb-3">Professional Laundry Services Made Easy</h1>
-                <p class="lead text-muted">Fast, reliable & affordable laundry services at your doorstep.</p>
-
-                <a href="/register" class="btn btn-primary btn-lg me-3">
-                    <i class="bi bi-person-plus me-2"></i>Get Started
-                </a>
-
-                <a href="/login" class="btn btn-outline-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto fw-semibold">
+                    <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
+                </ul>
             </div>
-
-            <div class="col-lg-6 text-center">
-                <i class="bi bi-droplet-half display-1 text-primary"></i>
-
-                <div class="row mt-4 g-3">
-                    <div class="col-6">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center">
-                                <i class="bi bi-clock fs-2 text-success"></i>
-                                <h6 class="mt-2">Quick Service</h6>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center">
-                                <i class="bi bi-truck fs-2 text-info"></i>
-                                <h6 class="mt-2">Easy Delivery</h6>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center">
-                                <i class="bi bi-shield-check fs-2 text-warning"></i>
-                                <h6 class="mt-2">Quality Assured</h6>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center">
-                                <i class="bi bi-phone fs-2 text-danger"></i>
-                                <h6 class="mt-2">24/7 Support</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
-</section>
+    </nav>
 
-<!-- Services Section -->
-<section id="services" class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Our Services</h2>
-            <p class="text-muted">Affordable & quality laundry solutions</p>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="hero-section text-center text-white d-flex align-items-center" style="background: linear-gradient(135deg,#667eea,#764ba2); min-height: 80vh;">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Premium Laundry Services</h1>
+            <p class="lead">Fast • Affordable • Professional</p>
+            <a href="#services" class="btn btn-light btn-lg mt-3">Explore Services</a>
         </div>
+    </section>
 
-        <div class="row g-4">
 
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5>Regular Wash & Dry</h5>
-                        <small class="text-success fw-bold">NPR 500/kg</small>
+    <!-- SERVICES -->
+    <section id="services" class="py-5">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Our Services</h2>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 shadow-sm h-100">
+                        <i class="bi bi-basket2 fs-1 text-primary"></i>
+                        <h5 class="mt-3">Washing</h5>
+                        <p>Complete washing service with premium detergents.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 shadow-sm h-100">
+                        <i class="bi bi-droplet fs-1 text-primary"></i>
+                        <h5 class="mt-3">Dry Cleaning</h5> <!-- FIXED TYPO -->
+                        <p>Professional dry cleaning for delicate fabrics.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 shadow-sm h-100">
+                        <i class="bi bi-iron fs-1 text-primary"></i>
+                        <h5 class="mt-3">Ironing</h5>
+                        <p>Perfect wrinkle-free ironing service.</p>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-stars fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5>Dry Cleaning</hh5>
-                        <small class="text-success fw-bold">NPR 1200/kg</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-lightning fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5>Express Service</h5>
-                        <small class="text-success fw-bold">NPR 800/kg</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-heart fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5>Delicate Care</h5>
-                        <small class="text-success fw-bold">NPR 1500/kg</small>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Calculator -->
-<section id="calculator" class="py-5">
-    <div class="container text-center mb-4">
-        <h2 class="fw-bold">Laundry Price Calculator</h2>
-        <p class="text-muted">Calculate cost based on weight</p>
-    </div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+    <!-- PRICE CALCULATOR -->
+    <section id="calculator" class="py-5 bg-light">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Price Calculator</h2>
 
-            <div class="card shadow-sm p-4">
-                <div class="mb-3">
-                    <label class="form-label">Service Type</label>
-                    <select id="serviceType" class="form-select">
-                        <option value="500">Regular Wash (NPR 500/kg)</option>
-                        <option value="1200">Dry Clean (NPR 1200/kg)</option>
-                        <option value="800">Express Service (NPR 800/kg)</option>
-                        <option value="1500">Delicate Care (NPR 1500/kg)</option>
-                    </select>
-                </div>
+            <input type="number" id="weightInput" class="form-control w-50 mx-auto" placeholder="Enter weight in kg">
+            <button onclick="calculatePrice()" class="btn btn-primary mt-3">Calculate</button>
 
-                <div class="mb-3">
-                    <label class="form-label">Weight (kg)</label>
-                    <input type="number" id="weightInput" class="form-control" placeholder="Enter weight">
-                </div>
-
-                <button onclick="calculatePrice()" class="btn btn-primary w-100">Calculate</button>
-
-                <div class="alert alert-info mt-3 d-none text-center" id="resultBox">
-                    Total Price: <strong id="totalPrice"></strong>
-                </div>
-            </div>
-
+            <h3 id="result" class="mt-3 text-success fw-bold"></h3>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Testimonials -->
-<section id="reviews" class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-4">What Our Customers Say</h2>
 
-        <div class="row g-4">
+    <!-- REVIEWS -->
+    <section id="reviews" class="py-5">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Customer Reviews</h2>
 
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3 text-center">
-                    <img src="https://i.pravatar.cc/150?img=12" class="review-img mb-2">
-                    <h6 class="fw-bold">Suman</h6>
-                    <p class="text-muted">"Fast pickup & best laundry!"</p>
+            <div class="row justify-content-center">
+                <div class="col-md-4 p-4 border rounded-4 shadow-sm m-2">
+                    <img src="https://i.pravatar.cc/150?img=5" class="review-img" alt="User">
+                    <p class="mt-3">Amazing service! Clothes smell fresh every time.</p>
+                    <strong>- Sarah</strong>
+                </div>
+
+                <div class="col-md-4 p-4 border rounded-4 shadow-sm m-2">
+                    <img src="https://i.pravatar.cc/150?img=12" class="review-img" alt="User">
+                    <p class="mt-3">Fast delivery and great quality.</p>
+                    <strong>- Michael</strong>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3 text-center">
-                    <img src="https://i.pravatar.cc/150?img=32" class="review-img mb-2">
-                    <h6 class="fw-bold">Arushi</h6>
-                    <p class="text-muted">"Very smooth and reliable service!"</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3 text-center">
-                    <img src="https://i.pravatar.cc/150?img=10" class="review-img mb-2">
-                    <h6 class="fw-bold">Prena</h6>
-                    <p class="text-muted">"Affordable and high quality work!"</p>
-                </div>
-            </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Footer -->
-<footer class="bg-dark text-light py-3">
-    <div class="container d-flex justify-content-between">
-        <p>&copy; <%= new Date().getFullYear() %> Laundry System</p>
-        <p>Contact: 9825481209</p>
-    </div>
-</footer>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FOOTER -->
+    <footer class="py-4 bg-dark text-white text-center">
+        <p class="mb-0">© 2025 LaundryPro. All Rights Reserved.</p>
+    </footer>
 
-<!-- Price Calculator Script -->
-<script>
-function calculatePrice() {
-    const pricePerKg = parseFloat(document.getElementById("serviceType").value);
-    const weight = parseFloat(document.getElementById("weightInput").value);
+    <!-- Popup -->
+    <div id="activityPopup" class="activity-popup"></div>
 
-    if (!weight || weight <= 0) return alert("Enter valid weight");
+    <!-- WhatsApp -->
+    <a href="https://wa.me/1234567890" target="_blank" class="fixed-whatsapp">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="60">
+    </a>
 
-    const total = pricePerKg * weight;
+    <!-- Bootstrap JS + App JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    document.getElementById("resultBox").classList.remove("d-none");
-    document.getElementById("totalPrice").innerText = "NPR " + total.toFixed(2);
-}
-</script>
+    <script>
+        /* Price Calculator */
+        function calculatePrice() {
+            let weight = document.getElementById("weightInput").value;
+            if (weight <= 0) {
+                document.getElementById("result").innerHTML = "Enter valid weight";
+                return;
+            }
+            document.getElementById("result").innerHTML = "Total Price: $" + (weight * 5);
+        }
 
-<!-- Random Popup Script -->
-<script>
-const messages = [
-    "Someone from Gaindakot just placed an order!",
-    "New user registered!",
-    "Laundry pickup request received!",
-    "Clothes delivered successfully!",
-    "A customer just booked Dry Cleaning!"
-];
+        /* Random popup */
+        const activities = [
+            "John from NY booked washing",
+            "Emma ordered ironing service",
+            "Michael placed a dry-cleaning request",
+            "2 new customers signed up today!"
+        ];
 
-function showActivityPopup() {
-    const popup = document.getElementById("activityPopup");
-    popup.innerText = messages[Math.floor(Math.random() * messages.length)];
+        function showRandomPopup() {
+            const popup = document.getElementById("activityPopup");
+            popup.innerText = activities[Math.floor(Math.random() * activities.length)];
+            popup.style.display = "block";
 
-    popup.style.display = "block";
+            setTimeout(() => popup.style.display = "none", 4000);
+        }
 
-    setTimeout(() => {
-        popup.style.display = "none";
-    }, 3000);
-}
-
-// Popup every 15–28 seconds randomly
-setInterval(showActivityPopup, Math.floor(Math.random() * 13000) + 15000);
-</script>
+        setInterval(showRandomPopup, 15000);
+    </script>
 
 </body>
 </html>
