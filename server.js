@@ -21,7 +21,10 @@ function readJSON(filename) {
 }
 
 function writeJSON(filename, data) {
-    fs.writeFileSync(path.join(__dirname, filename), JSON.stringify(data, null, 2));
+    fs.writeFileSync(
+        path.join(__dirname, filename),
+        JSON.stringify(data, null, 2)
+    );
 }
 
 // =============================
@@ -47,35 +50,35 @@ app.use(
 // =============================
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
-    res.locals.admin = req.session.admin || null;
     next();
 });
 
 // =============================
-// HOME
+// USER LOGIN
 // =============================
-app.get("/", (req, res) => {
-    res.render("index");
-});
-
-// =============================
-// USER AUTH
-// =============================
-app.get("/login", (req, res) => res.render("login"));
-app.get("/register", (req, res) => res.render("register"));
-
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
 
-    const user = users.find(u => u.email === email && u.password === password);
+    const user = users.find(
+        u => u.email === email && u.password === password
+    );
 
     if (!user) return res.render("login", { error: "Invalid credentials" });
 
-    req.session.user = user;
+    req.session.user = {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        username: `${user.first_name} ${user.last_name}`,
+    };
+
     res.redirect("/user/dashboard");
 });
 
+// =============================
+// USER REGISTER
+// =============================
 app.post("/register", (req, res) => {
     const users = readJSON("users.json");
 
@@ -91,7 +94,13 @@ app.post("/register", (req, res) => {
     users.push(newUser);
     writeJSON("users.json", users);
 
-    req.session.user = newUser;
+    req.session.user = {
+        id: newUser.id,
+        email: newUser.email,
+        phone: newUser.phone,
+        username: `${newUser.first_name} ${newUser.last_name}`,
+    };
+
     res.redirect("/user/dashboard");
 });
 
@@ -103,80 +112,45 @@ app.get("/user/dashboard", (req, res) => {
 
     const orders = readJSON("orders.json");
 
-    const myOrders = orders.filter(o => o.userId === req.session.user.id);
+    const myOrders = orders.filter(
+        o =>
+            o.userId === req.session.user.id ||
+            o.phone === req.session.user.phone
+    );
 
     res.render("user/dashboard", { orders: myOrders });
 });
 
 // =============================
-// NOTIFICATIONS
+// HOME ROUTE
 // =============================
-app.get("/user/notifications", (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
-
-    const notes = readJSON("notifications.json");
-
-    const myNotes = notes.filter(n => n.userId === req.session.user.id);
-
-    res.render("user/notifications", { notifications: myNotes });
+app.get("/", (req, res) => {
+    res.render("index");
 });
 
 // =============================
-// ADMIN ROUTES
+// ADMIN PAGES (STATIC RENDER)
 // =============================
-app.get("/admin/login", (req, res) => res.render("admin/login"));
-
-app.post("/admin/login", (req, res) => {
-    const { username, password } = req.body;
-
-    if (username === "admin" && password === "admin123") {
-        req.session.admin = { username: "admin" };
-        return res.redirect("/admin/dashboard");
-    }
-
-    res.render("admin/login", { error: "Invalid admin login" });
+app.get("/admin/login", (req, res) => {
+    res.render("admin/login");
 });
 
 app.get("/admin/dashboard", (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/login");
-
-    const orders = readJSON("orders.json");
-    res.render("admin/dashboard", { orders });
+    res.render("admin/dashboard");
 });
 
 // =============================
-// ADMIN UPDATE ORDER STATUS
+// SAVE UNKNOWN FORM
 // =============================
-app.post("/admin/order/:id/status", (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/login");
-
-    const orders = readJSON("orders.json");
-    const notes = readJSON("notifications.json");
-
-    const id = req.params.id;
-    const { status } = req.body;
-
-    const order = orders.find(o => o.id == id);
-    if (!order) return res.send("Order not found");
-
-    order.status = status;
-
-    // send notification to user
-    notes.push({
-        id: Date.now(),
-        userId: order.userId,
-        message: `Your order #${order.id} status changed to: ${status}`,
-        time: new Date()
-    });
-
-    writeJSON("orders.json", orders);
-    writeJSON("notifications.json", notes);
-
-    res.redirect("/admin/dashboard");
+app.post("/save-form", (req, res) => {
+    const forms = readJSON("forms.json");
+    forms.push({ id: Date.now(), data: req.body });
+    writeJSON("forms.json", forms);
+    res.json({ success: true });
 });
 
 // =============================
 // START SERVER
 // =============================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on " + PORT));
+app.listen(PORT, () => console.log("Server running on port " + PORT));
