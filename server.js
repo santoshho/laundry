@@ -95,7 +95,7 @@ app.get('/admin/dashboard', requireAdmin, (req,res)=>{
     return res.render('admin/dashboard');
   }
   const orders = readJSON('orders.json') || [];
-  res.send(`<h1>Admin Dashboard</h1><p>Orders: ${orders.length}</p><a href="/admin/orders">View Orders</a>`);
+  res.send(`<h1>Admin Dashboard</h1><p>Orders: Npr{orders.length}</p><a href="/admin/orders">View Orders</a>`);
 });
 
 
