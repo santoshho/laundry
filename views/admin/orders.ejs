@@ -38,7 +38,8 @@
                             <% orders.forEach(function(order) { %>
                                 <tr>
                                     <td>
-                                        <a href="/admin/order/<%= order.id %>" class="text-decoration-none fw-bold">
+                                        <!-- FIXED: Correct link -->
+                                        <a href="/admin/request-details?id=<%= order.id %>" class="text-decoration-none fw-bold">
                                             #<%= order.id %>
                                         </a>
                                     </td>
