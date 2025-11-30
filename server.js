@@ -130,12 +130,15 @@ app.get("/user/dashboard", (req, res) => {
 });
 
 // =============================
-// ADMIN LOGIN + DASHBOARD
+// ADMIN LOGIN PAGE ONLY
 // =============================
 app.get("/admin/login", (req, res) => {
     res.render("admin/login");
 });
 
+// =============================
+// ADMIN DASHBOARD (STATIC RENDER)
+// =============================
 app.get("/admin/dashboard", (req, res) => {
     res.render("admin/dashboard");
 });
@@ -148,7 +151,7 @@ app.get("/", (req, res) => {
 });
 
 // =============================
-// SAVE ANY FORM
+// SAVE FORM
 // =============================
 app.post("/save-form", (req, res) => {
     const forms = readJSON("forms.json");
