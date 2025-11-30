@@ -1,4 +1,4 @@
-[
+const data = [
   {
     "id": 1,
     "name": "Regular Wash & Dry",
@@ -27,4 +27,12 @@
     "price": "1200",
     "status": "active"
   }
-]
+];
+
+// Convert the price into NPR format
+const converted = data.map(item => ({
+  ...item,
+  price: `NPR ${item.price}`
+}));
+
+console.log(converted);
