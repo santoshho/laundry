@@ -11,6 +11,29 @@
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* Dark Mode */
+        .dark-mode {
+            background-color: #121212 !important;
+            color: white !important;
+        }
+        .dark-mode .card {
+            background-color: #1f1f1f !important;
+            color: white !important;
+        }
+        .dark-mode .navbar {
+            background-color: #0a0a0a !important;
+        }
+        .dark-mode a, 
+        .dark-mode h1, 
+        .dark-mode h2, 
+        .dark-mode h5, 
+        .dark-mode h6, 
+        .dark-mode p {
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -29,9 +52,17 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
+                <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
                 <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
                 <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+
+                <!-- Dark Mode Toggle -->
+                <li class="nav-item">
+                    <button id="darkModeToggle" class="btn btn-sm btn-light ms-3">
+                        🌙 Dark Mode
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -55,6 +86,11 @@
                 <a href="/login" class="btn btn-outline-primary btn-lg">
                     <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                 </a>
+
+                <!-- Pickup Request Button -->
+                <button class="btn btn-success btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#pickupModal">
+                    🚚 Schedule Pickup
+                </button>
             </div>
 
             <div class="col-lg-6 text-center">
@@ -71,7 +107,7 @@
     </div>
 </section>
 
-<!-- Our Services (NOW MOVED ABOVE CALCULATOR) -->
+<!-- Services Section -->
 <section id="services" class="py-5 bg-light">
     <div class="container">
 
@@ -81,95 +117,160 @@
         </div>
 
         <div class="row g-4">
+            <div class="col-lg-6"><div class="d-flex"><i class="bi bi-droplet fs-2 text-primary me-3"></i><div><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div></div></div>
+            <div class="col-lg-6"><div class="d-flex"><i class="bi bi-droplet fs-2 text-primary me-3"></i><div><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div></div></div>
+            <div class="col-lg-6"><div class="d-flex"><i class="bi bi-droplet fs-2 text-primary me-3"></i><div><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div></div></div>
+            <div class="col-lg-6"><div class="d-flex"><i class="bi bi-droplet fs-2 text-primary me-3"></i><div><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div></div></div>
+        </div>
 
-            <% if (services && services.length > 0) { %>
-            <% services.forEach(function(service) { %>
+    </div>
+</section>
 
-            <div class="col-lg-6">
-                <div class="d-flex">
-                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
-                    <div>
-                        <h5><%= service.name %></h5>
-                        <p class="text-muted mb-1"><%= service.description %></p>
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
 
-                        <small class="text-success fw-bold">
-                            NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
-                        </small>
-                    </div>
+        <h2 class="fw-bold mb-4">Our Achievements</h2>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h1 class="counter" data-target="1200">0</h1>
+                <p class="text-muted">Clothes Cleaned</p>
+            </div>
+            <div class="col-md-4">
+                <h1 class="counter" data-target="500">0</h1>
+                <p class="text-muted">Happy Customers</p>
+            </div>
+            <div class="col-md-4">
+                <h1 class="counter" data-target="5">0</h1>
+                <p class="text-muted">Years Experience</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Calculator -->
+<section id="calculator" class="py-5">
+    <div class="container text-center mb-4">
+        <h2 class="fw-bold">Laundry Price Calculator</h2>
+        <p class="text-muted">Calculate cost based on weight</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm p-4">
+                <div class="mb-3">
+                    <label class="form-label">Service Type</label>
+                    <select id="serviceType" class="form-select">
+                        <option value="5">Regular Wash (NPR 5/kg)</option>
+                        <option value="12">Dry Clean (NPR 12/kg)</option>
+                        <option value="8">Express Service (NPR 8/kg)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Weight (kg)</label>
+                    <input type="number" id="weightInput" class="form-control" placeholder="Enter weight">
+                </div>
+
+                <button onclick="calculatePrice()" class="btn btn-primary w-100">Calculate</button>
+
+                <div class="alert alert-info mt-3 d-none text-center" id="resultBox">
+                    Total Price: <strong id="totalPrice"></strong>
                 </div>
             </div>
-
-            <% }) %>
-            <% } else { %>
-
-            <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>
-            <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>
-            <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>
-            <div class="col-lg-6"><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div>
-
-            <% } %>
 
         </div>
     </div>
 </section>
 
-<!-- PRICE CALCULATOR SECTION -->
-<section class="py-5">
+<!-- Reviews at Last -->
+<section id="reviews" class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Laundry Price Calculator</h2>
-            <p class="text-muted">Calculate cost based on weight & service type</p>
-        </div>
+        <h2 class="text-center mb-4">What Our Customers Say</h2>
 
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-
-                <div class="card shadow-sm p-4">
-                    <div class="mb-3">
-                        <label class="form-label">Select Service</label>
-                        <select id="serviceType" class="form-select">
-                            <% if (services && services.length > 0) { %>
-                                <% services.forEach(function(service) { %>
-                                    <option value="<%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>">
-                                        <%= service.name %> (NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg)
-                                    </option>
-                                <% }) %>
-                            <% } else { %>
-                                <option value="5">Regular Wash (NPR 5/kg)</option>
-                                <option value="12">Dry Clean (NPR 12/kg)</option>
-                                <option value="8">Express Service (NPR 8/kg)</option>
-                            <% } %>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Weight (kg)</label>
-                        <input type="number" min="1" id="weightInput" class="form-control" placeholder="Enter weight">
-                    </div>
-
-                    <button onclick="calculatePrice()" class="btn btn-primary w-100">
-                        Calculate Price
-                    </button>
-
-                    <div class="alert alert-info mt-3 text-center d-none" id="resultBox">
-                        Total Price: <strong id="totalPrice"></strong>
-                    </div>
-                </div>
-
-            </div>
+        <div class="row g-4">
+            <div class="col-md-4"><div class="card shadow-sm p-3"><p>Suman: "Fast pickup & best laundry!"</p></div></div>
+            <div class="col-md-4"><div class="card shadow-sm p-3"><p>Aayusha: "Amazing service!"</p></div></div>
+            <div class="col-md-4"><div class="card shadow-sm p-3"><p>Prakash: "Highly recommended!"</p></div></div>
         </div>
     </div>
 </section>
 
+<!-- Pickup Modal -->
+<div class="modal fade" id="pickupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Schedule Pickup</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="pickupForm">
+
+                    <div class="mb-3"><label>Name</label><input class="form-control" required></div>
+                    <div class="mb-3"><label>Phone</label><input class="form-control" required></div>
+                    <div class="mb-3"><label>Address</label><textarea class="form-control" required></textarea></div>
+                    <div class="mb-3"><label>Pickup Date</label><input type="date" class="form-control" required></div>
+
+                    <button class="btn btn-primary w-100">Submit</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-light py-3">
+    <div class="container d-flex justify-content-between">
+        <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry System</p>
+        <p class="mb-0">Version 2.0</p>
+    </div>
+</footer>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- Dark Mode Script -->
+<script>
+document.getElementById("darkModeToggle").onclick = () => {
+    document.body.classList.toggle("dark-mode");
+};
+</script>
+
+<!-- Counter Script -->
+<script>
+const counters = document.querySelectorAll(".counter");
+counters.forEach(counter => {
+    const update = () => {
+        const target = +counter.getAttribute("data-target");
+        const c = +counter.innerText;
+        const increment = target / 80;
+        if (c < target) {
+            counter.innerText = Math.ceil(c + increment);
+            setTimeout(update, 20);
+        } else {
+            counter.innerText = target;
+        }
+    };
+    update();
+});
+</script>
+
+<!-- Calculator Script -->
 <script>
 function calculatePrice() {
     const pricePerKg = parseFloat(document.getElementById("serviceType").value);
     const weight = parseFloat(document.getElementById("weightInput").value);
 
-    if (!weight || weight <= 0) {
-        alert("Please enter a valid weight.");
-        return;
-    }
+    if (!weight || weight <= 0) return alert("Enter valid weight");
 
     const total = pricePerKg * weight;
 
@@ -178,88 +279,14 @@ function calculatePrice() {
 }
 </script>
 
-<!-- REVIEWS (NOW MOVED TO LAST BEFORE CONTACT) -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-4">What Our Customers Say</h2>
-
-        <div class="row g-4">
-
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="https://i.pravatar.cc/80?img=12" class="rounded-circle me-3" width="60">
-                        <div><h5 class="mb-0">Suman K.</h5><span class="text-warning">★★★★★</span></div>
-                    </div>
-                    <p class="text-muted">Fast pickup, clean clothes, and affordable rates. Best laundry in Gaindakot!</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="https://i.pravatar.cc/80?img=45" class="rounded-circle me-3" width="60">
-                        <div><h5 class="mb-0">Aayusha S.</h5><span class="text-warning">★★★★★</span></div>
-                    </div>
-                    <p class="text-muted">Loved the service! My clothes smell amazing and delivery is quick.</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm p-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="https://i.pravatar.cc/80?img=33" class="rounded-circle me-3" width="60">
-                        <div><h5 class="mb-0">Prakash L.</h5><span class="text-warning">★★★★☆</span></div>
-                    </div>
-                    <p class="text-muted">Dry cleaning quality is top-notch. Highly recommended!</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- Contact -->
-<section id="contact" class="py-5 bg-primary text-white">
-    <div class="container text-center">
-
-        <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
-
-        <div class="row g-4 mt-4">
-
-            <div class="col-md-4">
-                <i class="bi bi-telephone fs-2 mb-2"></i>
-                <h6>Call Us</h6>
-                <p>98254822689</p>
-            </div>
-
-            <div class="col-md-4">
-                <i class="bi bi-envelope fs-2 mb-2"></i>
-                <h6>Email Us</h6>
-                <p>santoshballu321@gmail.com</p>
-            </div>
-
-            <div class="col-md-4">
-                <i class="bi bi-geo-alt fs-2 mb-2"></i>
-                <h6>Visit Us</h6>
-                <p>Gaindakot-11, Nawalpur</p>
-            </div>
-
-        </div>
-
-    </div>
-</section>
-
-<!-- Footer -->
-<footer class="bg-dark text-light py-3">
-    <div class="container d-flex justify-content-between">
-        <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry Management System</p>
-        <p class="mb-0">Version 2.0</p>
-    </div>
-</footer>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Pickup Modal Script -->
+<script>
+document.getElementById("pickupForm").onsubmit = function(e) {
+    e.preventDefault();
+    alert("Pickup Request Submitted!");
+    bootstrap.Modal.getInstance(document.getElementById("pickupModal")).hide();
+};
+</script>
 
 </body>
 </html>
