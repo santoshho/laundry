@@ -54,19 +54,22 @@ app.use((req, res, next) => {
 });
 
 // =============================
-// HOME ROUTE (IMPORTANT! MUST BE FIRST)
+// HOME ROUTE
 // =============================
 app.get("/", (req, res) => {
     res.render("index");
 });
 
 // =============================
-// LOGIN ROUTES
+// AUTH ROUTES
 // =============================
+
+// Login page
 app.get("/login", (req, res) => {
     res.render("login");
 });
 
+// Login submit
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
@@ -87,13 +90,12 @@ app.post("/login", (req, res) => {
     res.redirect("/user/dashboard");
 });
 
-// =============================
-// REGISTER ROUTES
-// =============================
+// Register page
 app.get("/register", (req, res) => {
     res.render("register");
 });
 
+// Register submit
 app.post("/register", (req, res) => {
     const users = readJSON("users.json");
 
@@ -154,7 +156,7 @@ app.get("/user/notifications", (req, res) => {
 });
 
 // =============================
-// SAVE FORM
+// SAVE ANY FORM POST
 // =============================
 app.post("/save-form", (req, res) => {
     const forms = readJSON("forms.json");
@@ -164,14 +166,16 @@ app.post("/save-form", (req, res) => {
 });
 
 // =============================
-// DYNAMIC PAGE (MUST BE LAST)
+// ADMIN PANEL
 // =============================
-app.get("/:page", (req, res) => {
-    const page = req.params.page;
+app.get("/admin", (req, res) => {
+    res.render("admin/index");
+});
 
-    const file = path.join(__dirname, "views", `${page}.ejs`);
-    if (fs.existsSync(file)) return res.render(page);
-
+// =============================
+// 404 PAGE (MUST BE LAST)
+// =============================
+app.use((req, res) => {
     res.status(404).render("404");
 });
 
