@@ -10,11 +10,13 @@ const bodyParser = require("body-parser");
 const app = express();
 
 // =============================
-// Helpers
+// Helpers (corrected paths to /data/ folder)
 // =============================
 function readJSON(filename) {
     try {
-        return JSON.parse(fs.readFileSync(path.join(__dirname, filename)));
+        return JSON.parse(
+            fs.readFileSync(path.join(__dirname, "data", filename))
+        );
     } catch (err) {
         return [];
     }
@@ -22,7 +24,7 @@ function readJSON(filename) {
 
 function writeJSON(filename, data) {
     fs.writeFileSync(
-        path.join(__dirname, filename),
+        path.join(__dirname, "data", filename),
         JSON.stringify(data, null, 2)
     );
 }
@@ -54,22 +56,8 @@ app.use((req, res, next) => {
 });
 
 // =============================
-// HOME ROUTE
+// USER LOGIN
 // =============================
-app.get("/", (req, res) => {
-    res.render("index");
-});
-
-// =============================
-// AUTH ROUTES
-// =============================
-
-// Login page
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-
-// Login submit
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
@@ -90,12 +78,9 @@ app.post("/login", (req, res) => {
     res.redirect("/user/dashboard");
 });
 
-// Register page
-app.get("/register", (req, res) => {
-    res.render("register");
-});
-
-// Register submit
+// =============================
+// USER REGISTER
+// =============================
 app.post("/register", (req, res) => {
     const users = readJSON("users.json");
 
@@ -152,31 +137,24 @@ app.get("/user/notifications", (req, res) => {
             n.phone === req.session.user.phone
     );
 
-    res.render("user/notifications", { notifications: myNotes });
+    res.render("notifications", { notifications: myNotes });
 });
 
 // =============================
-// SAVE ANY FORM POST
+// STATIC PAGE LOADER
 // =============================
-app.post("/save-form", (req, res) => {
-    const forms = readJSON("forms.json");
-    forms.push({ id: Date.now(), data: req.body });
-    writeJSON("forms.json", forms);
-    res.json({ success: true });
-});
+app.get("/:page", (req, res) => {
+    const file = path.join(__dirname, "views", `${req.params.page}.ejs`);
+    if (fs.existsSync(file)) return res.render(req.params.page);
 
-// =============================
-// ADMIN PANEL
-// =============================
-app.get("/admin", (req, res) => {
-    res.render("admin/index");
-});
-
-// =============================
-// 404 PAGE (MUST BE LAST)
-// =============================
-app.use((req, res) => {
     res.status(404).render("404");
+});
+
+// =============================
+// HOME ROUTE
+// =============================
+app.get("/", (req, res) => {
+    res.render("index");
 });
 
 // =============================
