@@ -26,11 +26,25 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">
+                            <i class="bi bi-person-plus me-1"></i>Register
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -41,19 +55,65 @@
         <div class="container">
             <div class="row align-items-center min-vh-75">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold text-primary mb-4">
-                        Professional Laundry Services Made Easy
-                    </h1>
-                    <p class="lead text-muted mb-4">
-                        Experience hassle-free laundry management with our modern system.
-                    </p>
-                    <div class="d-flex flex-wrap gap-3">
-                        <a href="/register" class="btn btn-primary btn-lg"><i class="bi bi-person-plus me-2"></i>Get Started</a>
-                        <a href="/login" class="btn btn-outline-primary btn-lg"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a>
+                    <div class="hero-content">
+                        <h1 class="display-4 fw-bold text-primary mb-4">
+                            Professional Laundry Services Made Easy
+                        </h1>
+                        <p class="lead text-muted mb-4">
+                            Experience hassle-free laundry management with our modern system. 
+                            Schedule pickups, track your orders, and enjoy fresh, clean clothes 
+                            delivered right to your doorstep.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="/register" class="btn btn-primary btn-lg">
+                                <i class="bi bi-person-plus me-2"></i>Get Started
+                            </a>
+                            <a href="/login" class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <i class="bi bi-droplet-half display-1 text-primary"></i>
+                <div class="col-lg-6">
+                    <div class="hero-image text-center">
+                        <i class="bi bi-droplet-half display-1 text-primary"></i>
+                        <div class="mt-4">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-clock text-success fs-2"></i>
+                                            <h6 class="mt-2 mb-0">Quick Service</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-truck text-info fs-2"></i>
+                                            <h6 class="mt-2 mb-0">Free Pickup</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-shield-check text-warning fs-2"></i>
+                                            <h6 class="mt-2 mb-0">Quality Care</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-phone text-danger fs-2"></i>
+                                            <h6 class="mt-2 mb-0">24/7 Support</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,11 +125,12 @@
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center mb-5">
                     <h2 class="display-5 fw-bold text-dark">Our Services</h2>
-                    <p class="lead text-muted">Comprehensive laundry solutions for all your needs</p>
+                    <p class="lead text-muted">
+                        Comprehensive laundry solutions for all your needs
+                    </p>
                 </div>
             </div>
             <div class="row g-4">
-
                 <% if (services && services.length > 0) { %>
                     <% services.forEach(function(service) { %>
                         <div class="col-lg-6">
@@ -79,100 +140,151 @@
                                 </div>
                                 <div class="service-content">
                                     <h5><%= service.name %></h5>
-                                    <p class="text-muted mb-0"><%= service.description %></p>
-                                    <small class="text-success fw-bold">NPR <%= service.price %>/kg</small>
+                                    <p class="text-muted mb-0">
+                                        <%= service.description %>
+                                    </p>
+                                    <small class="text-success fw-bold"><%= service.currency || "NPR" %> <%= service.price %>/kg</small>
                                 </div>
                             </div>
                         </div>
-                    <% }); %>
-
+                    <% }) %>
                 <% } else { %>
-
-                    <!-- Default Services -->
                     <div class="col-lg-6">
                         <div class="service-item d-flex">
-                            <div class="service-icon me-4"><i class="bi bi-droplet text-primary fs-2"></i></div>
+                            <div class="service-icon me-4">
+                                <i class="bi bi-droplet text-primary fs-2"></i>
+                            </div>
                             <div class="service-content">
                                 <h5>Regular Wash & Dry</h5>
-                                <p class="text-muted mb-0">Standard washing and drying service for everyday clothes</p>
-                                <small class="text-success fw-bold">Starting at NPR 500/kg</small>
+                                <p class="text-muted mb-0">
+                                    Standard washing and drying service for everyday clothes
+                                </p>
+                                <small class="text-success fw-bold">Starting at NPR 5.00/kg</small>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-6">
                         <div class="service-item d-flex">
-                            <div class="service-icon me-4"><i class="bi bi-wind text-info fs-2"></i></div>
+                            <div class="service-icon me-4">
+                                <i class="bi bi-wind text-info fs-2"></i>
+                            </div>
                             <div class="service-content">
                                 <h5>Dry Cleaning</h5>
-                                <p class="text-muted mb-0">Professional dry cleaning for delicate and formal wear</p>
-                                <small class="text-success fw-bold">Starting at NPR 1500/kg</small>
+                                <p class="text-muted mb-0">
+                                    Professional dry cleaning for delicate and formal wear
+                                </p>
+                                <small class="text-success fw-bold">Starting at NPR 15.00/kg</small>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-6">
                         <div class="service-item d-flex">
-                            <div class="service-icon me-4"><i class="bi bi-lightning text-warning fs-2"></i></div>
+                            <div class="service-icon me-4">
+                                <i class="bi bi-lightning text-warning fs-2"></i>
+                            </div>
                             <div class="service-content">
                                 <h5>Express Service</h5>
-                                <p class="text-muted mb-0">Same-day wash and dry service for urgent needs</p>
-                                <small class="text-success fw-bold">Starting at NPR 800/kg</small>
+                                <p class="text-muted mb-0">
+                                    Same-day wash and dry service for urgent needs
+                                </p>
+                                <small class="text-success fw-bold">Starting at NPR 8.00/kg</small>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-6">
                         <div class="service-item d-flex">
-                            <div class="service-icon me-4"><i class="bi bi-heart text-danger fs-2"></i></div>
+                            <div class="service-icon me-4">
+                                <i class="bi bi-heart text-danger fs-2"></i>
+                            </div>
                             <div class="service-content">
                                 <h5>Delicate Care</h5>
-                                <p class="text-muted mb-0">Special care for delicate fabrics</p>
-                                <small class="text-success fw-bold">Starting at NPR 1200/kg</small>
+                                <p class="text-muted mb-0">
+                                    Special care for delicate fabrics and premium garments
+                                </p>
+                                <small class="text-success fw-bold">Starting at NPR 12.00/kg</small>
                             </div>
                         </div>
                     </div>
-
                 <% } %>
-
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="py-5 bg-primary text-white">
-        <div class="container text-center">
-            <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
+                    <p class="lead mb-4">
+                        Join thousands of satisfied customers who trust us with their laundry needs
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                        <a href="/register" class="btn btn-light btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </a>
+                        <a href="/login" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </a>
+                    </div>
 
-            <div class="row g-4 mt-4">
-                <div class="col-md-4">
-                    <i class="bi bi-telephone fs-2 mb-3"></i>
-                    <h6>Call Us</h6>
-                    <p class="mb-0">98254822689</p>
-                </div>
-                <div class="col-md-4">
-                    <i class="bi bi-envelope fs-2 mb-3"></i>
-                    <h6>Email Us</h6>
-                    <p class="mb-0">santoshballu321@gmail.com</p>
-                </div>
-                <div class="col-md-4">
-                    <i class="bi bi-geo-alt fs-2 mb-3"></i>
-                    <h6>Visit Us</h6>
-                    <p class="mb-0">Gaindakot-11, Nawalpur</p>
+                    <!-- UPDATED CONTACT INFO -->
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-4">
+                            <i class="bi bi-telephone fs-2 mb-3"></i>
+                            <h6>Call Us</h6>
+                            <p class="mb-0">98254822689</p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <i class="bi bi-envelope fs-2 mb-3"></i>
+                            <h6>Email Us</h6>
+                            <p class="mb-0">santoshballu321@gmail.com</p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <i class="bi bi-geo-alt fs-2 mb-3"></i>
+                            <h6>Visit Us</h6>
+                            <p class="mb-0">Gaindakot-11, Nawalpur</p>
+                        </div>
+                    </div>
+                    <!-- END UPDATED -->
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Footer -->
     <footer class="bg-dark text-light py-4">
-        <div class="container d-flex justify-content-between">
-            <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry Management System.</p>
-            <p class="mb-0">Version 2.0</p>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry Management System. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Version 2.0</p>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
