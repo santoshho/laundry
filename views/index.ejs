@@ -1,473 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Laundry Management System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management System</title>
 
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    /* ---------- base tweaks ---------- */
-    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    .review-img { width:70px; height:70px; border-radius:50%; object-fit:cover; border:3px solid #0d6efd; }
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
-    /* ---------- SOFT BUBBLE BACKGROUND (Hero only) ---------- */
-    .hero-hero {
-      position: relative;
-      overflow: hidden;
-    }
-    .bubbles {
-      position: absolute;
-      left: 0; right: 0; top: 0; bottom: 0;
-      pointer-events: none;
-    }
-    .bubble {
-      position: absolute;
-      bottom: -40px;
-      width: 14px;
-      height: 14px;
-      background: rgba(255,255,255,0.35);
-      border-radius: 50%;
-      animation: rise 10s infinite linear;
-      filter: blur(0.2px);
-    }
-    .bubble:nth-child(2){ width:22px; height:22px; left:12%; animation-duration:12s; bottom:-50px; background: rgba(255,255,255,0.28); }
-    .bubble:nth-child(3){ width:10px; height:10px; left:28%; animation-duration:9s; bottom:-30px; background: rgba(255,255,255,0.22); }
-    .bubble:nth-child(4){ width:18px; height:18px; left:46%; animation-duration:11s; bottom:-60px; background: rgba(255,255,255,0.25); }
-    .bubble:nth-child(5){ width:12px; height:12px; left:64%; animation-duration:13s; bottom:-30px; background: rgba(255,255,255,0.20); }
-    .bubble:nth-child(6){ width:24px; height:24px; left:82%; animation-duration:14s; bottom:-50px; background: rgba(255,255,255,0.18); }
-    @keyframes rise {
-      0% { transform: translateY(0) scale(1); opacity: 0.6; }
-      70% { opacity: 0.28; }
-      100% { transform: translateY(-140vh) scale(1.2); opacity: 0; }
-    }
+    <style>
+        /* Testimonial images */
+        .review-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #0d6efd;
+        }
 
-    /* ---------- DELIVERY SCOOTER (minimal line art) ---------- */
-    .scooter-wrap { display:flex; align-items:center; gap:.6rem; }
-    .scooter {
-      width:46px; height:36px;
-      display:inline-block;
-      transform-origin:center;
-      animation: scooter-wiggle 2.6s ease-in-out infinite;
-      opacity: .95;
-    }
-    @keyframes scooter-wiggle {
-      0% { transform: translateX(0); }
-      50% { transform: translateX(4px); }
-      100% { transform: translateX(0); }
-    }
+        /* Random popup notification */
+        .activity-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #ffffff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            animation: popupFade 0.4s ease-out;
+            z-index: 2000;
+        }
 
-    /* ---------- BEFORE / AFTER SLIDER (medium ~600px) ---------- */
-    .ba-wrapper { display:flex; justify-content:center; padding:30px 0; }
-    .ba-card {
-      width: 620px;
-      max-width:92%;
-      background: #fff;
-      border-radius:12px;
-      box-shadow: 0 6px 24px rgba(22,28,36,0.08);
-      overflow:hidden;
-      position:relative;
-    }
-    .ba-img { width:100%; display:block; user-select:none; pointer-events:none; }
-    .ba-overlay { position:absolute; left:0; top:0; bottom:0; overflow:hidden; }
-    .ba-handle {
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      width:6px;
-      height:80%;
-      left:50%;
-      margin-left:-3px;
-      background: rgba(13,110,253,0.9);
-      border-radius:4px;
-      cursor: ew-resize;
-      box-shadow: 0 2px 10px rgba(13,110,253,0.12);
-    }
-    .ba-handle::after {
-      content:"";
-      display:block;
-      width:28px;height:28px;
-      border-radius:50%;
-      background:#fff;
-      margin:-11px auto 0;
-      box-shadow:0 2px 6px rgba(0,0,0,0.12);
-      border:4px solid rgba(13,110,253,0.9);
-    }
-    .ba-caption { position:absolute; top:10px; left:12px; background:rgba(0,0,0,0.5); color:#fff; padding:6px 10px; border-radius:6px; font-size:14px; }
+        @keyframes popupFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    /* ---------- ACTIVITY POPUP (bottom-left) ---------- */
-    .activity {
-      position: fixed;
-      left: 16px;
-      bottom: 22px;
-      background: rgba(255,255,255,0.98);
-      border-radius:10px;
-      padding:10px 14px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.12);
-      display:flex;
-      gap:10px;
-      align-items:center;
-      font-size:14px;
-      z-index:1100;
-      transform: translateY(20px);
-      opacity:0;
-      transition: all .35s ease;
-    }
-    .activity.show { opacity:1; transform: translateY(0); }
-    .activity .dot { width:38px; height:38px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+        /* WhatsApp floating button */
+        .wa-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            border-radius: 50%;
+            padding: 15px 18px;
+            font-size: 26px;
+            z-index: 1500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .wa-btn:hover { opacity: 0.9; }
+    </style>
 
-    /* ---------- CTA Button Glow (proximity-ish) ---------- */
-    .cta-glow { position:relative; overflow:visible; }
-    .cta-glow::before {
-      content:"";
-      position:absolute; inset:-6px;
-      border-radius:10px;
-      background: radial-gradient(ellipse at center, rgba(13,110,253,0.18) 0%, rgba(13,110,253,0) 60%);
-      opacity:0;
-      transition:opacity .22s ease, transform .22s ease;
-      transform: scale(0.95);
-      pointer-events:none;
-    }
-    .cta-glow:hover::before,
-    .cta-glow.glow-on::before { opacity:1; transform: scale(1); }
-
-    /* small responsive tweaks */
-    @media (max-width:768px){
-      .scooter { transform: none; animation: none; }
-      .ba-card { width: 92%; }
-      .activity { left: 12px; bottom: 14px; font-size:13px; }
-    }
-  </style>
 </head>
+
 <body>
 
-  <!-- NAVBAR (unchanged look) -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/9825481209" class="wa-btn" target="_blank">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<!-- Random Popup -->
+<div id="activityPopup" class="activity-popup">
+    Someone just placed an order!
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="/"><i class="bi bi-droplet-half me-2"></i>Laundry System</a>
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="nav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-droplet-half me-2"></i>Laundry System
+        </a>
 
-  <!-- HERO with bubbles (soft) -->
-  <section class="hero-hero py-5">
-    <div class="bubbles" aria-hidden="true">
-      <div class="bubble" style="left:6%"></div>
-      <div class="bubble" style="left:18%"></div>
-      <div class="bubble" style="left:34%"></div>
-      <div class="bubble" style="left:52%"></div>
-      <div class="bubble" style="left:70%"></div>
-      <div class="bubble" style="left:88%"></div>
-    </div>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <div class="container position-relative" style="z-index:2;">
-      <div class="row align-items-center min-vh-50">
-        <div class="col-lg-6">
-          <h1 class="display-4 fw-bold text-primary">Professional Laundry Services</h1>
-          <p class="lead text-muted">Fast, clean, convenient — made for modern living.</p>
-
-          <!-- CTA with glow effect -->
-          <a href="https://wa.me/9779825481209" target="_blank" class="btn btn-success btn-lg cta-glow" id="heroCTA">
-            <i class="bi bi-whatsapp me-2"></i> Contact Us
-          </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
+                <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+            </ul>
         </div>
-
-        <div class="col-lg-6 text-center">
-          <!-- representative image -->
-          <img src="https://cdn-icons-png.flaticon.com/512/1048/1048948.png" alt="laundry" width="280" class="img-fluid">
-        </div>
-      </div>
     </div>
-  </section>
+</nav>
 
-  <!-- SERVICES (scooter next to Easy Delivery) -->
-  <section id="services" class="py-5 bg-light">
+<!-- Hero Section -->
+<section class="hero-section py-5">
     <div class="container">
-      <div class="text-center mb-4">
-        <h2 class="fw-bold">Our Services</h2>
-        <p class="text-muted">Affordable & quality laundry solutions</p>
-      </div>
+        <div class="row align-items-center min-vh-50">
 
-      <div class="row g-4">
-        <div class="col-lg-6">
-          <div class="d-flex p-3 border rounded align-items-center">
-            <i class="bi bi-droplet fs-2 text-primary me-3"></i>
-            <div>
-              <h5>Regular Wash & Dry</h5>
-              <small class="text-success fw-bold">NPR 500/kg</small>
-            </div>
-          </div>
-        </div>
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-primary mb-3">Professional Laundry Services Made Easy</h1>
+                <p class="lead text-muted">Fast, reliable & affordable laundry services at your doorstep.</p>
 
-        <div class="col-lg-6">
-          <div class="d-flex p-3 border rounded align-items-center">
-            <i class="bi bi-stars fs-2 text-primary me-3"></i>
-            <div>
-              <h5>Dry Cleaning</h5>
-              <small class="text-success fw-bold">NPR 1200/kg</small>
-            </div>
-          </div>
-        </div>
+                <a href="/register" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-person-plus me-2"></i>Get Started
+                </a>
 
-        <div class="col-lg-6">
-          <div class="d-flex p-3 border rounded align-items-center">
-            <!-- scooter placed inline next to text (minimal line-art SVG) -->
-            <div class="scooter-wrap me-3">
-              <svg class="scooter" viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <g fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M8 36a8 8 0 1 0 0-0" />
-                  <path d="M40 36a8 8 0 1 0 0-0" />
-                  <path d="M8 36h8l6-14h18l4 8" />
-                  <path d="M46 24h6v4" />
-                  <path d="M14 22c3-6 12-10 22-10 2 0 6 0 6 0" />
-                </g>
-              </svg>
+                <a href="/login" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
             </div>
-            <div>
-              <h5>Express Service / Easy Delivery</h5>
-              <small class="text-success fw-bold">NPR 800/kg</small>
-            </div>
-          </div>
-        </div>
 
-        <div class="col-lg-6">
-          <div class="d-flex p-3 border rounded align-items-center">
-            <i class="bi bi-heart fs-2 text-primary me-3"></i>
-            <div>
-              <h5>Delicate Care</h5>
-              <small class="text-success fw-bold">NPR 1500/kg</small>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-droplet-half display-1 text-primary"></i>
+
+                <div class="row mt-4 g-3">
+                    <div class="col-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clock fs-2 text-success"></i>
+                                <h6 class="mt-2">Quick Service</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-truck fs-2 text-info"></i>
+                                <h6 class="mt-2">Easy Delivery</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-shield-check fs-2 text-warning"></i>
+                                <h6 class="mt-2">Quality Assured</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-phone fs-2 text-danger"></i>
+                                <h6 class="mt-2">24/7 Support</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- CALCULATOR -->
-  <section id="calculator" class="py-5">
+<!-- Services Section -->
+<section id="services" class="py-5 bg-light">
     <div class="container">
-      <div class="text-center mb-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Our Services</h2>
+            <p class="text-muted">Affordable & quality laundry solutions</p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5>Regular Wash & Dry</h5>
+                        <small class="text-success fw-bold">NPR 500/kg</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-stars fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5>Dry Cleaning</hh5>
+                        <small class="text-success fw-bold">NPR 1200/kg</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-lightning fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5>Express Service</h5>
+                        <small class="text-success fw-bold">NPR 800/kg</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-heart fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5>Delicate Care</h5>
+                        <small class="text-success fw-bold">NPR 1500/kg</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Calculator -->
+<section id="calculator" class="py-5">
+    <div class="container text-center mb-4">
         <h2 class="fw-bold">Laundry Price Calculator</h2>
         <p class="text-muted">Calculate cost based on weight</p>
-      </div>
+    </div>
 
-      <div class="row justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-md-6">
-          <div class="card shadow-sm p-4">
-            <div class="mb-3">
-              <label class="form-label">Service Type</label>
-              <select id="serviceType" class="form-select">
-                <option value="500">Regular Wash (NPR 500/kg)</option>
-                <option value="1200">Dry Clean (NPR 1200/kg)</option>
-                <option value="800">Express Service (NPR 800/kg)</option>
-                <option value="1500">Delicate Care (NPR 1500/kg)</option>
-              </select>
+
+            <div class="card shadow-sm p-4">
+                <div class="mb-3">
+                    <label class="form-label">Service Type</label>
+                    <select id="serviceType" class="form-select">
+                        <option value="500">Regular Wash (NPR 500/kg)</option>
+                        <option value="1200">Dry Clean (NPR 1200/kg)</option>
+                        <option value="800">Express Service (NPR 800/kg)</option>
+                        <option value="1500">Delicate Care (NPR 1500/kg)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Weight (kg)</label>
+                    <input type="number" id="weightInput" class="form-control" placeholder="Enter weight">
+                </div>
+
+                <button onclick="calculatePrice()" class="btn btn-primary w-100">Calculate</button>
+
+                <div class="alert alert-info mt-3 d-none text-center" id="resultBox">
+                    Total Price: <strong id="totalPrice"></strong>
+                </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Weight (kg)</label>
-              <input type="number" id="weightInput" class="form-control" placeholder="Enter weight" min="0.1" step="0.1">
-            </div>
-
-            <button class="btn btn-primary w-100 cta-glow" id="calcBtn">Calculate</button>
-
-            <div class="alert alert-info mt-3 d-none text-center" id="resultBox">
-              Total Price: <strong id="totalPrice"></strong>
-            </div>
-
-          </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- BEFORE / AFTER SLIDER (medium width) -->
-  <section class="py-4">
+<!-- Testimonials -->
+<section id="reviews" class="py-5 bg-light">
     <div class="container">
-      <div class="text-center mb-3">
-        <h3 class="fw-bold">Before → After</h3>
-        <p class="text-muted">See the difference — wrinkled shirt vs perfectly ironed</p>
-      </div>
+        <h2 class="text-center mb-4">What Our Customers Say</h2>
 
-      <div class="ba-wrapper">
-        <div class="ba-card" id="baCard" aria-hidden="false">
-          <img src="https://images.unsplash.com/photo-1520975917931-2f5b2e8ef6f7?auto=format&fit=crop&w=1200&q=60" class="ba-img" alt="before" id="baBefore">
-          <div class="ba-overlay" id="baOverlay" style="width:50%;">
-            <img src="https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=1200&q=60" class="ba-img" alt="after">
-          </div>
-          <div class="ba-handle" id="baHandle" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></div>
-          <div class="ba-caption">Drag to compare</div>
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card shadow-sm p-3 text-center">
+                    <img src="https://i.pravatar.cc/150?img=12" class="review-img mb-2">
+                    <h6 class="fw-bold">Suman</h6>
+                    <p class="text-muted">"Fast pickup & best laundry!"</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm p-3 text-center">
+                    <img src="https://i.pravatar.cc/150?img=32" class="review-img mb-2">
+                    <h6 class="fw-bold">Aayusha</h6>
+                    <p class="text-muted">"Very smooth and reliable service!"</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm p-3 text-center">
+                    <img src="https://i.pravatar.cc/150?img=10" class="review-img mb-2">
+                    <h6 class="fw-bold">Prakash</h6>
+                    <p class="text-muted">"Affordable and high quality work!"</p>
+                </div>
+            </div>
+
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- TESTIMONIALS -->
-  <section id="reviews" class="py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">What Our Customers Say</h2>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card shadow-sm p-3 text-center">
-            <img src="https://i.pravatar.cc/150?img=12" class="review-img mb-2" alt="Suman">
-            <h6 class="fw-bold">Suman</h6>
-            <p class="text-muted">"Fast pickup & best laundry!"</p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card shadow-sm p-3 text-center">
-            <img src="https://i.pravatar.cc/150?img=32" class="review-img mb-2" alt="Aayusha">
-            <h6 class="fw-bold">Puskar</h6>
-            <p class="text-muted">"Very smooth and reliable service!"</p>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card shadow-sm p-3 text-center">
-            <img src="https://i.pravatar.cc/150?img=10" class="review-img mb-2" alt="Prakash">
-            <h6 class="fw-bold">Prakash</h6>
-            <p class="text-muted">"Affordable and high quality work!"</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT / FOOTER -->
-  <footer class="bg-dark text-light py-3">
+<!-- Footer -->
+<footer class="bg-dark text-light py-3">
     <div class="container d-flex justify-content-between">
-      <span>&copy; 2025 Laundry System</span>
-      <span>Contact: <strong>9825481209</strong></span>
+        <p>&copy; <%= new Date().getFullYear() %> Laundry System</p>
+        <p>Contact: 9825481209</p>
     </div>
-  </footer>
+</footer>
 
-  <!-- WhatsApp Floating Button (uses Nepal country code +977) -->
-  <a class="whatsapp-btn" href="https://wa.me/9779825481209" target="_blank" title="Chat on WhatsApp" style="
-     position:fixed; right:18px; bottom:18px; background:#25D366; color:#fff; border-radius:50px; padding:12px 16px;
-     z-index:1200; display:flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(0,0,0,0.18); text-decoration:none;">
-    <i class="bi bi-whatsapp" style="font-size:20px"></i><span style="font-weight:600">Chat</span>
-  </a>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- ACTIVITY POPUP (initially hidden) -->
-  <div class="activity" id="activityBox" aria-live="polite" style="display:none;">
-    <div class="dot">✓</div>
-    <div>
-      <div id="activityText" style="font-weight:600;font-size:14px">Someone just booked a wash</div>
-      <div style="font-size:12px;color:#666">A moment ago</div>
-    </div>
-  </div>
+<!-- Price Calculator Script -->
+<script>
+function calculatePrice() {
+    const pricePerKg = parseFloat(document.getElementById("serviceType").value);
+    const weight = parseFloat(document.getElementById("weightInput").value);
 
-  <!-- BOOTSTRAP JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    if (!weight || weight <= 0) return alert("Enter valid weight");
 
-  <!-- ---------- Feature Scripts ---------- -->
-  <script>
-    /* ---------- Calculator ---------- */
-    document.getElementById('calcBtn').addEventListener('click', function (e) {
-      e.preventDefault();
-      const pricePerKg = parseFloat(document.getElementById('serviceType').value);
-      const weight = parseFloat(document.getElementById('weightInput').value);
-      if (!weight || weight <= 0) { alert('Enter valid weight'); return; }
-      const total = pricePerKg * weight;
-      document.getElementById('resultBox').classList.remove('d-none');
-      document.getElementById('totalPrice').innerText = 'NPR ' + total.toFixed(2);
-      // brief CTA glow pulse to draw attention
-      const heroCTA = document.getElementById('heroCTA');
-      heroCTA.classList.add('glow-on'); setTimeout(()=>heroCTA.classList.remove('glow-on'), 900);
-    });
+    const total = pricePerKg * weight;
 
-    /* ---------- BEFORE / AFTER SLIDER (medium) ---------- */
-    (function(){
-      const baCard = document.getElementById('baCard');
-      const overlay = document.getElementById('baOverlay');
-      const handle = document.getElementById('baHandle');
-      let dragging = false;
-      const setPos = (x) => {
-        const rect = baCard.getBoundingClientRect();
-        let pct = (x - rect.left) / rect.width;
-        pct = Math.max(0.02, Math.min(0.98, pct));
-        overlay.style.width = (pct * 100) + '%';
-        handle.style.left = (pct * 100) + '%';
-        handle.setAttribute('aria-valuenow', Math.round(pct*100));
-      };
+    document.getElementById("resultBox").classList.remove("d-none");
+    document.getElementById("totalPrice").innerText = "NPR " + total.toFixed(2);
+}
+</script>
 
-      // mouse
-      handle.addEventListener('mousedown', ()=>dragging=true);
-      document.addEventListener('mouseup', ()=>dragging=false);
-      document.addEventListener('mousemove', (ev)=> { if(dragging) setPos(ev.clientX); });
+<!-- Random Popup Script -->
+<script>
+const messages = [
+    "Someone from Gaindakot just placed an order!",
+    "New user registered!",
+    "Laundry pickup request received!",
+    "Clothes delivered successfully!",
+    "A customer just booked Dry Cleaning!"
+];
 
-      // touch
-      handle.addEventListener('touchstart', ()=>dragging=true, {passive:true});
-      document.addEventListener('touchend', ()=>dragging=false);
-      document.addEventListener('touchmove', (ev)=> { if(ev.touches && ev.touches[0] && dragging) setPos(ev.touches[0].clientX); }, {passive:true});
+function showActivityPopup() {
+    const popup = document.getElementById("activityPopup");
+    popup.innerText = messages[Math.floor(Math.random() * messages.length)];
 
-      // init center
-      window.addEventListener('load', ()=> {
-        const rect = baCard.getBoundingClientRect();
-        setPos(rect.left + rect.width/2);
-      });
-    })();
+    popup.style.display = "block";
 
-    /* ---------- ACTIVITY POPUP (bottom-left) ---------- */
-    (function(){
-      const box = document.getElementById('activityBox');
-      const text = document.getElementById('activityText');
-      const messages = [
-        'Suman just placed an order 🧺',
-        'Aayusha booked pickup from Gaindakot',
-        'Prakash paid for Express Service',
-        'Someone nearby scheduled a wash'
-      ];
-      let idx = 0;
-      const show = () => {
-        text.textContent = messages[idx % messages.length];
-        idx++;
-        box.style.display = 'flex';
-        // small animation class via show
-        setTimeout(()=> box.classList.add('show'), 20);
-        // hide after 4s
-        setTimeout(()=>{ box.classList.remove('show'); setTimeout(()=>box.style.display='none',300); }, 4000);
-      };
-      // initial show after 3s
-      setTimeout(show, 3000);
-      // repeat every 20s
-      setInterval(show, 20000);
-    })();
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 3000);
+}
 
-    /* ---------- CTA proximity glow (simple) ---------- */
-    // We will make CTA glow on mouse move when pointer is near (distance check)
-    (function(){
-      const cta = document.getElementById('heroCTA');
-      const glowThreshold = 140; // px
-      document.addEventListener('mousemove', (e)=>{
-        const r = cta.getBoundingClientRect();
-        const cx = r.left + r.width/2;
-        const cy = r.top + r.height/2;
-        const dx = e.clientX - cx;
-        const dy = e.clientY - cy;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < glowThreshold) cta.classList.add('glow-on');
-        else cta.classList.remove('glow-on');
-      });
-      // also add glow when calculator finishes
-      document.getElementById('calcBtn').addEventListener('click', ()=> {
-        cta.classList.add('glow-on');
-        setTimeout(()=> cta.classList.remove('glow-on'), 900);
-      });
-    })();
-  </script>
+// Popup every 15–28 seconds randomly
+setInterval(showActivityPopup, Math.floor(Math.random() * 13000) + 15000);
+</script>
+
 </body>
 </html>
