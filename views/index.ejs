@@ -1,147 +1,111 @@
-<%- include('./partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
-    /* HERO SECTION */
-    #hero {
-        background: url('/images/hero.jpg') center/cover no-repeat;
-        height: 70vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: white;
-        padding: 20px;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management System</title>
 
-    #hero h1 {
-        font-size: 3rem;
-        font-weight: 700;
-    }
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    #hero p {
-        font-size: 1.3rem;
-        margin-top: 10px;
-    }
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
 
-    .btn-main {
-        margin-top: 20px;
-        padding: 12px 30px;
-        background: #0d6efd;
-        border: none;
-        color: white;
-        border-radius: 5px;
-        font-size: 1.1rem;
-    }
+<body>
 
-    /* SERVICES */
-    #services {
-        padding: 60px 20px;
-        text-align: center;
-    }
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-droplet-half me-2"></i>Laundry System
+        </a>
 
-    #services .card {
-        padding: 25px;
-        border-radius: 10px;
-    }
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    /* PRICING */
-    #pricing {
-        background: #f7f7f7;
-        padding: 60px 20px;
-        text-align: center;
-    }
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-    /* REVIEWS */
-    #reviews {
-        background: #fff;
-        padding: 60px 20px;
-        text-align: center;
-    }
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
 
-    .review-slider {
-        max-width: 750px;
-        margin: auto;
-        position: relative;
-    }
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-primary mb-4">Professional Laundry Services Made Easy</h1>
+                <p class="lead text-muted mb-4">
+                    Experience hassle-free laundry management with modern features, easy pickup, and on-time delivery.
+                </p>
 
-    .review {
-        display: none;
-        padding: 25px;
-        border-radius: 10px;
-        background: #f1f1f1;
-        margin: 20px 0;
-    }
+                <a href="/register" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-person-plus me-2"></i>Get Started
+                </a>
 
-    .review.active {
-        display: block;
-    }
+                <a href="/login" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
+            </div>
 
-    .review img {
-        width: 75px;
-        height: 75px;
-        border-radius: 50%;
-        margin-bottom: 15px;
-    }
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-droplet-half display-1 text-primary"></i>
+                <div class="row mt-4 g-3">
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-clock fs-2 text-success"></i><h6 class="mt-2">Quick Service</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-truck fs-2 text-info"></i><h6 class="mt-2">Free Pickup</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-shield-check fs-2 text-warning"></i><h6 class="mt-2">Quality Care</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-phone fs-2 text-danger"></i><h6 class="mt-2">24/7 Support</h6></div></div></div>
+                </div>
+            </div>
 
-    .review h3 {
-        margin-bottom: 10px;
-        font-weight: 700;
-    }
-
-    /* CONTACT */
-    #contact {
-        padding: 60px 20px;
-        background: #f7f7f7;
-        text-align: center;
-    }
-
-    #contact p {
-        font-size: 1.1rem;
-        margin: 6px 0;
-    }
-</style>
-
-
-
-
-<!-- HERO -->
-<section id="hero">
-    <div>
-        <h1>Fast & Affordable Laundry Service</h1>
-        <p>We wash, dry, fold, and deliver to your doorstep</p>
-        <a href="/pricing" class="btn-main">View Pricing</a>
+        </div>
     </div>
 </section>
 
-
-
-
-<!-- SERVICES -->
-<section id="services">
-    <h2>Our Services</h2>
-    <p class="mb-4 text-muted">Quality service at the best prices</p>
-
+<!-- Reviews (STATIC, NO SLIDE) -->
+<section class="py-5 bg-light">
     <div class="container">
+        <h2 class="text-center mb-4">What Our Customers Say</h2>
+
         <div class="row g-4">
 
             <div class="col-md-4">
-                <div class="card shadow">
-                    <h4>Washing</h4>
-                    <p>Clean and fresh clothes at the best rates.</p>
+                <div class="card shadow-sm p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="https://i.pravatar.cc/80?img=12" class="rounded-circle me-3" width="60">
+                        <div><h5 class="mb-0">Suman K.</h5><span class="text-warning">★★★★★</span></div>
+                    </div>
+                    <p class="text-muted">Fast pickup, clean clothes, and affordable rates. Best laundry in Gaindakot!</p>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card shadow">
-                    <h4>Dry Cleaning</h4>
-                    <p>Premium dry cleaning for your delicate items.</p>
+                <div class="card shadow-sm p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="https://i.pravatar.cc/80?img=45" class="rounded-circle me-3" width="60">
+                        <div><h5 class="mb-0">Aayusha S.</h5><span class="text-warning">★★★★★</span></div>
+                    </div>
+                    <p class="text-muted">Loved the service! My clothes smell amazing and delivery is quick.</p>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card shadow">
-                    <h4>Ironing</h4>
-                    <p>Perfectly pressed clothes delivered fast.</p>
+                <div class="card shadow-sm p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="https://i.pravatar.cc/80?img=33" class="rounded-circle me-3" width="60">
+                        <div><h5 class="mb-0">Prakash L.</h5><span class="text-warning">★★★★☆</span></div>
+                    </div>
+                    <p class="text-muted">Dry cleaning quality is top-notch. Highly recommended!</p>
                 </div>
             </div>
 
@@ -149,99 +113,91 @@
     </div>
 </section>
 
-
-
-
-<!-- PRICING -->
-<section id="pricing">
-    <h2>Pricing</h2>
-    <p class="text-muted mb-4">Best prices in town!</p>
-
+<!-- Services -->
+<section id="services" class="py-5 bg-light">
     <div class="container">
-        <div class="row g-4 justify-content-center">
 
-            <div class="col-md-4">
-                <div class="card shadow p-4">
-                    <h4>Washing</h4>
-                    <p class="text-primary fw-bold fs-4">NPR 70/kg</p>
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Our Services</h2>
+            <p class="text-muted">Affordable & quality laundry solutions</p>
+        </div>
+
+        <div class="row g-4">
+
+            <% if (services && services.length > 0) { %>
+            <% services.forEach(function(service) { %>
+
+            <div class="col-lg-6">
+                <div class="d-flex">
+                    <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                    <div>
+                        <h5><%= service.name %></h5>
+                        <p class="text-muted mb-1"><%= service.description %></p>
+
+                        <!-- PRICE FIXED: NO DOUBLE NPR -->
+                        <small class="text-success fw-bold">
+                            NPR <%= service.price.replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
+                        </small>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card shadow p-4">
-                    <h4>Dry Cleaning</h4>
-                    <p class="text-primary fw-bold fs-4">Starting at NPR 150</p>
-                </div>
-            </div>
+            <% }) %>
+            <% } else { %>
+
+            <!-- DEFAULT SERVICES -->
+            <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>
+            <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>
+            <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>
+            <div class="col-lg-6"><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div>
+
+            <% } %>
 
         </div>
     </div>
 </section>
 
+<!-- Contact -->
+<section id="contact" class="py-5 bg-primary text-white">
+    <div class="container text-center">
 
+        <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
 
+        <div class="row g-4 mt-4">
 
-<!-- REVIEWS -->
-<section id="reviews">
-    <h2>What Our Customers Say</h2>
+            <div class="col-md-4">
+                <i class="bi bi-telephone fs-2 mb-2"></i>
+                <h6>Call Us</h6>
+                <p>98254822689</p>
+            </div>
 
-    <div class="review-slider">
+            <div class="col-md-4">
+                <i class="bi bi-envelope fs-2 mb-2"></i>
+                <h6>Email Us</h6>
+                <p>santoshballu321@gmail.com</p>
+            </div>
 
-        <div class="review active">
-            <img src="https://i.pravatar.cc/150?img=12">
-            <h3>Krishna Rai</h3>
-            <p>"Amazing service! My clothes came back perfect and on time."</p>
-        </div>
+            <div class="col-md-4">
+                <i class="bi bi-geo-alt fs-2 mb-2"></i>
+                <h6>Visit Us</h6>
+                <p>Gaindakot-11, Nawalpur</p>
+            </div>
 
-        <div class="review">
-            <img src="https://i.pravatar.cc/150?img=32">
-            <h3>Asmita Bhujel</h3>
-            <p>"Fast, affordable, and very professional. Highly recommended!"</p>
-        </div>
-
-        <!-- GAP (automatically handled by slider) -->
-
-        <div class="review">
-            <img src="https://i.pravatar.cc/150?img=45">
-            <h3>Bibek Thapa</h3>
-            <p>"Super friendly service and great quality every time!"</p>
-        </div>
-
-        <div class="review">
-            <img src="https://i.pravatar.cc/150?img=27">
-            <h3>Sita Kumari</h3>
-            <p>"Clothes smell fresh and delivery was quicker than expected!"</p>
         </div>
 
     </div>
 </section>
 
-<script>
-    let index = 0;
-    const reviews = document.querySelectorAll(".review");
+<!-- Footer -->
+<footer class="bg-dark text-light py-3">
+    <div class="container d-flex justify-content-between">
+        <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry Management System</p>
+        <p class="mb-0">Version 2.0</p>
+    </div>
+</footer>
 
-    function showNextReview() {
-        reviews[index].classList.remove("active");
-        index = (index + 1) % reviews.length;
-        reviews[index].classList.add("active");
-    }
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    setInterval(showNextReview, 3000); // Auto-slide every 3s
-</script>
-
-
-
-
-<!-- CONTACT -->
-<section id="contact">
-    <h2>Contact Us</h2>
-
-    <p><strong>Call Us:</strong> 98254822689</p>
-    <p><strong>Email:</strong> santoshballu321@gmail.com</p>
-    <p><strong>Visit Us:</strong> Gaindakot-11, Nawalpur</p>
-</section>
-
-
-
-
-<%- include('./partials/footer') %>
+</body>
+</html>
