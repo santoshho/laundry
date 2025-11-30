@@ -10,23 +10,18 @@ const bodyParser = require("body-parser");
 const app = express();
 
 // =============================
-// Helpers (corrected paths to /data/ folder)
+// Helpers
 // =============================
 function readJSON(filename) {
     try {
-        return JSON.parse(
-            fs.readFileSync(path.join(__dirname, "data", filename))
-        );
+        return JSON.parse(fs.readFileSync(path.join(__dirname, filename)));
     } catch (err) {
         return [];
     }
 }
 
 function writeJSON(filename, data) {
-    fs.writeFileSync(
-        path.join(__dirname, "data", filename),
-        JSON.stringify(data, null, 2)
-    );
+    fs.writeFileSync(path.join(__dirname, filename), JSON.stringify(data, null, 2));
 }
 
 // =============================
@@ -52,35 +47,35 @@ app.use(
 // =============================
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
+    res.locals.admin = req.session.admin || null;
     next();
 });
 
 // =============================
-// USER LOGIN
+// HOME
 // =============================
+app.get("/", (req, res) => {
+    res.render("index");
+});
+
+// =============================
+// USER AUTH
+// =============================
+app.get("/login", (req, res) => res.render("login"));
+app.get("/register", (req, res) => res.render("register"));
+
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
 
-    const user = users.find(
-        u => u.email === email && u.password === password
-    );
+    const user = users.find(u => u.email === email && u.password === password);
 
     if (!user) return res.render("login", { error: "Invalid credentials" });
 
-    req.session.user = {
-        id: user.id,
-        email: user.email,
-        phone: user.phone,
-        username: `${user.first_name} ${user.last_name}`,
-    };
-
+    req.session.user = user;
     res.redirect("/user/dashboard");
 });
 
-// =============================
-// USER REGISTER
-// =============================
 app.post("/register", (req, res) => {
     const users = readJSON("users.json");
 
@@ -96,13 +91,7 @@ app.post("/register", (req, res) => {
     users.push(newUser);
     writeJSON("users.json", users);
 
-    req.session.user = {
-        id: newUser.id,
-        email: newUser.email,
-        phone: newUser.phone,
-        username: `${newUser.first_name} ${newUser.last_name}`,
-    };
-
+    req.session.user = newUser;
     res.redirect("/user/dashboard");
 });
 
@@ -114,51 +103,80 @@ app.get("/user/dashboard", (req, res) => {
 
     const orders = readJSON("orders.json");
 
-    const myOrders = orders.filter(
-        o =>
-            o.userId === req.session.user.id ||
-            o.phone === req.session.user.phone
-    );
+    const myOrders = orders.filter(o => o.userId === req.session.user.id);
 
     res.render("user/dashboard", { orders: myOrders });
 });
 
 // =============================
-// USER NOTIFICATIONS
+// NOTIFICATIONS
 // =============================
 app.get("/user/notifications", (req, res) => {
     if (!req.session.user) return res.redirect("/login");
 
     const notes = readJSON("notifications.json");
 
-    const myNotes = notes.filter(
-        n =>
-            n.userId === req.session.user.id ||
-            n.phone === req.session.user.phone
-    );
+    const myNotes = notes.filter(n => n.userId === req.session.user.id);
 
-    res.render("notifications", { notifications: myNotes });
+    res.render("user/notifications", { notifications: myNotes });
 });
 
 // =============================
-// STATIC PAGE LOADER
+// ADMIN ROUTES
 // =============================
-app.get("/:page", (req, res) => {
-    const file = path.join(__dirname, "views", `${req.params.page}.ejs`);
-    if (fs.existsSync(file)) return res.render(req.params.page);
+app.get("/admin/login", (req, res) => res.render("admin/login"));
 
-    res.status(404).render("404");
+app.post("/admin/login", (req, res) => {
+    const { username, password } = req.body;
+
+    if (username === "admin" && password === "admin123") {
+        req.session.admin = { username: "admin" };
+        return res.redirect("/admin/dashboard");
+    }
+
+    res.render("admin/login", { error: "Invalid admin login" });
+});
+
+app.get("/admin/dashboard", (req, res) => {
+    if (!req.session.admin) return res.redirect("/admin/login");
+
+    const orders = readJSON("orders.json");
+    res.render("admin/dashboard", { orders });
 });
 
 // =============================
-// HOME ROUTE
+// ADMIN UPDATE ORDER STATUS
 // =============================
-app.get("/", (req, res) => {
-    res.render("index");
+app.post("/admin/order/:id/status", (req, res) => {
+    if (!req.session.admin) return res.redirect("/admin/login");
+
+    const orders = readJSON("orders.json");
+    const notes = readJSON("notifications.json");
+
+    const id = req.params.id;
+    const { status } = req.body;
+
+    const order = orders.find(o => o.id == id);
+    if (!order) return res.send("Order not found");
+
+    order.status = status;
+
+    // send notification to user
+    notes.push({
+        id: Date.now(),
+        userId: order.userId,
+        message: `Your order #${order.id} status changed to: ${status}`,
+        time: new Date()
+    });
+
+    writeJSON("orders.json", orders);
+    writeJSON("notifications.json", notes);
+
+    res.redirect("/admin/dashboard");
 });
 
 // =============================
 // START SERVER
 // =============================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port " + PORT));
+app.listen(PORT, () => console.log("Server running on " + PORT));
