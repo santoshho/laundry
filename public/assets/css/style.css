@@ -292,3 +292,39 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #0056b3;
 }
+
+/* -------------------------------------------------- */
+/* R I P P L E   B U T T O N   E F F E C T (ADDED)    */
+/* -------------------------------------------------- */
+
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(1);
+    pointer-events: none;
+}
+
+.btn:active::after {
+    animation: ripple-effect 0.5s ease-out;
+}
+
+@keyframes ripple-effect {
+    0% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(20);
+    }
+}
