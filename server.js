@@ -9,14 +9,18 @@ const multer = require('multer');
 const app = express();
 const DATA_DIR = path.join(__dirname, 'data');
 
-// --- Express setup ---
+// -------------------
+// View Engine + Middleware
+// -------------------
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// --- Session ---
+// -------------------
+// Session
+// -------------------
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'change_this_secret',
@@ -26,79 +30,82 @@ app.use(
   })
 );
 
-// --- JSON utilities ---
+// -------------------
+// JSON Helpers
+// -------------------
 function readJSON(filename) {
-  const p = path.join(DATA_DIR, filename);
-  if (!fs.existsSync(p)) return null;
+  const file = path.join(DATA_DIR, filename);
+  if (!fs.existsSync(file)) return null;
+
   try {
-    const content = fs.readFileSync(p, 'utf8');
-    return content ? JSON.parse(content) : null;
-  } catch (e) {
-    console.error('JSON Read Error', filename, e);
+    const txt = fs.readFileSync(file, 'utf8');
+    return txt ? JSON.parse(txt) : null;
+  } catch (err) {
+    console.error('JSON read error:', filename, err);
     return null;
   }
 }
 
 function writeJSON(filename, data) {
-  fs.writeFileSync(
-    path.join(DATA_DIR, filename),
-    JSON.stringify(data, null, 2),
-    'utf8'
-  );
+  const file = path.join(DATA_DIR, filename);
+  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
 
-// --- Ensure admin exists ---
+// -------------------
+// Ensure Admin Exists
+// -------------------
 (function ensureAdmin() {
-  const admPath = path.join(DATA_DIR, 'admin.json');
-  if (!fs.existsSync(admPath)) {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
+  const adminFile = path.join(DATA_DIR, 'admin.json');
+  if (!fs.existsSync(adminFile)) {
     const pwd = process.env.ADMIN_PWD || 'admin';
     writeJSON('admin.json', {
       username: 'admin',
       password_hash: bcrypt.hashSync(pwd, 8),
     });
-
-    console.log('Default admin created. Change ADMIN_PWD to override.');
+    console.log('Default admin created.');
   }
 })();
 
-// --- Make user available to all views ---
+// Make session user available in all pages
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
 });
 
-// --- Load shared app data globally ---
+// Load global app data
 app.use((req, res, next) => {
-  try {
-    res.locals.services = readJSON('services.json') || [];
-    res.locals.orders = readJSON('orders.json') || [];
-    res.locals.users = readJSON('users.json') || [];
-    res.locals.appconfig = readJSON('config.json') || {};
-  } catch (err) {
-    console.error('Global data load error:', err);
-  }
+  res.locals.services = readJSON('services.json') || [];
+  res.locals.orders = readJSON('orders.json') || [];
+  res.locals.users = readJSON('users.json') || [];
+  res.locals.appconfig = readJSON('config.json') || {};
   next();
 });
 
 // -------------------
-// Admin Auth
+// Admin Authentication
 // -------------------
+function requireAdmin(req, res, next) {
+  if (req.session.user) return next();
+  res.redirect('/admin/login');
+}
 
 app.get('/admin/login', (req, res) => {
   res.render('admin/login', { error: null });
 });
 
 app.post('/admin/login', (req, res) => {
-  const { username, password } = req.body;
   const admin = readJSON('admin.json');
   if (!admin) return res.send('Admin not configured');
+
+  const { username, password } = req.body;
 
   if (username === admin.username && bcrypt.compareSync(password, admin.password_hash)) {
     req.session.user = { username: admin.username };
     return res.redirect('/admin/dashboard');
   }
+
   res.render('admin/login', { error: 'Invalid username or password' });
 });
 
@@ -106,24 +113,16 @@ app.post('/admin/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
-function requireAdmin(req, res, next) {
-  if (req.session.user) return next();
-  res.redirect('/admin/login');
-}
-
-// --- Admin Dashboard ---
+// -------------------
+// Admin Dashboard
+// -------------------
 app.get('/admin/dashboard', requireAdmin, (req, res) => {
-  if (fs.existsSync(path.join(__dirname, 'views/admin/dashboard.ejs'))) {
-    return res.render('admin/dashboard');
-  }
-  const orders = readJSON('orders.json') || [];
-  res.send(`<h1>Admin Dashboard</h1><p>Orders: ${orders.length}</p>`);
+  res.render('admin/dashboard');
 });
 
 // -------------------
-// Admin Pages
+// Admin Data Pages
 // -------------------
-
 app.get('/admin/orders', requireAdmin, (req, res) => {
   res.render('admin/orders', { orders: readJSON('orders.json') || [] });
 });
@@ -132,52 +131,75 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   res.render('admin/users', { users: readJSON('users.json') || [] });
 });
 
+// -------------------
+// FIXED: Request Details (Query)
+// -------------------
 app.get('/admin/request-details', requireAdmin, (req, res) => {
-  const id = Number(req.query.id);
-  const order = (readJSON('orders.json') || []).find((o) => o.id === id);
+  const id = String(req.query.id);
+  const orders = readJSON('orders.json') || [];
+
+  const order = orders.find(o => String(o.id) === id);
+
+  if (!order) return res.status(404).send('Request not found');
+
   res.render('admin/request-details', { order });
 });
 
+// -------------------
+// FIXED: User Details
+// -------------------
 app.get('/admin/user-details', requireAdmin, (req, res) => {
-  const id = Number(req.query.id);
+  const id = String(req.query.id);
+
   const users = readJSON('users.json') || [];
   const orders = readJSON('orders.json') || [];
-  res.render('admin/user-details', {
-    user: users.find((u) => u.id === id),
-    orders,
-  });
+
+  const user = users.find(u => String(u.id) === id);
+
+  res.render('admin/user-details', { user, orders });
 });
 
+// -------------------
+// FIXED: Order View (Route Param)
+// -------------------
 app.get('/admin/order/:id', requireAdmin, (req, res) => {
-  const order = (readJSON('orders.json') || []).find(
-    (o) => o.id === Number(req.params.id)
-  );
+  const id = String(req.params.id);
+  const orders = readJSON('orders.json') || [];
+
+  const order = orders.find(o => String(o.id) === id);
+
   if (!order) return res.status(404).send('Order not found');
+
   res.render('admin/order_view', { order });
 });
 
+// -------------------
+// Update Order Status
+// -------------------
 app.post('/admin/order/:id/status', requireAdmin, (req, res) => {
+  const id = String(req.params.id);
   const orders = readJSON('orders.json') || [];
-  const o = orders.find((x) => x.id === Number(req.params.id));
-  if (o) {
-    o.status = req.body.status || o.status;
-    o.updated_at = new Date().toISOString();
+
+  const order = orders.find(o => String(o.id) === id);
+  if (order) {
+    order.status = req.body.status || order.status;
+    order.updated_at = new Date().toISOString();
     writeJSON('orders.json', orders);
   }
+
   res.redirect('/admin/orders');
 });
 
 // -------------------
-// Order Creation + Upload
+// Order Creation + File Upload
 // -------------------
-
 const upload = multer({ dest: path.join(__dirname, 'public/uploads') });
 
 app.post('/create-order', upload.single('attachment'), (req, res) => {
   const orders = readJSON('orders.json') || [];
 
   const newOrder = {
-    id: Date.now(),
+    id: Date.now().toString(),   // STRING ID FIX
     name: req.body.name,
     phone: req.body.phone,
     address: req.body.address,
@@ -189,13 +211,13 @@ app.post('/create-order', upload.single('attachment'), (req, res) => {
 
   orders.push(newOrder);
   writeJSON('orders.json', orders);
+
   res.redirect('/order-success');
 });
 
 // -------------------
 // Admin Change Password
 // -------------------
-
 app.get('/admin/change-password', requireAdmin, (req, res) => {
   res.render('admin/change_password', { error: null, success: null });
 });
@@ -219,34 +241,32 @@ app.post('/admin/change-password', requireAdmin, (req, res) => {
 // -------------------
 // User Login / Register
 // -------------------
-
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const users = readJSON('users.json') || [];
 
-  const user = users.find((u) => u.email === email);
+  const user = users.find(u => u.email === email);
   if (!user)
     return res.render('login', { error: 'Invalid email or password' });
 
-  const valid =
+  const isValid =
     user.password === password ||
     bcrypt.compareSync(password, user.password_hash || '');
 
-  if (!valid)
+  if (!isValid)
     return res.render('login', { error: 'Invalid email or password' });
 
   req.session.user = {
     id: user.id,
     email: user.email,
-    username: `${user.first_name} ${user.last_name}`,
+    username: `${user.first_name} ${user.last_name}`
   };
 
   res.redirect('/user/dashboard');
 });
 
 app.post('/register', (req, res) => {
-  const { first_name, last_name, email, phone, password, confirm_password } =
-    req.body;
+  const { first_name, last_name, email, phone, password, confirm_password } = req.body;
 
   const users = readJSON('users.json') || [];
   const errors = [];
@@ -256,18 +276,18 @@ app.post('/register', (req, res) => {
   if (!email) errors.push('Email required');
   if (!password) errors.push('Password required');
   if (password !== confirm_password) errors.push('Passwords do not match');
-  if (users.find((u) => u.email === email)) errors.push('Email already registered');
+  if (users.some(u => u.email === email)) errors.push('Email already registered');
 
   if (errors.length > 0) return res.render('register', { errors });
 
   const newUser = {
-    id: Date.now(),
+    id: Date.now().toString(),  // STRING ID FIX
     first_name,
     last_name,
     email,
     phone,
     password_hash: bcrypt.hashSync(password, 8),
-    created_at: new Date().toISOString(),
+    created_at: new Date().toISOString()
   };
 
   users.push(newUser);
@@ -287,12 +307,10 @@ app.post('/logout', (req, res) => {
 });
 
 // -------------------
-// Forgot Password Mock
+// Forgot Password (Mock)
 // -------------------
 app.post('/forgot-password', (req, res) => {
-  res.render('forgot-password', {
-    message: 'If this email exists, a reset link has been sent.',
-  });
+  res.render('forgot-password', { message: 'If this email exists, a reset link has been sent.' });
 });
 
 // -------------------
@@ -309,24 +327,23 @@ app.get('/order-success', (req, res) => {
 });
 
 // -------------------
-// Dynamic EJS Page Loader
+// Dynamic Page Loader
 // -------------------
 app.get('*', (req, res, next) => {
-  let p = req.path === '/' ? 'index' : req.path.slice(1);
+  let view = req.path === '/' ? 'index' : req.path.slice(1);
+  if (view.endsWith('/')) view = view.slice(0, -1);
 
-  if (p.endsWith('/')) p = p.slice(0, -1);
+  const direct = path.join(__dirname, 'views', `${view}.ejs`);
+  const nested = path.join(__dirname, 'views', view, 'index.ejs');
 
-  const direct = path.join(__dirname, 'views', `${p}.ejs`);
-  const indexInside = path.join(__dirname, 'views', p, 'index.ejs');
-
-  if (fs.existsSync(direct)) return res.render(p);
-  if (fs.existsSync(indexInside)) return res.render(`${p}/index`);
+  if (fs.existsSync(direct)) return res.render(view);
+  if (fs.existsSync(nested)) return res.render(`${view}/index`);
 
   next();
 });
 
 // -------------------
-// Generic Form Saver
+// Save Unknown POST Forms
 // -------------------
 app.post('*', (req, res) => {
   const forms = readJSON('forms.json') || [];
@@ -343,7 +360,7 @@ app.post('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
-  app.listen(PORT, () => console.log('Server running on', PORT));
+  app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
 
 module.exports = app;
