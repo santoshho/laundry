@@ -1,409 +1,177 @@
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const session = require('express-session');
-const bcrypt = require('bcryptjs');
-const multer = require('multer');
+// =============================
+// Required modules
+// =============================
+const express = require("express");
+const session = require("express-session");
+const path = require("path");
+const fs = require("fs");
+const bodyParser = require("body-parser");
 
 const app = express();
-const DATA_DIR = path.join(__dirname, 'data');
 
-// -------------------
-// View Engine + Middleware
-// -------------------
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// -------------------
-// Session
-// -------------------
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'change_this_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  })
-);
-
-// -------------------
-// JSON Helpers
-// -------------------
+// =============================
+// Helpers
+// =============================
 function readJSON(filename) {
-  const file = path.join(DATA_DIR, filename);
-  if (!fs.existsSync(file)) return null;
-
-  try {
-    const txt = fs.readFileSync(file, 'utf8');
-    return txt ? JSON.parse(txt) : null;
-  } catch (err) {
-    console.error('JSON read error:', filename, err);
-    return null;
-  }
+    try {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, filename)));
+    } catch (err) {
+        return [];
+    }
 }
 
 function writeJSON(filename, data) {
-  const file = path.join(DATA_DIR, filename);
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+    fs.writeFileSync(
+        path.join(__dirname, filename),
+        JSON.stringify(data, null, 2)
+    );
 }
 
-// -------------------
-// Ensure Admin Exists
-// -------------------
-(function ensureAdmin() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+// =============================
+// App Settings
+// =============================
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-  const adminFile = path.join(DATA_DIR, 'admin.json');
-  if (!fs.existsSync(adminFile)) {
-    const pwd = process.env.ADMIN_PWD || 'admin';
-    writeJSON('admin.json', {
-      username: 'admin',
-      password_hash: bcrypt.hashSync(pwd, 8),
-    });
-    console.log('Default admin created.');
-  }
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-  // Ensure notifications file
-  if (!fs.existsSync(path.join(DATA_DIR, 'notifications.json'))) {
-    writeJSON('notifications.json', []);
-  }
-})();
+app.use(
+    session({
+        secret: "supersecretkey",
+        resave: false,
+        saveUninitialized: false,
+    })
+);
 
-// Make session user available
+// =============================
+// SESSION MIDDLEWARE
+// =============================
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
+    res.locals.user = req.session.user || null;
+    next();
 });
 
-// Load global app data
-app.use((req, res, next) => {
-  res.locals.services = readJSON('services.json') || [];
-  res.locals.orders = readJSON('orders.json') || [];
-  res.locals.users = readJSON('users.json') || [];
-  res.locals.appconfig = readJSON('config.json') || [];
-  next();
+// =============================
+// USER LOGIN (EXAMPLE)
+// Store phone, email, id, username
+// =============================
+app.post("/login", (req, res) => {
+    const { email, password } = req.body;
+    const users = readJSON("users.json");
+
+    const user = users.find(
+        u => u.email === email && u.password === password
+    );
+
+    if (!user) return res.render("login", { error: "Invalid credentials" });
+
+    req.session.user = {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        username: `${user.first_name} ${user.last_name}`,
+    };
+
+    res.redirect("/user/dashboard");
 });
 
-// -------------------
-// Admin Authentication
-// -------------------
-function requireAdmin(req, res, next) {
-  if (req.session.user) return next();
-  res.redirect('/admin/login');
-}
+// =============================
+// USER REGISTER (EXAMPLE)
+// =============================
+app.post("/register", (req, res) => {
+    const users = readJSON("users.json");
 
-// Admin Login
-app.get('/admin/login', (req, res) => {
-  res.render('admin/login', { error: null });
-});
-
-app.post('/admin/login', (req, res) => {
-  const admin = readJSON('admin.json');
-  if (!admin) return res.send('Admin not configured');
-
-  const { username, password } = req.body;
-
-  if (username === admin.username && bcrypt.compareSync(password, admin.password_hash)) {
-    req.session.user = { username: admin.username };
-    return res.redirect('/admin/dashboard');
-  }
-
-  res.render('admin/login', { error: 'Invalid username or password' });
-});
-
-// Logout
-app.post('/admin/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
-});
-
-// Dashboard
-app.get('/admin/dashboard', requireAdmin, (req, res) => {
-  res.render('admin/dashboard');
-});
-
-// Data Pages
-app.get('/admin/orders', requireAdmin, (req, res) => {
-  res.render('admin/orders', { orders: readJSON('orders.json') || [] });
-});
-
-app.get('/admin/users', requireAdmin, (req, res) => {
-  res.render('admin/users', { users: readJSON('users.json') || [] });
-});
-
-// Request Details
-app.get('/admin/request-details', requireAdmin, (req, res) => {
-  const id = String(req.query.id);
-  const orders = readJSON('orders.json') || [];
-  const order = orders.find(o => String(o.id) === id);
-
-  if (!order) return res.status(404).send('Request not found');
-
-  res.render('admin/request-details', { order });
-});
-
-// User Details Page
-app.get('/admin/user-details', requireAdmin, (req, res) => {
-  const id = String(req.query.id);
-
-  const users = readJSON('users.json') || [];
-  const orders = readJSON('orders.json') || [];
-
-  const user = users.find(u => String(u.id) === id);
-
-  res.render('admin/user-details', { user, orders });
-});
-
-// Order View Page
-app.get('/admin/order/:id', requireAdmin, (req, res) => {
-  const id = String(req.params.id);
-  const orders = readJSON('orders.json') || [];
-
-  const order = orders.find(o => String(o.id) === id);
-
-  if (!order) return res.status(404).send('Order not found');
-
-  res.render('admin/order_view', { order });
-});
-
-// -------------------
-// Update Order Status + CREATE NOTIFICATION
-// -------------------
-app.post('/admin/order/:id/status', requireAdmin, (req, res) => {
-  const id = String(req.params.id);
-  const orders = readJSON('orders.json') || [];
-  const notifications = readJSON('notifications.json') || [];
-  const users = readJSON('users.json') || [];
-
-  const order = orders.find(o => String(o.id) === id);
-  if (order) {
-    order.status = req.body.status || order.status;
-    order.updated_at = new Date().toISOString();
-
-    // FIND USER BY PHONE OR NAME (best guess)
-    const user = users.find(u => u.phone === order.phone || `${u.first_name} ${u.last_name}` === order.name);
-
-    if (user) {
-      notifications.push({
+    const newUser = {
         id: Date.now().toString(),
-        user_id: user.id,
-        message: `Your order #${order.id} status changed to "${order.status}".`,
-        read: false,
-        created_at: new Date().toISOString()
-      });
-      writeJSON('notifications.json', notifications);
-    }
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        email: req.body.email,
+        phone: req.body.phone,
+        password: req.body.password,
+    };
 
-    writeJSON('orders.json', orders);
-  }
+    users.push(newUser);
+    writeJSON("users.json", users);
 
-  res.redirect('/admin/orders');
+    req.session.user = {
+        id: newUser.id,
+        email: newUser.email,
+        phone: newUser.phone,
+        username: `${newUser.first_name} ${newUser.last_name}`,
+    };
+
+    res.redirect("/user/dashboard");
 });
 
-// -------------------
-// Create Order (User)
-// -------------------
-const upload = multer({ dest: path.join(__dirname, 'public/uploads') });
+// =============================
+// USER DASHBOARD ROUTE
+// Loads orders for logged-in user
+// =============================
+app.get("/user/dashboard", (req, res) => {
+    if (!req.session.user) return res.redirect("/login");
 
-app.post('/create-order', upload.single('attachment'), (req, res) => {
-  const orders = readJSON('orders.json') || [];
+    const orders = readJSON("orders.json");
 
-  const newOrder = {
-    id: Date.now().toString(),
-    name: req.body.name,
-    phone: req.body.phone,
-    address: req.body.address,
-    items: req.body.items,
-    status: 'pending',
-    created_at: new Date().toISOString(),
-    attachment: req.file ? `uploads/${path.basename(req.file.path)}` : null,
-  };
+    const myOrders = orders.filter(
+        o =>
+            o.userId === req.session.user.id ||
+            o.phone === req.session.user.phone
+    );
 
-  orders.push(newOrder);
-  writeJSON('orders.json', orders);
-
-  res.redirect('/order-success');
+    res.render("user/dashboard", { orders: myOrders });
 });
 
-// -------------------
-// Admin Change Password
-// -------------------
-app.get('/admin/change-password', requireAdmin, (req, res) => {
-  res.render('admin/change_password', { error: null, success: null });
+// =============================
+// USER NOTIFICATIONS
+// =============================
+app.get("/user/notifications", (req, res) => {
+    if (!req.session.user) return res.redirect("/login");
+
+    const notes = readJSON("notifications.json");
+
+    const myNotes = notes.filter(
+        n =>
+            n.userId === req.session.user.id ||
+            n.phone === req.session.user.phone
+    );
+
+    res.render("user/notifications", { notifications: myNotes });
 });
 
-app.post('/admin/change-password', requireAdmin, (req, res) => {
-  const { current_password, new_password, confirm_password } = req.body;
-  const admin = readJSON('admin.json');
+// =============================
+// DYNAMIC PAGE LOADER
+// Example: /about → views/about.ejs
+// =============================
+app.get("/:page", (req, res) => {
+    const page = req.params.page;
 
-  if (!bcrypt.compareSync(current_password, admin.password_hash))
-    return res.render('admin/change_password', { error: 'Incorrect password' });
+    const file = path.join(__dirname, "views", `${page}.ejs`);
+    if (fs.existsSync(file)) return res.render(page);
 
-  if (new_password !== confirm_password)
-    return res.render('admin/change_password', { error: 'Passwords do not match' });
-
-  admin.password_hash = bcrypt.hashSync(new_password, 8);
-  writeJSON('admin.json', admin);
-
-  res.render('admin/change_password', { success: 'Password updated successfully' });
+    res.status(404).render("404");
 });
 
-// -------------------
-// User Login / Register
-// -------------------
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  const users = readJSON('users.json') || [];
-
-  const user = users.find(u => u.email === email);
-  if (!user)
-    return res.render('login', { error: 'Invalid email or password' });
-
-  const isValid =
-    user.password === password ||
-    bcrypt.compareSync(password, user.password_hash || '');
-
-  if (!isValid)
-    return res.render('login', { error: 'Invalid email or password' });
-
-  req.session.user = {
-    id: user.id,
-    email: user.email,
-    username: `${user.first_name} ${user.last_name}`
-  };
-
-  res.redirect('/user/dashboard');
+// =============================
+// SAVE UNKNOWN FORM POST
+// =============================
+app.post("/save-form", (req, res) => {
+    const forms = readJSON("forms.json");
+    forms.push({ id: Date.now(), data: req.body });
+    writeJSON("forms.json", forms);
+    res.json({ success: true });
 });
 
-// Register
-app.post('/register', (req, res) => {
-  const { first_name, last_name, email, phone, password, confirm_password } = req.body;
-
-  const users = readJSON('users.json') || [];
-  const errors = [];
-
-  if (!first_name) errors.push('First name required');
-  if (!last_name) errors.push('Last name required');
-  if (!email) errors.push('Email required');
-  if (!password) errors.push('Password required');
-  if (password !== confirm_password) errors.push('Passwords do not match');
-  if (users.some(u => u.email === email)) errors.push('Email already registered');
-
-  if (errors.length > 0) return res.render('register', { errors });
-
-  const newUser = {
-    id: Date.now().toString(),
-    first_name,
-    last_name,
-    email,
-    phone,
-    password_hash: bcrypt.hashSync(password, 8),
-    created_at: new Date().toISOString()
-  };
-
-  users.push(newUser);
-  writeJSON('users.json', users);
-
-  req.session.user = {
-    id: newUser.id,
-    email: newUser.email,
-    username: `${newUser.first_name} ${newUser.last_name}`,
-  };
-
-  res.redirect('/user/dashboard');
+// =============================
+// HOME ROUTE
+// =============================
+app.get("/", (req, res) => {
+    res.render("index");
 });
 
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
-});
-
-// -------------------
-// FORGOT PASSWORD (MOCK)
-// -------------------
-app.post('/forgot-password', (req, res) => {
-  res.render('forgot-password', { message: 'If this email exists, a reset link has been sent.' });
-});
-
-// -------------------
-// SUCCESS PAGE
-// -------------------
-app.get('/order-success', (req, res) => {
-  res.send(`
-    <div style="text-align:center;padding:50px;font-family:Arial">
-      <h1 style="color:#28a745;">Order Submitted Successfully!</h1>
-      <p>Your laundry request has been received.</p>
-      <a href="/">← Back to Home</a>
-    </div>
-  `);
-});
-
-// -----------------------------------------
-// USER NOTIFICATIONS SYSTEM
-// -----------------------------------------
-
-// View notifications page
-app.get('/user/notifications', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-
-  const all = readJSON('notifications.json') || [];
-  const myNotes = all.filter(n => n.user_id === req.session.user.id);
-
-  res.render('user/notifications', { notifications: myNotes });
-});
-
-// Mark notification as read
-app.get('/user/notifications/read/:id', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-
-  const notifications = readJSON('notifications.json') || [];
-  const note = notifications.find(n => n.id === req.params.id);
-
-  if (note && note.user_id === req.session.user.id) {
-    note.read = true;
-    writeJSON('notifications.json', notifications);
-  }
-
-  res.redirect('/user/notifications');
-});
-
-// -------------------
-// Dynamic Page Loader
-// -------------------
-app.get('*', (req, res, next) => {
-  let view = req.path === '/' ? 'index' : req.path.slice(1);
-  if (view.endsWith('/')) view = view.slice(0, -1);
-
-  const direct = path.join(__dirname, 'views', `${view}.ejs`);
-  const nested = path.join(__dirname, 'views', view, 'index.ejs');
-
-  if (fs.existsSync(direct)) return res.render(view);
-  if (fs.existsSync(nested)) return res.render(`${view}/index`);
-
-  next();
-});
-
-// -------------------
-// SAVE UNKNOWN FORM POSTS
-// -------------------
-app.post('*', (req, res) => {
-  const forms = readJSON('forms.json') || [];
-  forms.push({
-    path: req.path,
-    body: req.body,
-    created_at: new Date().toISOString(),
-  });
-  writeJSON('forms.json', forms);
-
-  if (req.headers.referer) return res.redirect(req.headers.referer);
-  res.send('Form saved.');
-});
-
+// =============================
+// START SERVER
+// =============================
 const PORT = process.env.PORT || 3000;
-if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server running on ${PORT}`));
-}
-
-module.exports = app;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
