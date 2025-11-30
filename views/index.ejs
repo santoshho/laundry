@@ -119,6 +119,67 @@
         </div>
     </section>
 
+    <!-- =====================================
+           CUSTOMER REVIEWS SECTION (Added)
+    ====================================== -->
+    <section class="reviews py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">What Our Customers Say</h2>
+
+            <div class="row g-4">
+
+                <!-- Review 1 -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3 h-100">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="https://i.pravatar.cc/80?img=12" class="rounded-circle me-3" width="60">
+                            <div>
+                                <h5 class="mb-0">Suman K.</h5>
+                                <span class="text-warning">★★★★★</span>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            Fast pickup, clean clothes, and affordable rates. Best laundry service in Gaindakot!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3 h-100">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="https://i.pravatar.cc/80?img=30" class="rounded-circle me-3" width="60">
+                            <div>
+                                <h5 class="mb-0">Prakash L.</h5>
+                                <span class="text-warning">★★★★★</span>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            Their dry cleaning quality is excellent. Clothes look brand new every time!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3 h-100">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="https://i.pravatar.cc/80?img=44" class="rounded-circle me-3" width="60">
+                            <div>
+                                <h5 class="mb-0">Bikash R.</h5>
+                                <span class="text-warning">★★★★☆</span>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            Same-day service really saved me during an urgent situation. Highly recommended!
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     <!-- Services Section -->
     <section id="services" class="py-5 bg-light">
         <div class="container">
@@ -130,6 +191,7 @@
                     </p>
                 </div>
             </div>
+
             <div class="row g-4">
                 <% if (services && services.length > 0) { %>
                     <% services.forEach(function(service) { %>
@@ -143,71 +205,74 @@
                                     <p class="text-muted mb-0">
                                         <%= service.description %>
                                     </p>
-
-                                    <!-- FIXED: Removed double NPR -->
-                                    <small class="text-success fw-bold"><%= service.currency %> <%= service.price %>/kg</small>
-
+                                    <small class="text-success fw-bold"><%= service.currency || "NPR" %> <%= service.price %>/kg</small>
                                 </div>
                             </div>
                         </div>
                     <% }) %>
                 <% } else { %>
-                    <div class="col-lg-6">
-                        <div class="service-item d-flex">
-                            <div class="service-icon me-4">
-                                <i class="bi bi-droplet text-primary fs-2"></i>
-                            </div>
-                            <div class="service-content">
-                                <h5>Regular Wash & Dry</h5>
-                                <p class="text-muted mb-0">
-                                    Standard washing and drying service for everyday clothes
-                                </p>
-                                <small class="text-success fw-bold">Starting at NPR 5.00/kg</small>
-                            </div>
+
+                <!-- Default Services -->
+                <div class="col-lg-6">
+                    <div class="service-item d-flex">
+                        <div class="service-icon me-4">
+                            <i class="bi bi-droplet text-primary fs-2"></i>
+                        </div>
+                        <div class="service-content">
+                            <h5>Regular Wash & Dry</h5>
+                            <p class="text-muted mb-0">
+                                Standard washing and drying service for everyday clothes
+                            </p>
+                            <small class="text-success fw-bold">Starting at NPR 5.00/kg</small>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="service-item d-flex">
-                            <div class="service-icon me-4">
-                                <i class="bi bi-wind text-info fs-2"></i>
-                            </div>
-                            <div class="service-content">
-                                <h5>Dry Cleaning</h5>
-                                <p class="text-muted mb-0">
-                                    Professional dry cleaning for delicate and formal wear
-                                </p>
-                                <small class="text-success fw-bold">Starting at NPR 15.00/kg</small>
-                            </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="service-item d-flex">
+                        <div class="service-icon me-4">
+                            <i class="bi bi-wind text-info fs-2"></i>
+                        </div>
+                        <div class="service-content">
+                            <h5>Dry Cleaning</h5>
+                            <p class="text-muted mb-0">
+                                Professional dry cleaning for delicate and formal wear
+                            </p>
+                            <small class="text-success fw-bold">Starting at NPR 15.00/kg</small>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="service-item d-flex">
-                            <div class="service-icon me-4">
-                                <i class="bi bi-lightning text-warning fs-2"></i>
-                            </div>
-                            <div class="service-content">
-                                <h5>Express Service</h5>
-                                <p class="text-muted mb-0">
-                                    Same-day wash and dry service for urgent needs
-                                </p>
-                                <small class="text-success fw-bold">Starting at NPR 8.00/kg</small>
-                            </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="service-item d-flex">
+                        <div class="service-icon me-4">
+                            <i class="bi bi-lightning text-warning fs-2"></i>
+                        </div>
+                        <div class="service-content">
+                            <h5>Express Service</h5>
+                            <p class="text-muted mb-0">
+                                Same-day wash and dry service for urgent needs
+                            </p>
+                            <small class="text-success fw-bold">Starting at NPR 8.00/kg</small>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="service-item d-flex">
-                            <div class="service-icon me-4">
-                                <i class="bi bi-heart text-danger fs-2"></i>
-                            </div>
-                            <div class="service-content">
-                                <h5>Delicate Care</h5>
-                                <p class="text-muted mb-0">
-                                    Special care for delicate fabrics and premium garments
-                                </p>
-                                <small class="text-success fw-bold">Starting at NPR 12.00/kg</small>
-                            </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="service-item d-flex">
+                        <div class="service-icon me-4">
+                            <i class="bi bi-heart text-danger fs-2"></i>
+                        </div>
+                        <div class="service-content">
+                            <h5>Delicate Care</h5>
+                            <p class="text-muted mb-0">
+                                Special care for delicate fabrics and premium garments
+                            </p>
+                            <small class="text-success fw-bold">Starting at NPR 12.00/kg</small>
                         </div>
                     </div>
+                </div>
+
                 <% } %>
             </div>
         </div>
@@ -272,9 +337,8 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-        // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -288,5 +352,6 @@
             });
         });
     </script>
+
 </body>
 </html>
