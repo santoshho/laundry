@@ -1,104 +1,247 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laundry Service</title>
-    <link rel="stylesheet" href="/css/styles.css">
+<%- include('./partials/header') %>
 
-    <style>
-        .review-slider {
-            width: 100%;
-            max-width: 650px;
-            margin: auto;
-            text-align: center;
-            padding: 30px 0;
-        }
-        .review {
-            display: none;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .review.active {
-            display: block;
-        }
-        .review img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
+<style>
+    /* HERO SECTION */
+    #hero {
+        background: url('/images/hero.jpg') center/cover no-repeat;
+        height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 20px;
+    }
 
-<body>
+    #hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+    }
 
-    <!-- HEADER -->
-    <header>
-        <h1>Welcome to Smart Laundry Service</h1>
+    #hero p {
+        font-size: 1.3rem;
+        margin-top: 10px;
+    }
 
-        <div class="contact-info">
-            <p><strong>Call us:</strong> 98254822689</p>
-            <p><strong>Email:</strong> santoshballu321@gmail.com</p>
-            <p><strong>Visit us:</strong> Gaindakot-11, Nawalpur</p>
+    .btn-main {
+        margin-top: 20px;
+        padding: 12px 30px;
+        background: #0d6efd;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        font-size: 1.1rem;
+    }
+
+    /* SERVICES */
+    #services {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    #services .card {
+        padding: 25px;
+        border-radius: 10px;
+    }
+
+    /* PRICING */
+    #pricing {
+        background: #f7f7f7;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    /* REVIEWS */
+    #reviews {
+        background: #fff;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .review-slider {
+        max-width: 750px;
+        margin: auto;
+        position: relative;
+    }
+
+    .review {
+        display: none;
+        padding: 25px;
+        border-radius: 10px;
+        background: #f1f1f1;
+        margin: 20px 0;
+    }
+
+    .review.active {
+        display: block;
+    }
+
+    .review img {
+        width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+
+    .review h3 {
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    /* CONTACT */
+    #contact {
+        padding: 60px 20px;
+        background: #f7f7f7;
+        text-align: center;
+    }
+
+    #contact p {
+        font-size: 1.1rem;
+        margin: 6px 0;
+    }
+</style>
+
+
+
+
+<!-- HERO -->
+<section id="hero">
+    <div>
+        <h1>Fast & Affordable Laundry Service</h1>
+        <p>We wash, dry, fold, and deliver to your doorstep</p>
+        <a href="/pricing" class="btn-main">View Pricing</a>
+    </div>
+</section>
+
+
+
+
+<!-- SERVICES -->
+<section id="services">
+    <h2>Our Services</h2>
+    <p class="mb-4 text-muted">Quality service at the best prices</p>
+
+    <div class="container">
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <h4>Washing</h4>
+                    <p>Clean and fresh clothes at the best rates.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <h4>Dry Cleaning</h4>
+                    <p>Premium dry cleaning for your delicate items.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <h4>Ironing</h4>
+                    <p>Perfectly pressed clothes delivered fast.</p>
+                </div>
+            </div>
+
         </div>
-    </header>
+    </div>
+</section>
 
-    <!-- PRICING SECTION -->
-    <section id="pricing">
-        <h2>Our Pricing</h2>
-        <ul>
-            <li>Wash & Fold — <strong>NPR 500/kg</strong></li>
-            <li>Dry Cleaning — <strong>NPR 800/kg</strong></li>
-            <li>Express Service — <strong>NPR 1200/kg</strong></li>
-        </ul>
-    </section>
 
-    <!-- REVIEWS -->
-    <section id="reviews">
-        <h2>What Our Customers Say</h2>
 
-        <div class="review-slider">
 
-            <div class="review active">
-                <img src="https://i.pravatar.cc/150?img=12">
-                <h3>Rohan Sharma</h3>
-                <p>"Amazing service! My clothes came back perfect and on time."</p>
+<!-- PRICING -->
+<section id="pricing">
+    <h2>Pricing</h2>
+    <p class="text-muted mb-4">Best prices in town!</p>
+
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+
+            <div class="col-md-4">
+                <div class="card shadow p-4">
+                    <h4>Washing</h4>
+                    <p class="text-primary fw-bold fs-4">NPR 70/kg</p>
+                </div>
             </div>
 
-            <div class="review">
-                <img src="https://i.pravatar.cc/150?img=32">
-                <h3>Anisha Khatri</h3>
-                <p>"Fast, affordable, and very professional. Highly recommended!"</p>
-            </div>
-
-            <div class="review">
-                <img src="https://i.pravatar.cc/150?img=47">
-                <h3>Bibek Gurung</h3>
-                <p>"Best laundry experience I’ve ever had. Great staff too!"</p>
-            </div>
-
-            <div class="review">
-                <img src="https://i.pravatar.cc/150?img=25">
-                <h3>Sita Chaudhary</h3>
-                <p>"Clothes smell fresh, look new, and delivery was quick!"</p>
+            <div class="col-md-4">
+                <div class="card shadow p-4">
+                    <h4>Dry Cleaning</h4>
+                    <p class="text-primary fw-bold fs-4">Starting at NPR 150</p>
+                </div>
             </div>
 
         </div>
-    </section>
+    </div>
+</section>
 
-    <script>
-        let index = 0;
-        const reviews = document.querySelectorAll(".review");
 
-        function showReview() {
-            reviews.forEach(r => r.classList.remove("active"));
-            reviews[index].classList.add("active");
-            index = (index + 1) % reviews.length;
-        }
 
-        setInterval(showReview, 6000); // Auto-slide every 6 sec
-    </script>
 
-</body>
-</html>
+<!-- REVIEWS -->
+<section id="reviews">
+    <h2>What Our Customers Say</h2>
+
+    <div class="review-slider">
+
+        <div class="review active">
+            <img src="https://i.pravatar.cc/150?img=12">
+            <h3>Krishna Rai</h3>
+            <p>"Amazing service! My clothes came back perfect and on time."</p>
+        </div>
+
+        <div class="review">
+            <img src="https://i.pravatar.cc/150?img=32">
+            <h3>Asmita Bhujel</h3>
+            <p>"Fast, affordable, and very professional. Highly recommended!"</p>
+        </div>
+
+        <!-- GAP (automatically handled by slider) -->
+
+        <div class="review">
+            <img src="https://i.pravatar.cc/150?img=45">
+            <h3>Bibek Thapa</h3>
+            <p>"Super friendly service and great quality every time!"</p>
+        </div>
+
+        <div class="review">
+            <img src="https://i.pravatar.cc/150?img=27">
+            <h3>Sita Kumari</h3>
+            <p>"Clothes smell fresh and delivery was quicker than expected!"</p>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    let index = 0;
+    const reviews = document.querySelectorAll(".review");
+
+    function showNextReview() {
+        reviews[index].classList.remove("active");
+        index = (index + 1) % reviews.length;
+        reviews[index].classList.add("active");
+    }
+
+    setInterval(showNextReview, 3000); // Auto-slide every 3s
+</script>
+
+
+
+
+<!-- CONTACT -->
+<section id="contact">
+    <h2>Contact Us</h2>
+
+    <p><strong>Call Us:</strong> 98254822689</p>
+    <p><strong>Email:</strong> santoshballu321@gmail.com</p>
+    <p><strong>Visit Us:</strong> Gaindakot-11, Nawalpur</p>
+</section>
+
+
+
+
+<%- include('./partials/footer') %>
