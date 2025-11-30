@@ -1,266 +1,226 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laundry Management System</title>
+<!DOCTYPE html>  <html lang="en">  <head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Laundry Management System</title>  <!-- Bootstrap 5 CSS -->  
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">  
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap Icons -->  
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-        }
+</head>  <body>  <!-- Navbar -->  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">  
+    <div class="container">  
+        <a class="navbar-brand fw-bold" href="/">  
+            <i class="bi bi-droplet-half me-2"></i>Laundry System  
+        </a>  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">  
+        <span class="navbar-toggler-icon"></span>  
+    </button>  
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    <div class="collapse navbar-collapse" id="navbarNav">  
+        <ul class="navbar-nav ms-auto">  
+            <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>  
+            <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>  
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>  
+            <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>  
+            <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>  
+        </ul>  
+    </div>  
+</div>
 
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            padding: 60px 0;
-        }
+</nav>  <!-- Hero Section -->  <section class="hero-section py-5">  
+    <div class="container">  
+        <div class="row align-items-center min-vh-75">  <div class="col-lg-6">  
+            <h1 class="display-4 fw-bold text-primary mb-4">Professional Laundry Services Made Easy</h1>  
+            <p class="lead text-muted mb-4">  
+                Experience hassle-free laundry management with modern features, easy pickup, and on-time delivery.  
+            </p>  
 
-        /* Testimonial Images */
-        .review-img {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-color);
-        }
+            <a href="/register" class="btn btn-primary btn-lg me-3">  
+                <i class="bi bi-person-plus me-2"></i>Get Started  
+            </a>  
 
-        /* Random popup */
-        .activity-popup {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #ffffff;
-            padding: 12px 18px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-            animation: popupFade 0.4s ease-out;
-            z-index: 2000;
-        }
+            <a href="/login" class="btn btn-outline-primary btn-lg">  
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In  
+            </a>  
+        </div>  
 
-        @keyframes popupFade {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        <div class="col-lg-6 text-center">  
+            <i class="bi bi-droplet-half display-1 text-primary"></i>  
+            <div class="row mt-4 g-3">  
+                <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-clock fs-2 text-success"></i><h6 class="mt-2">Quick Service</h6></div></div></div>  
+                <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-truck fs-2 text-info"></i><h6 class="mt-2">Free Pickup</h6></div></div></div>  
+                <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-shield-check fs-2 text-warning"></i><h6 class="mt-2">Quality Care</h6></div></div></div>  
+                <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-phone fs-2 text-danger"></i><h6 class="mt-2">24/7 Support</h6></div></div></div>  
+            </div>  
+        </div>  
 
-        /* Footer */
-        footer {
-            background: #212529;
-            color: #fff;
-            padding: 40px 0;
-        }
-        footer a { color: #0dcaf0; text-decoration: none; }
-    </style>
-</head>
-<body>
+    </div>  
+</div>
 
-<!-- ⭐ HERO SECTION -->
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="fw-bold display-4">Smart Laundry Management System</h1>
-        <p class="lead mt-3">Automate laundry orders, billing, tracking & customer experience.</p>
-        <a href="#" class="btn btn-light btn-lg mt-3">Get Started</a>
-    </div>
-</section>
+</section>  <!-- PRICE CALCULATOR SECTION -->  <section class="py-5">  
+    <div class="container">  
+        <div class="text-center mb-4">  
+            <h2 class="fw-bold">Laundry Price Calculator</h2>  
+            <p class="text-muted">Calculate cost based on weight & service type</p>  
+        </div>  <div class="row justify-content-center">  
+        <div class="col-md-6">  
 
-<!-- ⭐ FEATURES -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="text-center fw-bold mb-4">Features</h2>
-        <div class="row g-4">
+            <div class="card shadow-sm p-4">  
+                <div class="mb-3">  
+                    <label class="form-label">Select Service</label>  
+                    <select id="serviceType" class="form-select">  
+                        <% if (services && services.length > 0) { %>  
+                            <% services.forEach(function(service) { %>  
+                                <option value="<%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>">  
+                                    <%= service.name %> (NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg)  
+                                </option>  
+                            <% }) %>  
+                        <% } else { %>  
+                            <option value="5">Regular Wash (NPR 5/kg)</option>  
+                            <option value="12">Dry Clean (NPR 12/kg)</option>  
+                            <option value="8">Express Service (NPR 8/kg)</option>  
+                        <% } %>  
+                    </select>  
+                </div>  
 
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <i class="bi bi-cart-check display-5 text-primary"></i>
-                        <h5 class="mt-3">Order Management</h5>
-                        <p>Easily manage customer pickups, deliveries & order status.</p>
-                    </div>
-                </div>
-            </div>
+                <div class="mb-3">  
+                    <label class="form-label">Weight (kg)</label>  
+                    <input type="number" min="1" id="weightInput" class="form-control" placeholder="Enter weight">  
+                </div>  
 
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <i class="bi bi-receipt display-5 text-primary"></i>
-                        <h5 class="mt-3">Billing System</h5>
-                        <p>Fast invoice generation with automatic price calculation.</p>
-                    </div>
-                </div>
-            </div>
+                <button onclick="calculatePrice()" class="btn btn-primary w-100">  
+                    Calculate Price  
+                </button>  
 
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <i class="bi bi-graph-up-arrow display-5 text-primary"></i>
-                        <h5 class="mt-3">Reports & Analytics</h5>
-                        <p>View daily income, customers & profit statistics.</p>
-                    </div>
-                </div>
-            </div>
+                <div class="alert alert-info mt-3 text-center d-none" id="resultBox">  
+                    Total Price: <strong id="totalPrice"></strong>  
+                </div>  
+            </div>  
 
-        </div>
-    </div>
-</section>
+        </div>  
+    </div>  
+</div>
 
-<!-- ⭐ TESTIMONIALS -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center fw-bold mb-4">What Customers Say</h2>
-        <div class="row g-4">
+</section>  <script>  
+function calculatePrice() {  
+    const pricePerKg = parseFloat(document.getElementById("serviceType").value);  
+    const weight = parseFloat(document.getElementById("weightInput").value);  
+  
+    if (!weight || weight <= 0) {  
+        alert("Please enter a valid weight.");  
+        return;  
+    }  
+  
+    const total = pricePerKg * weight;  
+  
+    document.getElementById("resultBox").classList.remove("d-none");  
+    document.getElementById("totalPrice").innerText = "NPR " + total.toFixed(2);  
+}  
+</script>  <!-- Reviews (STATIC, NO SLIDE) -->  <section class="py-5 bg-light">  
+    <div class="container">  
+        <h2 class="text-center mb-4">What Our Customers Say</h2>  <div class="row g-4">  
 
-            <div class="col-md-4">
-                <div class="card p-3 shadow">
-                    <div class="text-center">
-                        <img src="https://i.pravatar.cc/100?img=1" class="review-img">
-                    </div>
-                    <p class="mt-3">“Super quick service! Clothes smelled amazing.”</p>
-                    <h6 class="text-primary">— Rakesh Kumar</h6>
-                </div>
-            </div>
+        <div class="col-md-4">  
+            <div class="card shadow-sm p-3">  
+                <div class="d-flex align-items-center mb-2">  
+                    <img src="https://i.pravatar.cc/80?img=12" class="rounded-circle me-3" width="60">  
+                    <div><h5 class="mb-0">Suman K.</h5><span class="text-warning">★★★★★</span></div>  
+                </div>  
+                <p class="text-muted">Fast pickup, clean clothes, and affordable rates. Best laundry in Gaindakot!</p>  
+            </div>  
+        </div>  
 
-            <div class="col-md-4">
-                <div class="card p-3 shadow">
-                    <div class="text-center">
-                        <img src="https://i.pravatar.cc/100?img=2" class="review-img">
-                    </div>
-                    <p class="mt-3">“Their pickup & delivery timing is perfect!”</p>
-                    <h6 class="text-primary">— Sneha Patil</h6>
-                </div>
-            </div>
+        <div class="col-md-4">  
+            <div class="card shadow-sm p-3">  
+                <div class="d-flex align-items-center mb-2">  
+                    <img src="https://i.pravatar.cc/80?img=45" class="rounded-circle me-3" width="60">  
+                    <div><h5 class="mb-0">Aayusha S.</h5><span class="text-warning">★★★★★</span></div>  
+                </div>  
+                <p class="text-muted">Loved the service! My clothes smell amazing and delivery is quick.</p>  
+            </div>  
+        </div>  
 
-            <div class="col-md-4">
-                <div class="card p-3 shadow">
-                    <div class="text-center">
-                        <img src="https://i.pravatar.cc/100?img=3" class="review-img">
-                    </div>
-                    <p class="mt-3">“Very professional & affordable prices.”</p>
-                    <h6 class="text-primary">— John Mathew</h6>
-                </div>
-            </div>
+        <div class="col-md-4">  
+            <div class="card shadow-sm p-3">  
+                <div class="d-flex align-items-center mb-2">  
+                    <img src="https://i.pravatar.cc/80?img=33" class="rounded-circle me-3" width="60">  
+                    <div><h5 class="mb-0">Prakash L.</h5><span class="text-warning">★★★★☆</span></div>  
+                </div>  
+                <p class="text-muted">Dry cleaning quality is top-notch. Highly recommended!</p>  
+            </div>  
+        </div>  
 
-        </div>
-    </div>
-</section>
+    </div>  
+</div>
 
-<!-- ⭐ FOOTER -->
-<footer>
-    <div class="container">
-        <div class="row">
+</section>  <!-- Services -->  <section id="services" class="py-5 bg-light">  
+    <div class="container">  <div class="text-center mb-4">  
+        <h2 class="fw-bold">Our Services</h2>  
+        <p class="text-muted">Affordable & quality laundry solutions</p>  
+    </div>  
 
-            <div class="col-md-4">
-                <h5>Contact</h5>
-                <p><i class="bi bi-envelope"></i> support@laundry.com</p>
-                <p><i class="bi bi-telephone"></i> +91 9876543210</p>
-            </div>
+    <div class="row g-4">  
 
-            <div class="col-md-4">
-                <h5>Location</h5>
-                <p><i class="bi bi-geo-alt"></i> 221B Baker Street, Mumbai</p>
-                <a href="#">Open in Maps</a>
-            </div>
+        <% if (services && services.length > 0) { %>  
+        <% services.forEach(function(service) { %>  
 
-            <div class="col-md-4">
-                <h5>Follow Us</h5>
-                <i class="bi bi-facebook me-3 fs-4"></i>
-                <i class="bi bi-instagram me-3 fs-4"></i>
-                <i class="bi bi-twitter fs-4"></i>
-            </div>
+        <div class="col-lg-6">  
+            <div class="d-flex">  
+                <i class="bi bi-droplet fs-2 text-primary me-3"></i>  
+                <div>  
+                    <h5><%= service.name %></h5>  
+                    <p class="text-muted mb-1"><%= service.description %></p>  
 
-        </div>
-    </div>
-</footer>
+                    <small class="text-success fw-bold">  
+                        NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg  
+                    </small>  
+                </div>  
+            </div>  
+        </div>  
 
-<!-- ⭐ POPUP ELEMENT -->
-<div class="activity-popup" id="activityPopup"></div>
+        <% }) %>  
+        <% } else { %>  
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>  
+        <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>  
+        <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>  
+        <div class="col-lg-6"><h5>Delicate Care</h5><small class="text-success fw-bold">NPR 12.00/kg</small></div>  
 
-<!-- ⭐ RANDOM POPUP JS (60+ messages) -->
-<script>
-const popup = document.getElementById("activityPopup");
+        <% } %>  
 
-const messages = [
-    "New user registered!",
-    "A customer rated 5 stars!",
-    "Someone booked a Premium Wash!",
-    "Urgent order received!",
-    "Pickup scheduled successfully.",
-    "New delivery assigned.",
-    "Customer completed payment.",
-    "Wash cycle completed.",
-    "Drying process started.",
-    "Another customer joined!",
-    "New feedback submitted.",
-    "Order delivered successfully.",
-    "Customer selected Steam Iron.",
-    "Express laundry service booked!",
-    "Customer selected Bedding Wash.",
-    "New corporate order received.",
-    "A user just logged in.",
-    "Subscription plan activated.",
-    "Customer requested rewash.",
-    "App download completed.",
-    "New message received.",
-    "New coupon applied!",
-    "Wallet balance updated.",
-    "Tracking link opened.",
-    "Order moved to 'Ready'.",
-    "Customer upgraded plan.",
-    "Pickup agent assigned.",
-    "Delivery agent reached location.",
-    "Someone viewed pricing page.",
-    "Customer reordered service.",
-    "Iron-only service booked.",
-    "Wash & Fold selected.",
-    "Wash & Iron selected.",
-    "New loyalty points added.",
-    "Quick Wash purchased.",
-    "Customer shared referral link.",
-    "Order cancellation requested.",
-    "Laundry bag scanned.",
-    "Barcode successfully generated.",
-    "Payment verified.",
-    "New dry cleaning order.",
-    "Customer contacted support.",
-    "Customer added items.",
-    "New shirt added to order.",
-    "Bedsheet added to order.",
-    "Curtains added to service.",
-    "Customer checked order status.",
-    "Invoice downloaded.",
-    "Delivery OTP verified.",
-    "App review submitted.",
-    "Customer gave 4-star rating.",
-    "Customer gave 5-star rating.",
-    "Pickup confirmed!",
-    "New heat-press ironing added."
-];
+    </div>  
+</div>
 
-function showPopup() {
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    popup.innerText = randomMessage;
+</section>  <!-- Contact -->  <section id="contact" class="py-5 bg-primary text-white">  
+    <div class="container text-center">  <h2 class="fw-bold mb-4">Ready to Get Started?</h2>  
 
-    popup.style.display = "block";
-    setTimeout(() => popup.style.display = "none", 3500);
-}
+    <div class="row g-4 mt-4">  
 
-setInterval(showPopup, 7000);
-</script>
+        <div class="col-md-4">  
+            <i class="bi bi-telephone fs-2 mb-2"></i>  
+            <h6>Call Us</h6>  
+            <p>98254822689</p>  
+        </div>  
 
-</body>
-</html>
+        <div class="col-md-4">  
+            <i class="bi bi-envelope fs-2 mb-2"></i>  
+            <h6>Email Us</h6>  
+            <p>santoshballu321@gmail.com</p>  
+        </div>  
+
+        <div class="col-md-4">  
+            <i class="bi bi-geo-alt fs-2 mb-2"></i>  
+            <h6>Visit Us</h6>  
+            <p>Gaindakot-11, Nawalpur</p>  
+        </div>  
+
+    </div>  
+
+</div>
+
+</section>  <!-- Footer -->  <footer class="bg-dark text-light py-3">  
+    <div class="container d-flex justify-content-between">  
+        <p class="mb-0">&copy; <%= new Date().getFullYear() %> Laundry Management System</p>  
+        <p class="mb-0">Version 2.0</p>  
+    </div>  
+</footer>  <!-- Bootstrap JS -->  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  </body>  
+</html>  
