@@ -72,6 +72,71 @@
     </div>
 </section>
 
+<!-- PRICE CALCULATOR SECTION -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Laundry Price Calculator</h2>
+            <p class="text-muted">Calculate cost based on weight & service type</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                <div class="card shadow-sm p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Select Service</label>
+                        <select id="serviceType" class="form-select">
+                            <% if (services && services.length > 0) { %>
+                                <% services.forEach(function(service) { %>
+                                    <option value="<%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>">
+                                        <%= service.name %> (NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg)
+                                    </option>
+                                <% }) %>
+                            <% } else { %>
+                                <option value="5">Regular Wash (NPR 5/kg)</option>
+                                <option value="12">Dry Clean (NPR 12/kg)</option>
+                                <option value="8">Express Service (NPR 8/kg)</option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" min="1" id="weightInput" class="form-control" placeholder="Enter weight">
+                    </div>
+
+                    <button onclick="calculatePrice()" class="btn btn-primary w-100">
+                        Calculate Price
+                    </button>
+
+                    <div class="alert alert-info mt-3 text-center d-none" id="resultBox">
+                        Total Price: <strong id="totalPrice"></strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function calculatePrice() {
+    const pricePerKg = parseFloat(document.getElementById("serviceType").value);
+    const weight = parseFloat(document.getElementById("weightInput").value);
+
+    if (!weight || weight <= 0) {
+        alert("Please enter a valid weight.");
+        return;
+    }
+
+    const total = pricePerKg * weight;
+
+    document.getElementById("resultBox").classList.remove("d-none");
+    document.getElementById("totalPrice").innerText = "NPR " + total.toFixed(2);
+}
+</script>
+
 <!-- Reviews (STATIC, NO SLIDE) -->
 <section class="py-5 bg-light">
     <div class="container">
@@ -134,9 +199,8 @@
                         <h5><%= service.name %></h5>
                         <p class="text-muted mb-1"><%= service.description %></p>
 
-                        <!-- PRICE FIXED: NO DOUBLE NPR -->
                         <small class="text-success fw-bold">
-                            NPR <%= service.price.replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
+                            NPR <%= String(service.price).replace(/NPR|Rs|₹|\$/gi, '').trim() %>/kg
                         </small>
                     </div>
                 </div>
@@ -145,7 +209,6 @@
             <% }) %>
             <% } else { %>
 
-            <!-- DEFAULT SERVICES -->
             <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small class="text-success fw-bold">NPR 5.00/kg</small></div>
             <div class="col-lg-6"><h5>Dry Cleaning</h5><small class="text-success fw-bold">NPR 15.00/kg</small></div>
             <div class="col-lg-6"><h5>Express Service</h5><small class="text-success fw-bold">NPR 8.00/kg</small></div>
