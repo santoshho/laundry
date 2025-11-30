@@ -66,9 +66,14 @@ function writeJSON(filename, data) {
     });
     console.log('Default admin created.');
   }
+
+  // Ensure notifications file
+  if (!fs.existsSync(path.join(DATA_DIR, 'notifications.json'))) {
+    writeJSON('notifications.json', []);
+  }
 })();
 
-// Make session user available in all pages
+// Make session user available
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
@@ -79,7 +84,7 @@ app.use((req, res, next) => {
   res.locals.services = readJSON('services.json') || [];
   res.locals.orders = readJSON('orders.json') || [];
   res.locals.users = readJSON('users.json') || [];
-  res.locals.appconfig = readJSON('config.json') || {};
+  res.locals.appconfig = readJSON('config.json') || [];
   next();
 });
 
@@ -91,6 +96,7 @@ function requireAdmin(req, res, next) {
   res.redirect('/admin/login');
 }
 
+// Admin Login
 app.get('/admin/login', (req, res) => {
   res.render('admin/login', { error: null });
 });
@@ -109,20 +115,17 @@ app.post('/admin/login', (req, res) => {
   res.render('admin/login', { error: 'Invalid username or password' });
 });
 
+// Logout
 app.post('/admin/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
-// -------------------
-// Admin Dashboard
-// -------------------
+// Dashboard
 app.get('/admin/dashboard', requireAdmin, (req, res) => {
   res.render('admin/dashboard');
 });
 
-// -------------------
-// Admin Data Pages
-// -------------------
+// Data Pages
 app.get('/admin/orders', requireAdmin, (req, res) => {
   res.render('admin/orders', { orders: readJSON('orders.json') || [] });
 });
@@ -131,13 +134,10 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   res.render('admin/users', { users: readJSON('users.json') || [] });
 });
 
-// -------------------
-// FIXED: Request Details (Query)
-// -------------------
+// Request Details
 app.get('/admin/request-details', requireAdmin, (req, res) => {
   const id = String(req.query.id);
   const orders = readJSON('orders.json') || [];
-
   const order = orders.find(o => String(o.id) === id);
 
   if (!order) return res.status(404).send('Request not found');
@@ -145,9 +145,7 @@ app.get('/admin/request-details', requireAdmin, (req, res) => {
   res.render('admin/request-details', { order });
 });
 
-// -------------------
-// FIXED: User Details
-// -------------------
+// User Details Page
 app.get('/admin/user-details', requireAdmin, (req, res) => {
   const id = String(req.query.id);
 
@@ -159,9 +157,7 @@ app.get('/admin/user-details', requireAdmin, (req, res) => {
   res.render('admin/user-details', { user, orders });
 });
 
-// -------------------
-// FIXED: Order View (Route Param)
-// -------------------
+// Order View Page
 app.get('/admin/order/:id', requireAdmin, (req, res) => {
   const id = String(req.params.id);
   const orders = readJSON('orders.json') || [];
@@ -174,16 +170,33 @@ app.get('/admin/order/:id', requireAdmin, (req, res) => {
 });
 
 // -------------------
-// Update Order Status
+// Update Order Status + CREATE NOTIFICATION
 // -------------------
 app.post('/admin/order/:id/status', requireAdmin, (req, res) => {
   const id = String(req.params.id);
   const orders = readJSON('orders.json') || [];
+  const notifications = readJSON('notifications.json') || [];
+  const users = readJSON('users.json') || [];
 
   const order = orders.find(o => String(o.id) === id);
   if (order) {
     order.status = req.body.status || order.status;
     order.updated_at = new Date().toISOString();
+
+    // FIND USER BY PHONE OR NAME (best guess)
+    const user = users.find(u => u.phone === order.phone || `${u.first_name} ${u.last_name}` === order.name);
+
+    if (user) {
+      notifications.push({
+        id: Date.now().toString(),
+        user_id: user.id,
+        message: `Your order #${order.id} status changed to "${order.status}".`,
+        read: false,
+        created_at: new Date().toISOString()
+      });
+      writeJSON('notifications.json', notifications);
+    }
+
     writeJSON('orders.json', orders);
   }
 
@@ -191,7 +204,7 @@ app.post('/admin/order/:id/status', requireAdmin, (req, res) => {
 });
 
 // -------------------
-// Order Creation + File Upload
+// Create Order (User)
 // -------------------
 const upload = multer({ dest: path.join(__dirname, 'public/uploads') });
 
@@ -199,7 +212,7 @@ app.post('/create-order', upload.single('attachment'), (req, res) => {
   const orders = readJSON('orders.json') || [];
 
   const newOrder = {
-    id: Date.now().toString(),   // STRING ID FIX
+    id: Date.now().toString(),
     name: req.body.name,
     phone: req.body.phone,
     address: req.body.address,
@@ -265,6 +278,7 @@ app.post('/login', (req, res) => {
   res.redirect('/user/dashboard');
 });
 
+// Register
 app.post('/register', (req, res) => {
   const { first_name, last_name, email, phone, password, confirm_password } = req.body;
 
@@ -281,7 +295,7 @@ app.post('/register', (req, res) => {
   if (errors.length > 0) return res.render('register', { errors });
 
   const newUser = {
-    id: Date.now().toString(),  // STRING ID FIX
+    id: Date.now().toString(),
     first_name,
     last_name,
     email,
@@ -307,14 +321,14 @@ app.post('/logout', (req, res) => {
 });
 
 // -------------------
-// Forgot Password (Mock)
+// FORGOT PASSWORD (MOCK)
 // -------------------
 app.post('/forgot-password', (req, res) => {
   res.render('forgot-password', { message: 'If this email exists, a reset link has been sent.' });
 });
 
 // -------------------
-// Success Page
+// SUCCESS PAGE
 // -------------------
 app.get('/order-success', (req, res) => {
   res.send(`
@@ -324,6 +338,35 @@ app.get('/order-success', (req, res) => {
       <a href="/">← Back to Home</a>
     </div>
   `);
+});
+
+// -----------------------------------------
+// USER NOTIFICATIONS SYSTEM
+// -----------------------------------------
+
+// View notifications page
+app.get('/user/notifications', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const all = readJSON('notifications.json') || [];
+  const myNotes = all.filter(n => n.user_id === req.session.user.id);
+
+  res.render('user/notifications', { notifications: myNotes });
+});
+
+// Mark notification as read
+app.get('/user/notifications/read/:id', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const notifications = readJSON('notifications.json') || [];
+  const note = notifications.find(n => n.id === req.params.id);
+
+  if (note && note.user_id === req.session.user.id) {
+    note.read = true;
+    writeJSON('notifications.json', notifications);
+  }
+
+  res.redirect('/user/notifications');
 });
 
 // -------------------
@@ -343,7 +386,7 @@ app.get('*', (req, res, next) => {
 });
 
 // -------------------
-// Save Unknown POST Forms
+// SAVE UNKNOWN FORM POSTS
 // -------------------
 app.post('*', (req, res) => {
   const forms = readJSON('forms.json') || [];
