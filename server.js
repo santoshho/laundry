@@ -56,6 +56,10 @@ app.use((req, res, next) => {
 // =============================
 // USER LOGIN
 // =============================
+app.get("/login", (req, res) => {
+    res.render("login", { error: null });
+});
+
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
@@ -79,6 +83,10 @@ app.post("/login", (req, res) => {
 // =============================
 // USER REGISTER
 // =============================
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+
 app.post("/register", (req, res) => {
     const users = readJSON("users.json");
 
@@ -122,7 +130,7 @@ app.get("/user/dashboard", (req, res) => {
 });
 
 // =============================
-// ADMIN STATIC ROUTES
+// ADMIN LOGIN + DASHBOARD
 // =============================
 app.get("/admin/login", (req, res) => {
     res.render("admin/login");
@@ -133,17 +141,17 @@ app.get("/admin/dashboard", (req, res) => {
 });
 
 // =============================
-// HOME ROUTE
+// HOME
 // =============================
 app.get("/", (req, res) => {
     res.render("index");
 });
 
 // =============================
-// SAVE UNKNOWN FORM
+// SAVE ANY FORM
 // =============================
 app.post("/save-form", (req, res) => {
-    const forms = readJSON("forms.json") || [];
+    const forms = readJSON("forms.json");
     forms.push({ id: Date.now(), data: req.body });
     writeJSON("forms.json", forms);
     res.json({ success: true });
