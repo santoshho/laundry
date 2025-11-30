@@ -54,15 +54,26 @@ app.use((req, res, next) => {
 });
 
 // =============================
+// HOME ROUTE
+// =============================
+app.get("/", (req, res) => {
+    res.render("index");
+});
+
+// =============================
+// AUTH PAGES (STATIC)
+// =============================
+app.get("/login", (req, res) => res.render("login"));
+app.get("/register", (req, res) => res.render("register"));
+
+// =============================
 // USER LOGIN
 // =============================
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const users = readJSON("users.json");
 
-    const user = users.find(
-        u => u.email === email && u.password === password
-    );
+    const user = users.find(u => u.email === email && u.password === password);
 
     if (!user) return res.render("login", { error: "Invalid credentials" });
 
@@ -113,31 +124,17 @@ app.get("/user/dashboard", (req, res) => {
     const orders = readJSON("orders.json");
 
     const myOrders = orders.filter(
-        o =>
-            o.userId === req.session.user.id ||
-            o.phone === req.session.user.phone
+        o => o.userId === req.session.user.id || o.phone === req.session.user.phone
     );
 
     res.render("user/dashboard", { orders: myOrders });
 });
 
 // =============================
-// HOME ROUTE
+// ADMIN PAGES (STATIC)
 // =============================
-app.get("/", (req, res) => {
-    res.render("index");
-});
-
-// =============================
-// ADMIN PAGES (STATIC RENDER)
-// =============================
-app.get("/admin/login", (req, res) => {
-    res.render("admin/login");
-});
-
-app.get("/admin/dashboard", (req, res) => {
-    res.render("admin/dashboard");
-});
+app.get("/admin/login", (req, res) => res.render("admin/login"));
+app.get("/admin/dashboard", (req, res) => res.render("admin/dashboard"));
 
 // =============================
 // SAVE UNKNOWN FORM
@@ -147,6 +144,13 @@ app.post("/save-form", (req, res) => {
     forms.push({ id: Date.now(), data: req.body });
     writeJSON("forms.json", forms);
     res.json({ success: true });
+});
+
+// =============================
+// 404 PAGE
+// =============================
+app.use((req, res) => {
+    res.status(404).render("404");
 });
 
 // =============================
