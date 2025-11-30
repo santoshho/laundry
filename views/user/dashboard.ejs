@@ -1,6 +1,8 @@
 <%- include('../partials/header') %>
 
 <div class="container mt-4">
+
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>
             <i class="bi bi-speedometer2 me-2"></i>Dashboard
@@ -10,43 +12,72 @@
         </a>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- NOTIFICATIONS -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Your Notifications</h5>
+
+            <% if (notifications && notifications.length > 0) { %>
+                <a href="/user/notifications/clear" class="btn btn-sm btn-outline-danger">
+                    Clear All
+                </a>
+            <% } %>
+        </div>
+
+        <div class="card-body">
+            <% if (notifications && notifications.length > 0) { %>
+                <ul class="list-group">
+                    <% notifications.slice().reverse().forEach(n => { %>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><%= n.message %></span>
+                            <small class="text-muted"><%= new Date(n.timestamp).toLocaleString() %></small>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="text-muted text-center py-3">No notifications</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- QUICK STATS -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h3 class="text-primary">
-                        <%= orders ? orders.length : 0 %>
-                    </h3>
+                    <h3 class="text-primary"><%= orders.length %></h3>
                     <p class="text-muted mb-0">Total Requests</p>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="text-warning">
-                        <%= orders ? orders.filter(o => o.status === 'pending').length : 0 %>
+                        <%= orders.filter(o => o.status === 'pending').length %>
                     </h3>
                     <p class="text-muted mb-0">Pending</p>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="text-info">
-                        <%= orders ? orders.filter(o => o.status === 'in_process').length : 0 %>
+                        <%= orders.filter(o => o.status === 'in_progress').length %>
                     </h3>
-                    <p class="text-muted mb-0">In Process</p>
+                    <p class="text-muted mb-0">In Progress</p>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="text-success">
-                        <%= orders ? orders.filter(o => o.status === 'completed').length : 0 %>
+                        <%= orders.filter(o => o.status === 'done').length %>
                     </h3>
                     <p class="text-muted mb-0">Completed</p>
                 </div>
@@ -54,14 +85,16 @@
         </div>
     </div>
 
-    <!-- Recent Requests -->
+    <!-- RECENT REQUESTS -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Recent Requests</h5>
             <a href="/user/requests" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
+
         <div class="card-body">
-            <% if (orders && orders.length > 0) { %>
+            <% if (orders.length > 0) { %>
+
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -73,23 +106,29 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <% orders.slice(0, 5).forEach(function(order) { %>
+                            <% orders.slice().reverse().slice(0, 5).forEach(order => { %>
                                 <tr>
                                     <td>
-                                        <a href="/user/request-details?id=<%= order.id %>" class="text-decoration-none fw-bold">
+                                        <a href="/user/request-details?id=<%= order.id %>" class="fw-bold text-decoration-none">
                                             #<%= order.id %>
                                         </a>
                                     </td>
+
                                     <td><%= order.items %></td>
+
                                     <td>
-                                        <span class="badge bg-<%= order.status === 'pending' ? 'warning' : order.status === 'completed' ? 'success' : 'info' %>">
+                                        <span class="badge bg-
+                                            <%= order.status === 'pending' ? 'warning' :
+                                                order.status === 'in_progress' ? 'info' :
+                                                'success' %>">
                                             <%= order.status %>
                                         </span>
                                     </td>
-                                    <td>
-                                        <%= order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A' %>
-                                    </td>
+
+                                    <td><%= new Date(order.created_at).toLocaleDateString() %></td>
+
                                     <td>
                                         <a href="/user/request-details?id=<%= order.id %>" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye"></i>
@@ -98,13 +137,16 @@
                                 </tr>
                             <% }) %>
                         </tbody>
+
                     </table>
                 </div>
+
             <% } else { %>
                 <div class="text-center py-4">
                     <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
                     <h5 class="text-muted mt-3">No requests yet</h5>
                     <p class="text-muted">Create your first laundry request to get started</p>
+
                     <a href="/user/new-request" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Create Request
                     </a>
@@ -112,6 +154,7 @@
             <% } %>
         </div>
     </div>
+
 </div>
 
 <%- include('../partials/footer') %>
