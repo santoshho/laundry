@@ -1,136 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Laundry Service</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management System</title>
 
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
+
 <body>
 
-    <!-- Header -->
-    <header>
-        <nav class="navbar">
-            <h1 class="logo">Laundry Service</h1>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/services">Services</a></li>
-                <li><a href="/calculator">Calculator</a></li>
-                <li><a href="/register">Register</a></li>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4">Laundry System</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a>
+                </li>
+
             </ul>
-        </nav>
-    </header>
+        </div>
+    </div>
+</nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h2>Professional Laundry Services</h2>
-        <p>Fast, affordable, and reliable cleaning for your garments.</p>
-        <a href="/register" class="btn-primary">Book Now</a>
-    </section>
+<!-- HERO -->
+<section class="py-5 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
 
-    <!-- Services Section -->
-    <section class="services">
-        <h2>Our Services</h2>
+            <div class="col-lg-6">
+                <h1 class="fw-bold">Professional Laundry Services Made Easy</h1>
+                <p class="text-muted">
+                    Experience hassle-free laundry management with modern features,
+                    easy pickup, and on-time delivery.
+                </p>
 
-        <div class="service-container">
+                <a href="/register" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-person-plus me-2"></i>Get Started
+                </a>
+
+                <a href="/login" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
+            </div>
+
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-droplet-half display-1 text-primary"></i>
+
+                <div class="row mt-4 g-3">
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-clock fs-2 text-success"></i><h6>Quick Service</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-truck fs-2 text-info"></i><h6>Free Pickup</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-shield-check fs-2 text-warning"></i><h6>Quality Care</h6></div></div></div>
+                    <div class="col-6"><div class="card shadow-sm"><div class="card-body text-center"><i class="bi bi-phone fs-2 text-danger"></i><h6>24/7 Support</h6></div></div></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- PRICE CALCULATOR -->
+<section id="calculator" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Laundry Price Calculator</h2>
+        <p class="text-center text-muted mb-4">Calculate cost based on weight & service type</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                <div class="card shadow-sm p-4">
+
+                    <!-- Select Service -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Service</label>
+                        <select id="serviceType" class="form-select">
+
+                            <% if (services && services.length > 0) { %>
+                                <% services.forEach(s => { %>
+                                    <option value="<%= s.price %>">
+                                        <%= s.name %> (NPR <%= s.price %>/kg)
+                                    </option>
+                                <% }) %>
+                            <% } else { %>
+                                <option value="500">Regular Wash (NPR 500/kg)</option>
+                                <option value="1500">Dry Clean (NPR 1500/kg)</option>
+                                <option value="800">Express Service (NPR 800/kg)</option>
+                                <option value="1200">Delicate Care (NPR 1200/kg)</option>
+                            <% } %>
+
+                        </select>
+                    </div>
+
+                    <!-- Weight -->
+                    <div class="mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" id="weightInput" min="1" class="form-control" placeholder="Enter weight">
+                    </div>
+
+                    <button onclick="calculatePrice()" class="btn btn-primary w-100">Calculate Price</button>
+
+                    <div class="alert alert-info text-center mt-3 d-none" id="resultBox">
+                        Total Price: <strong id="totalPrice"></strong>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES LIST -->
+<section id="services" class="py-5">
+    <div class="container">
+
+        <h2 class="fw-bold">Our Services</h2>
+        <p class="text-muted mb-4">Affordable & quality laundry solutions</p>
+
+        <div class="row g-4">
 
             <% if (services && services.length > 0) { %>
 
                 <% services.forEach(service => { %>
-                    <div class="service-card">
-                        <h3><%= service.name %></h3>
-                        <p><%= service.description %></p>
-                        <p class="price">NPR <%= service.price %> / kg</p>
+                    <div class="col-lg-6">
+                        <div class="d-flex">
+                            <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                            <div>
+                                <h5><%= service.name %></h5>
+                                <p class="text-muted mb-1"><%= service.description %></p>
+                                <small class="text-success fw-bold">
+                                    NPR <%= service.price %>/kg
+                                </small>
+                            </div>
+                        </div>
                     </div>
                 <% }) %>
 
             <% } else { %>
 
-                <!-- Fallback if JSON fails -->
-                <div class="service-card">
-                    <h3>Regular Wash</h3>
-                    <p>Standard washing and drying</p>
-                    <p class="price">NPR 500 / kg</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Dry Cleaning</h3>
-                    <p>Premium formal/delicate cleaning</p>
-                    <p class="price">NPR 1500 / kg</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Express Service</h3>
-                    <p>Same-day quick service</p>
-                    <p class="price">NPR 800 / kg</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Delicate Care</h3>
-                    <p>Premium fabric expert handling</p>
-                    <p class="price">NPR 1200 / kg</p>
-                </div>
+                <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small>NPR 500/kg</small></div>
+                <div class="col-lg-6"><h5>Dry Cleaning</h5><small>NPR 1500/kg</small></div>
+                <div class="col-lg-6"><h5>Express</h5><small>NPR 800/kg</small></div>
+                <div class="col-lg-6"><h5>Delicate Care</h5><small>NPR 1200/kg</small></div>
 
             <% } %>
 
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Calculator Section -->
-    <section class="calculator">
-        <h2>Price Calculator</h2>
+<!-- FOOTER -->
+<footer class="py-3 text-center bg-dark text-light">
+    © <%= new Date().getFullYear() %> Laundry Management System — Version 1.0
+</footer>
 
-        <div class="calc-box">
 
-            <label for="serviceType">Choose Service:</label>
-            <select id="serviceType">
-                <% if (services && services.length > 0) { %>
-                    <% services.forEach(service => { %>
-                        <option value="<%= service.price %>">
-                            <%= service.name %> (NPR <%= service.price %>/kg)
-                        </option>
-                    <% }) %>
-                <% } else { %>
-                    <option value="500">Regular Wash (NPR 500/kg)</option>
-                    <option value="1500">Dry Cleaning (NPR 1500/kg)</option>
-                    <option value="800">Express Service (NPR 800/kg)</option>
-                    <option value="1200">Delicate Care (NPR 1200/kg)</option>
-                <% } %>
-            </select>
+<!-- JS -->
+<script>
+function calculatePrice() {
+    const price = Number(document.getElementById("serviceType").value);
+    const weight = Number(document.getElementById("weightInput").value);
 
-            <label for="weight">Weight (kg):</label>
-            <input type="number" id="weight" min="1" placeholder="Enter weight">
+    if (!weight || weight <= 0) return alert("Enter valid weight");
 
-            <button id="calcBtn">Calculate</button>
+    const total = price * weight;
+    document.getElementById("totalPrice").textContent = "NPR " + total;
+    document.getElementById("resultBox").classList.remove("d-none");
+}
+</script>
 
-            <h3 id="totalPrice">Total: NPR 0</h3>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>© Laundry Service 2025</p>
-    </footer>
-
-    <!-- Calculator Script -->
-    <script>
-        const calcBtn = document.getElementById('calcBtn');
-        calcBtn.addEventListener('click', () => {
-            const price = parseInt(document.getElementById('serviceType').value);
-            const weight = parseFloat(document.getElementById('weight').value);
-
-            if (!weight || weight <= 0) {
-                alert("Please enter a valid weight in kg.");
-                return;
-            }
-
-            const total = price * weight;
-            document.getElementById('totalPrice').textContent = "Total: NPR " + total;
-        });
-    </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
