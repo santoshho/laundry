@@ -3,28 +3,28 @@
     "id": 1,
     "name": "Regular Wash & Dry",
     "description": "Standard washing and drying service for everyday clothes",
-    "price": "NPR 500",
+    "price": "5.00",
     "status": "active"
   },
   {
     "id": 2,
     "name": "Dry Cleaning",
     "description": "Professional dry cleaning for delicate and formal wear",
-    "price": "NPR 1500",
+    "price": "15.00",
     "status": "active"
   },
   {
     "id": 3,
     "name": "Express Service",
     "description": "Same-day wash and dry service for urgent needs",
-    "price": "NPR 800",
+    "price": "8.00",
     "status": "active"
   },
   {
     "id": 4,
     "name": "Delicate Care",
     "description": "Special care for delicate fabrics and premium garments",
-    "price": "NPR 1200",
+    "price": "12.00",
     "status": "active"
   }
 ]
