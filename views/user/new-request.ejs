@@ -5,7 +5,7 @@
         <h2>
             <i class="bi bi-plus-circle me-2"></i>New Laundry Request
         </h2>
-        <a href="/user/dashboard" class="btn btn-outline-secondary">
+        <a href="/user/dashboard/<%= user.id %>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
         </a>
     </div>
@@ -16,6 +16,9 @@
                 <div class="card-body">
 
                     <form action="/create-order" method="POST" enctype="multipart/form-data">
+
+                        <!-- HIDDEN USER ID (REQUIRED FIX) -->
+                        <input type="hidden" name="userId" value="<%= user.id %>">
 
                         <!-- Full Name -->
                         <div class="mb-3">
@@ -85,7 +88,7 @@
             </div>
         </div>
 
-        <!-- Info Box -->
+        <!-- INFO BOX -->
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
