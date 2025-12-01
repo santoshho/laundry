@@ -1,200 +1,143 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
-
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const bodyParser = require("body-parser");
 const app = express();
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(bodyParser.json());
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// ---------------------------
-// UPLOAD CONFIG
-// ---------------------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const up = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(up)) fs.mkdirSync(up, { recursive: true });
-    cb(null, up);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-const upload = multer({ storage });
+// Helper functions
+const readJSON = (file) => JSON.parse(fs.readFileSync(path.join(__dirname, file), "utf8"));
+const writeJSON = (file, data) => fs.writeFileSync(path.join(__dirname, file), JSON.stringify(data, null, 2));
 
-// ---------------------------
-// HELPERS
-// ---------------------------
-function readJSON(file) {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(__dirname, file), 'utf8'));
-  } catch (e) {
-    return [];
-  }
-}
+/* ============================
+   AUTH PAGES
+============================ */
 
-function writeJSON(file, data) {
-  fs.writeFileSync(path.join(__dirname, file), JSON.stringify(data, null, 2));
-}
-
-// ---------------------------
-// HOME PAGE
-// ---------------------------
-app.get('/', (req, res) => {
-  const services = readJSON('services.json');
-  res.render('index', { services });
+// Login Page
+app.get("/", (req, res) => {
+  res.render("auth/login");
 });
 
-// ---------------------------
-// USER AUTH
-// ---------------------------
-app.get('/login', (req, res) => {
-  res.render('login', { error: null });
+// Register Page
+app.get("/register", (req, res) => {
+  res.render("auth/register");
 });
 
-app.post('/login', (req, res) => {
-  const users = readJSON('users.json');
-  const user = users.find(
-    u => u.email === req.body.email && u.password === req.body.password
-  );
+// Handle Registration
+app.post("/register", (req, res) => {
+  const users = readJSON("users.json");
+  const { name, email, password } = req.body;
 
-  if (!user) {
-    return res.render('login', { error: 'Invalid email or password' });
+  if (users.find(u => u.email === email)) {
+    return res.send("User already exists!");
   }
 
-  res.redirect('/user/dashboard/' + user.id);
-});
-
-app.get('/register', (req, res) => {
-  res.render('register', { errors: [] });
-});
-
-app.post('/register', (req, res) => {
-  const users = readJSON('users.json');
-
-  const first = req.body.first_name?.trim();
-  const last = req.body.last_name?.trim();
-  const email = req.body.email?.trim();
-  const phone = req.body.phone?.trim();
-  const pass = req.body.password;
-  const repeat = req.body.confirm_password;
-
-  const errors = [];
-
-  if (!first) errors.push('First name required');
-  if (!last) errors.push('Last name required');
-  if (!email) errors.push('Email required');
-  if (!pass) errors.push('Password required');
-  if (pass !== repeat) errors.push('Passwords do not match');
-  if (users.find(u => u.email === email)) errors.push('Email already registered');
-
-  if (errors.length) {
-    return res.render('register', { errors });
-  }
-
-  users.push({
+  const newUser = {
     id: Date.now(),
-    first_name: first,
-    last_name: last,
+    name,
     email,
-    phone,
-    password: pass,
-    created_at: new Date().toISOString()
-  });
+    password,
+    role: "user"
+  };
 
-  writeJSON('users.json', users);
-  res.redirect('/login');
+  users.push(newUser);
+  writeJSON("users.json", users);
+
+  res.redirect("/");
 });
 
-// ---------------------------
-// DASHBOARD
-// ---------------------------
-app.get('/user/dashboard/:id', (req, res) => {
-  const userId = req.params.id;
-  const users = readJSON('users.json');
-  const user = users.find(u => String(u.id) === String(userId));
+// Handle Login
+app.post("/login", (req, res) => {
+  const users = readJSON("users.json");
+  const { email, password } = req.body;
 
-  const services = readJSON('services.json');
-  const orders = readJSON('orders.json').filter(o => String(o.userId) === String(userId));
+  const user = users.find(u => u.email === email && u.password === password);
 
-  res.render('user/dashboard', { user, services, orders });
+  if (!user) return res.send("Invalid credentials!");
+
+  if (user.role === "admin") {
+    return res.redirect(`/admin/dashboard?id=${user.id}`);
+  }
+
+  res.redirect(`/user/dashboard?id=${user.id}`);
 });
 
-// ---------------------------
-// NEW REQUEST PAGE (OLD ORIGINAL VERSION)
-// ---------------------------
-app.get('/user/new-request', (req, res) => {
-  const services = readJSON('services.json');
-  res.render('user/new-request', { services });
+/* ============================
+   USER DASHBOARD
+============================ */
+
+// User Dashboard
+app.get("/user/dashboard", (req, res) => {
+  const users = readJSON("users.json");
+  const user = users.find(u => u.id == req.query.id);
+  res.render("user/dashboard", { user });
 });
 
-// ---------------------------
-// CREATE ORDER
-// ---------------------------
-app.post('/create-order', upload.single("attachment"), (req, res) => {
-  const orders = readJSON('orders.json');
+/* ============================
+   REQUEST PAGE (OLD WORKING VERSION)
+============================ */
 
-  orders.push({
+app.get("/user/new-request", (req, res) => {
+  const users = readJSON("users.json");
+  const services = readJSON("services.json");
+
+  const user = users.find(u => u.id == req.query.id);
+
+  res.render("user/new-request", { user, services });
+});
+
+app.post("/user/new-request", (req, res) => {
+  const requests = readJSON("requests.json");
+
+  const newRequest = {
     id: Date.now(),
     userId: req.body.userId,
-    name: req.body.name,
-    phone: req.body.phone,
-    address: req.body.address,
-    serviceId: req.body.service_id,
-    kg: req.body.kg,
-    totalPrice: req.body.total_price,
-    items: req.body.items,
-    attachment: req.file ? req.file.filename : null,
-    status: "Pending",
+    service: req.body.service,
+    weight: req.body.weight,
+    status: "pending",
     date: new Date().toISOString()
+  };
+
+  requests.push(newRequest);
+  writeJSON("requests.json", requests);
+
+  res.redirect(`/user/dashboard?id=${req.body.userId}`);
+});
+
+/* ============================
+   ADMIN SECTION
+============================ */
+
+app.get("/admin/dashboard", (req, res) => {
+  const users = readJSON("users.json");
+  const user = users.find(u => u.id == req.query.id);
+  const requests = readJSON("requests.json");
+
+  res.render("admin/dashboard", { user, requests });
+});
+
+app.get("/admin/services", (req, res) => {
+  const services = readJSON("services.json");
+  res.render("admin/services", { services });
+});
+
+app.post("/admin/services/add", (req, res) => {
+  const services = readJSON("services.json");
+  services.push({
+    id: Date.now(),
+    name: req.body.name,
+    description: req.body.description,
+    price: req.body.price,
+    status: "active"
   });
 
-  writeJSON('orders.json', orders);
-
-  res.redirect('/user/dashboard/' + req.body.userId);
+  writeJSON("services.json", services);
+  res.redirect("/admin/services");
 });
 
-// ---------------------------
-// ADMIN
-// ---------------------------
-app.get('/admin/login', (req, res) => {
-  res.render('admin/login', { error: null });
-});
-
-app.post('/admin/login', (req, res) => {
-  if (req.body.email === "admin@gmail.com" && req.body.password === "admin123") {
-    return res.redirect('/admin/dashboard');
-  }
-  res.render('admin/login', { error: "Invalid Admin Credentials" });
-});
-
-app.get('/admin/dashboard', (req, res) => {
-  const orders = readJSON('orders.json');
-  const users = readJSON('users.json');
-  const services = readJSON('services.json');
-  res.render('admin/dashboard', { orders, users, services });
-});
-
-// UPDATE ORDER
-app.post('/admin/update-status/:id', (req, res) => {
-  const orders = readJSON('orders.json');
-  const order = orders.find(o => String(o.id) === String(req.params.id));
-
-  if (order) {
-    order.status = req.body.status;
-    writeJSON('orders.json', orders);
-  }
-
-  res.redirect('/admin/dashboard');
-});
-
-// ---------------------------
-// SERVER
-// ---------------------------
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port " + PORT));
+app.listen(3000, () => console.log("Server running on port 3000"));
