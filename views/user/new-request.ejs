@@ -5,7 +5,7 @@
         <h2>
             <i class="bi bi-plus-circle me-2"></i>New Laundry Request
         </h2>
-        <a href="/user/dashboard/<%= user.id %>" class="btn btn-outline-secondary">
+        <a href="/user/dashboard" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
         </a>
     </div>
@@ -14,81 +14,45 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-
                     <form action="/create-order" method="POST" enctype="multipart/form-data">
-
-                        <!-- HIDDEN USER ID (REQUIRED FIX) -->
-                        <input type="hidden" name="userId" value="<%= user.id %>">
-
-                        <!-- Full Name -->
                         <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
-
-                        <!-- Phone -->
+                        
                         <div class="mb-3">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" name="phone" required>
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
                         </div>
-
-                        <!-- Address -->
+                        
                         <div class="mb-3">
-                            <label class="form-label">Pickup Address</label>
-                            <textarea class="form-control" name="address" rows="3" required></textarea>
+                            <label for="address" class="form-label">Pickup Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
                         </div>
-
-                        <!-- Service Selection -->
+                        
                         <div class="mb-3">
-                            <label class="form-label">Select Service</label>
-                            <select class="form-select" id="serviceSelect" name="service_id" required>
-                                <option value="">-- Select Service --</option>
-                                <% services.forEach(s => { %>
-                                    <option value="<%= s.id %>" data-price="<%= s.price %>">
-                                        <%= s.name %> — NPR <%= s.price %>
-                                    </option>
-                                <% }) %>
-                            </select>
+                            <label for="items" class="form-label">Items Description</label>
+                            <textarea class="form-control" id="items" name="items" rows="4" 
+                                      placeholder="Describe the items you want to have laundered..." required></textarea>
                         </div>
-
-                        <!-- KG Input -->
+                        
                         <div class="mb-3">
-                            <label class="form-label">Weight (KG)</label>
-                            <input type="number" min="1" class="form-control" id="kgInput" name="kg" required>
+                            <label for="attachment" class="form-label">Attachment (Optional)</label>
+                            <input type="file" class="form-control" id="attachment" name="attachment" 
+                                   accept="image/*,.pdf,.doc,.docx">
+                            <div class="form-text">Upload any relevant images or documents</div>
                         </div>
-
-                        <!-- Auto Total Price -->
-                        <div class="mb-3">
-                            <label class="form-label">Total Price</label>
-                            <input type="text" class="form-control" id="totalPrice" name="total_price" readonly>
-                        </div>
-
-                        <!-- Items Description -->
-                        <div class="mb-3">
-                            <label class="form-label">Items Description</label>
-                            <textarea class="form-control" name="items" rows="4" required></textarea>
-                        </div>
-
-                        <!-- Attachment -->
-                        <div class="mb-3">
-                            <label class="form-label">Attachment (Optional)</label>
-                            <input type="file" class="form-control" name="attachment" accept="image/*,.pdf,.doc,.docx">
-                        </div>
-
-                        <!-- Submit -->
+                        
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-send me-2"></i>Submit Request
                             </button>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>
-
-        <!-- INFO BOX -->
+        
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
@@ -98,38 +62,31 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Free pickup and delivery</small></li>
-                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>24–48 hour turnaround</small></li>
-                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Professional cleaning service</small></li>
-                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Eco-friendly detergents</small></li>
-                        <li><i class="bi bi-check-circle text-success me-2"></i><small>Satisfaction guaranteed</small></li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Free pickup and delivery</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>24-48 hour turnaround</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Professional cleaning service</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Eco-friendly detergents</small>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Satisfaction guaranteed</small>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- PRICE CALCULATOR -->
-<script>
-    const serviceSelect = document.getElementById("serviceSelect");
-    const kgInput = document.getElementById("kgInput");
-    const totalPrice = document.getElementById("totalPrice");
-
-    function updateTotal() {
-        const price = Number(serviceSelect.selectedOptions[0]?.dataset.price || 0);
-        const kg = Number(kgInput.value);
-
-        if (!kg || !price) {
-            totalPrice.value = "";
-            return;
-        }
-
-        totalPrice.value = "NPR " + (price * kg);
-    }
-
-    serviceSelect.addEventListener("change", updateTotal);
-    kgInput.addEventListener("input", updateTotal);
-</script>
 
 <%- include('../partials/footer') %>
