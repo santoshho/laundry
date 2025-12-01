@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const path = require('path');
 const multer = require('multer');
 
 const app = express();
@@ -17,7 +16,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Helper
+// Helper functions
 function readJSON(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (err) { return []; }
@@ -32,25 +31,24 @@ function writeJSON(file, data) {
 app.get('/', (req, res) => res.render('index'));
 
 // -------------------
-// USER AUTH
+// LOGIN ROUTES
 // -------------------
-app.get('/user/login', (req, res) => res.render('user/login'));
+app.get('/login', (req, res) => res.render('user/login'));
 
-app.post('/user/login', (req, res) => {
+app.post('/login', (req, res) => {
   const users = readJSON('users.json');
   const user = users.find(u => u.email === req.body.email && u.password === req.body.password);
 
-  if (!user) return res.send("Invalid credentials");
+  if (!user) return res.send("Invalid email or password.");
   res.redirect('/user/dashboard/' + user.id);
 });
 
-app.get('/user/register', (req, res) => res.render('user/register'));
+// -------------------
+// PUBLIC REGISTER ROUTES
+// -------------------
+app.get('/register', (req, res) => res.render('user/register'));
 
-
-// -------------------------------
-// UPDATED REGISTER WITH VALIDATION
-// -------------------------------
-app.post('/user/register', (req, res) => {
+app.post('/register', (req, res) => {
   const users = readJSON('users.json');
 
   const name = req.body.name.trim();
@@ -58,29 +56,28 @@ app.post('/user/register', (req, res) => {
   const phone = req.body.phone.trim();
   const password = req.body.password.trim();
 
-  // Blacklist name check
+  // BLACKLIST name
   if (name.toLowerCase() === "pukar") {
     return res.send("This name is not allowed.");
   }
 
-  // Email format validation
+  // Email validation
   const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   if (!emailPattern.test(email)) {
     return res.send("Invalid email format.");
   }
 
-  // Phone number validation (10 digits)
+  // Phone validation (10 digits)
   const phonePattern = /^[0-9]{10}$/;
   if (!phonePattern.test(phone)) {
     return res.send("Phone number must be exactly 10 digits.");
   }
 
-  // Duplicate email check
+  // Already exists?
   if (users.find(u => u.email === email)) {
     return res.send("Email already exists.");
   }
 
-  // Save new user
   users.push({
     id: Date.now(),
     name,
@@ -90,15 +87,15 @@ app.post('/user/register', (req, res) => {
   });
 
   writeJSON('users.json', users);
-  res.redirect('/user/login');
+  res.redirect('/login');
 });
-
 
 // -------------------
 // USER DASHBOARD
 // -------------------
 app.get('/user/dashboard/:id', (req, res) => {
   const userId = req.params.id;
+
   const user = readJSON('users.json').find(u => u.id == userId);
   const services = readJSON('services.json');
   const orders = readJSON('orders.json').filter(o => o.userId == userId);
@@ -117,7 +114,7 @@ app.get('/user/new-request/:id', (req, res) => {
 });
 
 // -------------------
-// SUBMIT ORDER
+// CREATE ORDER
 // -------------------
 app.post('/create-order', upload.single("attachment"), (req, res) => {
   const orders = readJSON('orders.json');
@@ -144,7 +141,7 @@ app.post('/create-order', upload.single("attachment"), (req, res) => {
 });
 
 // -------------------
-// ADMIN
+// ADMIN ROUTES
 // -------------------
 app.get('/admin/login', (req, res) => res.render('admin/login'));
 
@@ -159,21 +156,25 @@ app.get('/admin/dashboard', (req, res) => {
   const orders = readJSON('orders.json');
   const users = readJSON('users.json');
   const services = readJSON('services.json');
+
   res.render('admin/dashboard', { orders, users, services });
 });
 
-// Update order
+// Update Order Status
 app.post('/admin/update-status/:id', (req, res) => {
   const orders = readJSON('orders.json');
   const order = orders.find(o => o.id == req.params.id);
+
   if (order) {
     order.status = req.body.status;
     writeJSON('orders.json', orders);
   }
+
   res.redirect('/admin/dashboard');
 });
 
 // -------------------
 // START SERVER
 // -------------------
-app.listen(3000, () => console.log("Server running on port 3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
