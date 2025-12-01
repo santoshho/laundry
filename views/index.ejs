@@ -90,7 +90,6 @@
 
                 <div class="card shadow-sm p-4">
 
-                    <!-- Select Service -->
                     <div class="mb-3">
                         <label class="form-label">Select Service</label>
                         <select id="serviceType" class="form-select">
@@ -111,7 +110,6 @@
                         </select>
                     </div>
 
-                    <!-- Weight -->
                     <div class="mb-3">
                         <label class="form-label">Weight (kg)</label>
                         <input type="number" id="weightInput" min="1" class="form-control" placeholder="Enter weight">
@@ -130,27 +128,25 @@
     </div>
 </section>
 
-<!-- SERVICES LIST -->
-<section id="services" class="py-5">
+<!-- SERVICES LIST (restored beautiful design) -->
+<section id="services" class="py-5 bg-light">
     <div class="container">
 
-        <h2 class="fw-bold">Our Services</h2>
-        <p class="text-muted mb-4">Affordable & quality laundry solutions</p>
+        <h2 class="fw-bold text-center">Our Services</h2>
+        <p class="text-muted text-center mb-4">Affordable & quality laundry solutions</p>
 
         <div class="row g-4">
 
             <% if (services && services.length > 0) { %>
 
                 <% services.forEach(service => { %>
-                    <div class="col-lg-6">
-                        <div class="d-flex">
+                    <div class="col-md-6">
+                        <div class="d-flex p-3 bg-white shadow-sm rounded">
                             <i class="bi bi-droplet fs-2 text-primary me-3"></i>
                             <div>
-                                <h5><%= service.name %></h5>
+                                <h5 class="mb-1"><%= service.name %></h5>
                                 <p class="text-muted mb-1"><%= service.description %></p>
-                                <small class="text-success fw-bold">
-                                    NPR <%= service.price %>/kg
-                                </small>
+                                <span class="text-success fw-bold">NPR <%= service.price %>/kg</span>
                             </div>
                         </div>
                     </div>
@@ -158,10 +154,33 @@
 
             <% } else { %>
 
-                <div class="col-lg-6"><h5>Regular Wash & Dry</h5><small>NPR 500/kg</small></div>
-                <div class="col-lg-6"><h5>Dry Cleaning</h5><small>NPR 1500/kg</small></div>
-                <div class="col-lg-6"><h5>Express</h5><small>NPR 800/kg</small></div>
-                <div class="col-lg-6"><h5>Delicate Care</h5><small>NPR 1200/kg</small></div>
+                <div class="col-md-6">
+                    <div class="d-flex p-3 bg-white shadow-sm rounded">
+                        <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                        <div><h5>Regular Wash & Dry</h5><small>NPR 500/kg</small></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex p-3 bg-white shadow-sm rounded">
+                        <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                        <div><h5>Dry Cleaning</h5><small>NPR 1500/kg</small></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex p-3 bg-white shadow-sm rounded">
+                        <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                        <div><h5>Express Service</h5><small>NPR 800/kg</small></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex p-3 bg-white shadow-sm rounded">
+                        <i class="bi bi-droplet fs-2 text-primary me-3"></i>
+                        <div><h5>Delicate Care</h5><small>NPR 1200/kg</small></div>
+                    </div>
+                </div>
 
             <% } %>
 
