@@ -27,9 +27,12 @@ function writeJSON(file, data) {
 }
 
 // -------------------
-// HOME
+// HOME  ✅ FIXED (services passed to index.ejs)
 // -------------------
-app.get('/', (req, res) => res.render('index'));
+app.get('/', (req, res) => {
+  const services = readJSON('services.json');
+  res.render('index', { services });
+});
 
 // -------------------
 // USER AUTH
@@ -49,10 +52,13 @@ app.get('/user/register', (req, res) => res.render('user/register'));
 app.post('/user/register', (req, res) => {
   const users = readJSON('users.json');
 
+  const fullName = req.body.first_name + " " + req.body.last_name;
+
   users.push({
     id: Date.now(),
-    name: req.body.name,
+    name: fullName,
     email: req.body.email,
+    phone: req.body.phone,
     password: req.body.password
   });
 
@@ -83,7 +89,7 @@ app.get('/user/new-request/:id', (req, res) => {
 });
 
 // -------------------
-// SUBMIT ORDER (MATCHES YOUR FORM NOW)
+// SUBMIT ORDER
 // -------------------
 app.post('/create-order', upload.single("attachment"), (req, res) => {
   const orders = readJSON('orders.json');
