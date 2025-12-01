@@ -1,226 +1,199 @@
 const express = require("express");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
+const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const fs = require("fs");
-const session = require("express-session");
-const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs");
 
 const app = express();
 
-// ------------------------------
-// BASIC CONFIG
-// ------------------------------
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+// ====== DATABASE SETUP ======
+const dbFile = "./laundry.db";
+const dbExists = fs.existsSync(dbFile);
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const db = new sqlite3.Database(dbFile);
+
+if (!dbExists) {
+    db.serialize(() => {
+        db.run(`
+            CREATE TABLE admins (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password_hash TEXT
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                phone TEXT UNIQUE,
+                address TEXT
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                service TEXT,
+                weight REAL,
+                status TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        `);
+
+        const defaultAdminHash = bcrypt.hashSync("admin", 8);
+        db.run(
+            "INSERT INTO admins (username, password_hash) VALUES (?, ?)",
+            ["admin", defaultAdminHash]
+        );
+
+        console.log("Database initialized.");
+    });
+}
+
+// ====== MIDDLEWARE ======
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use(
-  session({
-    secret: "laundry_secret_123",
-    resave: false,
-    saveUninitialized: true,
-  })
+    session({
+        secret: "supersecretkey",
+        resave: false,
+        saveUninitialized: true,
+    })
 );
 
-// ------------------------------
-// JSON FILE PATHS
-// ------------------------------
-const usersFile = path.join(__dirname, "data/users.json");
-const adminFile = path.join(__dirname, "data/admin.json");
-const ordersFile = path.join(__dirname, "data/orders.json");
-const servicesFile = path.join(__dirname, "data/services.json");
+app.use(express.static(path.join(__dirname, "public")));
 
-// Read JSON
-function readJSON(file) {
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+// ====== AUTH CHECK ======
+function authRequired(req, res, next) {
+    if (!req.session.admin) return res.redirect("/admin/login");
+    next();
 }
 
-// Write JSON
-function writeJSON(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
+// ====== ROUTES ======
 
-// ------------------------------
-// AUTH MIDDLEWARE
-// ------------------------------
-function userAuth(req, res, next) {
-  if (!req.session.user) return res.redirect("/login");
-  next();
-}
-
-function adminAuth(req, res, next) {
-  if (!req.session.admin) return res.redirect("/admin/login");
-  next();
-}
-
-// ------------------------------
-// HOME PAGE (important fix!!!)
-// ------------------------------
+// Home (client order page)
 app.get("/", (req, res) => {
-  const services = readJSON(servicesFile); // FIXED
-  res.render("index", { services });
+    res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-// ------------------------------
-// USER AUTH
-// ------------------------------
-app.get("/login", (req, res) => {
-  res.render("login", { error: null });
-});
-
-app.get("/register", (req, res) => {
-  res.render("register", { error: null });
-});
-
-// REGISTER
-app.post("/register", async (req, res) => {
-  const users = readJSON(usersFile);
-
-  const exists = users.find(u => u.email === req.body.email);
-  if (exists) {
-    return res.render("register", { error: "Email already exists!" });
-  }
-
-  const hashed = await bcrypt.hash(req.body.password, 10);
-
-  const newUser = {
-    id: Date.now(),
-    name: req.body.name,
-    email: req.body.email,
-    password: hashed,
-  };
-
-  users.push(newUser);
-  writeJSON(usersFile, users);
-
-  res.redirect("/login");
-});
-
-// LOGIN
-app.post("/login", async (req, res) => {
-  const users = readJSON(usersFile);
-
-  const user = users.find(u => u.email === req.body.email);
-  if (!user) {
-    return res.render("login", { error: "Invalid login details" });
-  }
-
-  const ok = await bcrypt.compare(req.body.password, user.password);
-  if (!ok) {
-    return res.render("login", { error: "Invalid login details" });
-  }
-
-  req.session.user = user;
-  res.redirect("/user/dashboard");
-});
-
-// ------------------------------
-// USER DASHBOARD
-// ------------------------------
-app.get("/user/dashboard", userAuth, (req, res) => {
-  const orders = readJSON(ordersFile).filter(o => o.userId === req.session.user.id);
-
-  res.render("user/dashboard", {
-    user: req.session.user,
-    orders
-  });
-});
-
-// ------------------------------
-// NEW ORDER
-// ------------------------------
-app.get("/user/new-request", userAuth, (req, res) => {
-  const services = readJSON(servicesFile);
-
-  res.render("user/new-request", {
-    user: req.session.user,
-    services
-  });
-});
-
-app.post("/user/new-request", userAuth, (req, res) => {
-  const orders = readJSON(ordersFile);
-
-  const newOrder = {
-    id: Date.now(),
-    userId: req.session.user.id,
-    service: req.body.service,
-    quantity: req.body.quantity,
-    address: req.body.address,
-    status: "Pending",
-    date: new Date().toISOString()
-  };
-
-  orders.push(newOrder);
-  writeJSON(ordersFile, orders);
-
-  res.redirect("/user/requests");
-});
-
-// ------------------------------
-// USER – ALL REQUESTS
-// ------------------------------
-app.get("/user/requests", userAuth, (req, res) => {
-  const orders = readJSON(ordersFile).filter(o => o.userId === req.session.user.id);
-
-  res.render("user/requests", {
-    user: req.session.user,
-    orders
-  });
-});
-
-// ------------------------------
-// ADMIN AUTH (FIXED FOR BCRYPT)
-// ------------------------------
+// Admin Login Page
 app.get("/admin/login", (req, res) => {
-  res.render("admin/login", { error: null });
+    res.sendFile(path.join(__dirname, "public/admin-login.html"));
 });
 
-app.post("/admin/login", async (req, res) => {
-  const admin = readJSON(adminFile);
+// Admin Login POST
+app.post("/admin/login", (req, res) => {
+    const { username, password } = req.body;
 
-  if (req.body.username !== admin.username) {
-    return res.render("admin/login", { error: "Invalid admin credentials" });
-  }
+    db.get(
+        "SELECT * FROM admins WHERE username = ?",
+        [username],
+        (err, admin) => {
+            if (err) return res.send("Server error");
 
-  const ok = await bcrypt.compare(req.body.password, admin.password_hash);
-  if (!ok) {
-    return res.render("admin/login", { error: "Invalid admin credentials" });
-  }
+            if (!admin) return res.send("Invalid admin credentials");
 
-  req.session.admin = true;
-  res.redirect("/admin/dashboard");
+            bcrypt.compare(password, admin.password_hash, (err, match) => {
+                if (!match) return res.send("Invalid admin credentials");
+
+                req.session.admin = admin;
+                return res.redirect("/admin/dashboard");
+            });
+        }
+    );
 });
 
-// ------------------------------
-// ADMIN DASHBOARD
-// ------------------------------
-app.get("/admin/dashboard", adminAuth, (req, res) => {
-  const orders = readJSON(ordersFile);
-  res.render("admin/dashboard", { orders });
+// Admin Dashboard
+app.get("/admin/dashboard", authRequired, (req, res) => {
+    res.sendFile(path.join(__dirname, "public/admin-dashboard.html"));
 });
 
-app.get("/admin/orders/:id", adminAuth, (req, res) => {
-  const orders = readJSON(ordersFile);
-  const order = orders.find(o => o.id == req.params.id);
+// ====== CREATE ORDER (IMPORTANT) ======
+app.post("/create-order", (req, res) => {
+    const { name, phone, address, service, weight } = req.body;
 
-  res.render("admin/order-details", { order });
+    if (!name || !phone || !service) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    db.get("SELECT * FROM users WHERE phone = ?", [phone], (err, user) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+
+        if (!user) {
+            db.run(
+                "INSERT INTO users (name, phone, address) VALUES (?, ?, ?)",
+                [name, phone, address],
+                function (err) {
+                    if (err) return res.status(500).json({ error: "User create failed" });
+
+                    createOrder(this.lastID);
+                }
+            );
+        } else {
+            createOrder(user.id);
+        }
+    });
+
+    function createOrder(userId) {
+        db.run(
+            "INSERT INTO orders (user_id, service, weight, status) VALUES (?, ?, ?, ?)",
+            [userId, service, weight || 0, "Pending"],
+            function (err) {
+                if (err) return res.status(500).json({ error: "Order create failed" });
+
+                return res.json({
+                    success: true,
+                    order_id: this.lastID,
+                    message: "Order created successfully"
+                });
+            }
+        );
+    }
+}
+
+// ====== ADMIN: GET ALL ORDERS ======
+app.get("/admin/orders", authRequired, (req, res) => {
+    db.all(
+        `
+        SELECT orders.id, users.name, users.phone, orders.service, orders.weight, orders.status, orders.created_at
+        FROM orders
+        JOIN users ON users.id = orders.user_id
+        ORDER BY orders.id DESC
+        `,
+        [],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            res.json(rows);
+        }
+    );
 });
 
-// ------------------------------
-// LOGOUT
-// ------------------------------
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/");
+// ====== ADMIN: UPDATE ORDER STATUS ======
+app.post("/admin/update-status", authRequired, (req, res) => {
+    const { order_id, status } = req.body;
+
+    db.run(
+        "UPDATE orders SET status = ? WHERE id = ?",
+        [status, order_id],
+        (err) => {
+            if (err) return res.status(500).json({ error: "Failed to update" });
+
+            res.json({ success: true });
+        }
+    );
 });
 
-// ------------------------------
-// START SERVER
-// ------------------------------
-const PORT = process.env.PORT || 10000;
+// ====== LOGOUT ======
+app.get("/admin/logout", (req, res) => {
+    req.session.destroy();
+    res.redirect("/admin/login");
+});
+
+// ====== SERVER START ======
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
