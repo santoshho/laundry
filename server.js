@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 
@@ -32,13 +33,13 @@ const adminFile = path.join(__dirname, "data/admin.json");
 const ordersFile = path.join(__dirname, "data/orders.json");
 const servicesFile = path.join(__dirname, "data/services.json");
 
-// Utility: Read JSON
+// Read JSON
 function readJSON(file) {
   if (!fs.existsSync(file)) return [];
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-// Utility: Write JSON
+// Write JSON
 function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
@@ -57,10 +58,11 @@ function adminAuth(req, res, next) {
 }
 
 // ------------------------------
-// HOME PAGE
+// HOME PAGE (important fix!!!)
 // ------------------------------
 app.get("/", (req, res) => {
-  res.render("index");
+  const services = readJSON(servicesFile); // FIXED
+  res.render("index", { services });
 });
 
 // ------------------------------
@@ -74,7 +76,8 @@ app.get("/register", (req, res) => {
   res.render("register", { error: null });
 });
 
-app.post("/register", (req, res) => {
+// REGISTER
+app.post("/register", async (req, res) => {
   const users = readJSON(usersFile);
 
   const exists = users.find(u => u.email === req.body.email);
@@ -82,11 +85,13 @@ app.post("/register", (req, res) => {
     return res.render("register", { error: "Email already exists!" });
   }
 
+  const hashed = await bcrypt.hash(req.body.password, 10);
+
   const newUser = {
     id: Date.now(),
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password,
+    password: hashed,
   };
 
   users.push(newUser);
@@ -95,14 +100,17 @@ app.post("/register", (req, res) => {
   res.redirect("/login");
 });
 
-app.post("/login", (req, res) => {
+// LOGIN
+app.post("/login", async (req, res) => {
   const users = readJSON(usersFile);
 
-  const user = users.find(
-    u => u.email === req.body.email && u.password === req.body.password
-  );
-
+  const user = users.find(u => u.email === req.body.email);
   if (!user) {
+    return res.render("login", { error: "Invalid login details" });
+  }
+
+  const ok = await bcrypt.compare(req.body.password, user.password);
+  if (!ok) {
     return res.render("login", { error: "Invalid login details" });
   }
 
@@ -166,22 +174,26 @@ app.get("/user/requests", userAuth, (req, res) => {
 });
 
 // ------------------------------
-// ADMIN AUTH
+// ADMIN AUTH (FIXED FOR BCRYPT)
 // ------------------------------
 app.get("/admin/login", (req, res) => {
   res.render("admin/login", { error: null });
 });
 
-app.post("/admin/login", (req, res) => {
+app.post("/admin/login", async (req, res) => {
   const admin = readJSON(adminFile);
 
-  if (req.body.username === admin.username &&
-      req.body.password === admin.password) {
-    req.session.admin = true;
-    return res.redirect("/admin/dashboard");
+  if (req.body.username !== admin.username) {
+    return res.render("admin/login", { error: "Invalid admin credentials" });
   }
 
-  res.render("admin/login", { error: "Invalid admin credentials" });
+  const ok = await bcrypt.compare(req.body.password, admin.password_hash);
+  if (!ok) {
+    return res.render("admin/login", { error: "Invalid admin credentials" });
+  }
+
+  req.session.admin = true;
+  res.redirect("/admin/dashboard");
 });
 
 // ------------------------------
