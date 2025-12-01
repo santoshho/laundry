@@ -16,7 +16,7 @@
                 <div class="card-body">
 
                     <form action="/create-order" method="POST" enctype="multipart/form-data">
-                        
+
                         <!-- Full Name -->
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -42,7 +42,7 @@
                                 <option value="">-- Select Service --</option>
                                 <% services.forEach(s => { %>
                                     <option value="<%= s.id %>" data-price="<%= s.price %>">
-                                        <%= s.name %> — NPR <%= s.price %>/kg
+                                        <%= s.name %> — NPR <%= s.price %>
                                     </option>
                                 <% }) %>
                             </select>
@@ -80,6 +80,7 @@
                         </div>
 
                     </form>
+
                 </div>
             </div>
         </div>
@@ -88,12 +89,14 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Request Information</h5>
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Request Information
+                    </h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
                         <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Free pickup and delivery</small></li>
-                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>24-48 hour turnaround</small></li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>24–48 hour turnaround</small></li>
                         <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Professional cleaning service</small></li>
                         <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><small>Eco-friendly detergents</small></li>
                         <li><i class="bi bi-check-circle text-success me-2"></i><small>Satisfaction guaranteed</small></li>
@@ -104,7 +107,7 @@
     </div>
 </div>
 
-<!-- PRICE CALC SCRIPT -->
+<!-- PRICE CALCULATOR -->
 <script>
     const serviceSelect = document.getElementById("serviceSelect");
     const kgInput = document.getElementById("kgInput");
