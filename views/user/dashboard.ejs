@@ -72,7 +72,7 @@
                         <thead>
                             <tr>
                                 <th>Request #</th>
-                                <th>Items</th>
+                                <th>Service</th>
                                 <th>Status</th>
                                 <th>Created</th>
                                 <th>Actions</th>
@@ -88,7 +88,10 @@
                                         </a>
                                     </td>
 
-                                    <td><%= order.items %></td>
+                                    <td>
+                                        <strong><%= order.service_name %></strong><br>
+                                        <small><%= order.weight %> kg</small>
+                                    </td>
 
                                     <td>
                                         <span class="badge bg-
