@@ -25,25 +25,26 @@ app.use(
 );
 
 // ------------------------------
-// LOAD JSON DATA
+// JSON FILE PATHS
 // ------------------------------
 const usersFile = path.join(__dirname, "data/users.json");
 const adminFile = path.join(__dirname, "data/admin.json");
 const ordersFile = path.join(__dirname, "data/orders.json");
 const servicesFile = path.join(__dirname, "data/services.json");
 
-// Utility function to read JSON
+// Utility: Read JSON
 function readJSON(file) {
+  if (!fs.existsSync(file)) return [];
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-// Utility function to write JSON
+// Utility: Write JSON
 function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
 // ------------------------------
-// MIDDLEWARE
+// AUTH MIDDLEWARE
 // ------------------------------
 function userAuth(req, res, next) {
   if (!req.session.user) return res.redirect("/login");
@@ -65,11 +66,21 @@ app.get("/", (req, res) => {
 // ------------------------------
 // USER AUTH
 // ------------------------------
-app.get("/login", (req, res) => res.render("login"));
-app.get("/register", (req, res) => res.render("register"));
+app.get("/login", (req, res) => {
+  res.render("login", { error: null });
+});
+
+app.get("/register", (req, res) => {
+  res.render("register", { error: null });
+});
 
 app.post("/register", (req, res) => {
   const users = readJSON(usersFile);
+
+  const exists = users.find(u => u.email === req.body.email);
+  if (exists) {
+    return res.render("register", { error: "Email already exists!" });
+  }
 
   const newUser = {
     id: Date.now(),
@@ -91,18 +102,19 @@ app.post("/login", (req, res) => {
     u => u.email === req.body.email && u.password === req.body.password
   );
 
-  if (!user) return res.render("login", { error: "Invalid login details" });
+  if (!user) {
+    return res.render("login", { error: "Invalid login details" });
+  }
 
   req.session.user = user;
   res.redirect("/user/dashboard");
 });
 
 // ------------------------------
-// USER PAGES
+// USER DASHBOARD
 // ------------------------------
 app.get("/user/dashboard", userAuth, (req, res) => {
-  const orders = readJSON(ordersFile)
-    .filter(o => o.userId === req.session.user.id);
+  const orders = readJSON(ordersFile).filter(o => o.userId === req.session.user.id);
 
   res.render("user/dashboard", {
     user: req.session.user,
@@ -110,8 +122,12 @@ app.get("/user/dashboard", userAuth, (req, res) => {
   });
 });
 
+// ------------------------------
+// NEW ORDER
+// ------------------------------
 app.get("/user/new-request", userAuth, (req, res) => {
   const services = readJSON(servicesFile);
+
   res.render("user/new-request", {
     user: req.session.user,
     services
@@ -134,12 +150,14 @@ app.post("/user/new-request", userAuth, (req, res) => {
   orders.push(newOrder);
   writeJSON(ordersFile, orders);
 
-  res.redirect("/user/dashboard");
+  res.redirect("/user/requests");
 });
 
+// ------------------------------
+// USER – ALL REQUESTS
+// ------------------------------
 app.get("/user/requests", userAuth, (req, res) => {
-  const orders = readJSON(ordersFile)
-    .filter(o => o.userId === req.session.user.id);
+  const orders = readJSON(ordersFile).filter(o => o.userId === req.session.user.id);
 
   res.render("user/requests", {
     user: req.session.user,
@@ -151,7 +169,7 @@ app.get("/user/requests", userAuth, (req, res) => {
 // ADMIN AUTH
 // ------------------------------
 app.get("/admin/login", (req, res) => {
-  res.render("admin/login");
+  res.render("admin/login", { error: null });
 });
 
 app.post("/admin/login", (req, res) => {
@@ -159,7 +177,6 @@ app.post("/admin/login", (req, res) => {
 
   if (req.body.username === admin.username &&
       req.body.password === admin.password) {
-
     req.session.admin = true;
     return res.redirect("/admin/dashboard");
   }
@@ -168,7 +185,7 @@ app.post("/admin/login", (req, res) => {
 });
 
 // ------------------------------
-// ADMIN PAGES
+// ADMIN DASHBOARD
 // ------------------------------
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const orders = readJSON(ordersFile);
@@ -178,6 +195,7 @@ app.get("/admin/dashboard", adminAuth, (req, res) => {
 app.get("/admin/orders/:id", adminAuth, (req, res) => {
   const orders = readJSON(ordersFile);
   const order = orders.find(o => o.id == req.params.id);
+
   res.render("admin/order-details", { order });
 });
 
