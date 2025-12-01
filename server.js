@@ -46,19 +46,53 @@ app.post('/user/login', (req, res) => {
 
 app.get('/user/register', (req, res) => res.render('user/register'));
 
+
+// -------------------------------
+// UPDATED REGISTER WITH VALIDATION
+// -------------------------------
 app.post('/user/register', (req, res) => {
   const users = readJSON('users.json');
 
+  const name = req.body.name.trim();
+  const email = req.body.email.trim();
+  const phone = req.body.phone.trim();
+  const password = req.body.password.trim();
+
+  // Blacklist name check
+  if (name.toLowerCase() === "pukar") {
+    return res.send("This name is not allowed.");
+  }
+
+  // Email format validation
+  const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  if (!emailPattern.test(email)) {
+    return res.send("Invalid email format.");
+  }
+
+  // Phone number validation (10 digits)
+  const phonePattern = /^[0-9]{10}$/;
+  if (!phonePattern.test(phone)) {
+    return res.send("Phone number must be exactly 10 digits.");
+  }
+
+  // Duplicate email check
+  if (users.find(u => u.email === email)) {
+    return res.send("Email already exists.");
+  }
+
+  // Save new user
   users.push({
     id: Date.now(),
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password
+    name,
+    email,
+    phone,
+    password
   });
 
   writeJSON('users.json', users);
   res.redirect('/user/login');
 });
+
 
 // -------------------
 // USER DASHBOARD
@@ -83,7 +117,7 @@ app.get('/user/new-request/:id', (req, res) => {
 });
 
 // -------------------
-// SUBMIT ORDER (MATCHES YOUR FORM NOW)
+// SUBMIT ORDER
 // -------------------
 app.post('/create-order', upload.single("attachment"), (req, res) => {
   const orders = readJSON('orders.json');
