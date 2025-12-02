@@ -7,10 +7,35 @@
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
+    body { scroll-behavior: smooth; }
+
+    /* HERO */
+    .hero-icon {
+      font-size: 90px;
+      color: #0d6efd;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 25px;
+    }
+
+    /* Feature Cards */
+    .feature-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    .feature-card i {
+      font-size: 34px;
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+
+    /* Services */
     .service-card {
       border-radius: 12px;
       padding: 16px;
@@ -29,13 +54,8 @@
       color: #0d6efd;
       font-size: 26px;
     }
-    .feature-card {
-      padding: 22px;
-      border-radius: 14px;
-      background: white;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      text-align: center;
-    }
+
+    /* Testimonials */
     .testimonial-box {
       background: #fff;
       border-radius: 12px;
@@ -44,6 +64,12 @@
       height: 100%;
     }
     .avatar { width:56px; height:56px; border-radius:50%; object-fit:cover; }
+    .star { color: #f6c84c; }
+
+    /* Contact */
+    #contact-sec { background: #f7faff; }
+
+    /* WhatsApp Floating */
     .whatsapp-float {
       position: fixed;
       bottom: 22px;
@@ -58,242 +84,322 @@
       align-items:center;
       justify-content:center;
       z-index: 9999;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
       text-decoration: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
     }
-    .star { color: #f6c84c; }
+
+    /* Popup */
+    #popupMsg {
+      position: fixed;
+      bottom: 95px;
+      left: 20px;
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      z-index: 99999;
+      display: none;
+      animation: fadeIn .4s ease;
+      border-left: 5px solid #0d6efd;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="/">
-        <i class="bi bi-droplet-half me-2"></i> Laundry System
-      </a>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">
+      <i class="bi bi-droplet-half me-2"></i>Laundry System
+    </a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="nav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-
-          <!-- Login/Register Restored -->
-          <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
-        </ul>
-      </div>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact-sec">Reach Us</a></li>
+        <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section class="py-5 mt-4">
-    <div class="container">
-      <div class="row align-items-center min-vh-60">
-        <div class="col-lg-6">
-          <h1 class="fw-bold text-primary">Professional Laundry Services Made Easy</h1>
-          <p class="text-muted">
-            Experience hassle-free laundry management with our modern system.
-            Schedule pickups, track your orders, and get fresh clothes delivered right to your doorstep.
-          </p>
+<!-- HERO SECTION -->
+<section class="py-5 mt-4 text-center">
+  <div class="container">
 
-          <div class="mt-3">
-            <a href="/register" class="btn btn-primary btn-lg me-2">
-              <i class="bi bi-person-plus me-2"></i>Get Started
-            </a>
-            <a href="/login" class="btn btn-outline-primary btn-lg">
-              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-            </a>
-          </div>
-        </div>
+    <i class="bi bi-droplet-half hero-icon"></i>
 
-        <div class="col-lg-6 text-center">
-          <i class="bi bi-droplet-half display-1 text-primary mb-4"></i>
+    <h1 class="fw-bold text-primary">Professional Laundry Services Made Simple</h1>
+    <p class="text-muted mt-2 mb-4">Fast pickup • Clean washing • Quick delivery</p>
 
-          <!-- 4 Feature Cards -->
-          <div class="row g-3">
-            <div class="col-6">
-              <div class="feature-card">
-                <i class="bi bi-clock-history fs-2 text-primary"></i>
-                <p class="mt-2 mb-0 fw-semibold">Quick Service</p>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="feature-card">
-                <i class="bi bi-truck fs-2 text-primary"></i>
-                <p class="mt-2 mb-0 fw-semibold">Free Pickup</p>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="feature-card">
-                <i class="bi bi-shield-check fs-2 text-primary"></i>
-                <p class="mt-2 mb-0 fw-semibold">Quality Care</p>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="feature-card">
-                <i class="bi bi-headset fs-2 text-primary"></i>
-                <p class="mt-2 mb-0 fw-semibold">24/7 Support</p>
-              </div>
-            </div>
-          </div>
+    <a href="/register" class="btn btn-primary btn-lg me-2">Get Started</a>
+    <a href="/login" class="btn btn-outline-primary btn-lg">Sign In</a>
+  </div>
+</section>
 
+<!-- FEATURE CARDS (4) -->
+<section class="pb-5">
+  <div class="container">
+    <div class="row g-4">
+
+      <div class="col-md-3">
+        <div class="feature-card">
+          <i class="bi bi-truck"></i>
+          <h6>Fast Pickup</h6>
+          <p class="text-muted small">Quick pickup from your doorstep.</p>
         </div>
       </div>
+
+      <div class="col-md-3">
+        <div class="feature-card">
+          <i class="bi bi-basket"></i>
+          <h6>Quality Wash</h6>
+          <p class="text-muted small">Handled with proper care.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="feature-card">
+          <i class="bi bi-clock-history"></i>
+          <h6>On Time</h6>
+          <p class="text-muted small">Always delivered when promised.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="feature-card">
+          <i class="bi bi-shield-check"></i>
+          <h6>Trusted</h6>
+          <p class="text-muted small">Trusted by thousands of users.</p>
+        </div>
+      </div>
+
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- SERVICES -->
-  <section id="services" class="py-5 bg-light">
-    <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">Our Services</h2>
-          <p class="text-muted">Affordable, fast & reliable laundry care</p>
-        </div>
-      </div>
+<!-- SERVICES -->
+<section id="services" class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-4 text-center">
+      <h2 class="fw-bold">Our Services</h2>
+      <p class="text-muted">Affordable & reliable laundry care</p>
+    </div>
 
-      <div class="row g-4">
-        <% if (services && services.length > 0) { %>
-          <% services.forEach(function(s){ const price = Number(s.price) * 100; %>
-            <div class="col-md-6">
-              <div class="service-card d-flex gap-3">
-                <div class="service-icon"><i class="bi bi-droplet"></i></div>
-                <div class="flex-grow-1">
-                  <h5 class="mb-1"><%= s.name %></h5>
-                  <p class="text-muted mb-2"><%= s.description %></p>
+    <div class="row g-4">
+      <% if (services && services.length > 0) { %>
+        <% services.forEach(s => { const price = Number(s.price) * 100; %>
 
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-success fw-bold">NPR <%= price.toLocaleString() %>/kg</div>
-                    <a href="/user/new-request/<%= s.id %>" class="btn btn-sm btn-outline-primary">Order</a>
-                  </div>
+          <div class="col-md-6">
+            <div class="service-card d-flex gap-3">
+              <div class="service-icon"><i class="bi bi-droplet"></i></div>
+
+              <div class="flex-grow-1">
+                <h5 class="mb-1"><%= s.name %></h5>
+                <p class="text-muted mb-2"><%= s.description %></p>
+
+                <div class="text-success fw-bold">
+                  NPR <%= price.toLocaleString() %>/kg
                 </div>
               </div>
             </div>
-          <% }) %>
-        <% } %>
-      </div>
-    </div>
-  </section>
-
-  <!-- CALCULATOR -->
-  <section id="calculator" class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-7">
-          <div class="card p-4 shadow-sm">
-            <h5 class="mb-3">Laundry Price Calculator</h5>
-
-            <div class="mb-3">
-              <label class="form-label">Select Service</label>
-              <select id="calcService" class="form-select">
-                <% services.forEach(function(s){ const price = Number(s.price) * 100; %>
-                  <option value="<%= price %>">
-                    <%= s.name %> — NPR <%= price.toLocaleString() %>/kg
-                  </option>
-                <% }) %>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Weight (kg)</label>
-              <input id="calcWeight" type="number" min="1" class="form-control" placeholder="Enter weight in kg">
-            </div>
-
-            <button id="calcBtn" class="btn btn-primary w-100">Calculate</button>
-            <div id="calcResult" class="alert alert-info d-none text-center mt-3"></div>
-
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- TESTIMONIALS -->
-  <section id="testimonials" class="py-5 bg-light">
-    <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">What Our Customers Say</h2>
-        </div>
-      </div>
-
-      <div class="row g-4">
-        <% testimonials.forEach(t => { %>
-          <% const rating = Number(t.rating || 5); %>
-
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="<%= t.image %>" class="avatar me-3">
-                <div>
-                  <strong><%= t.name %></strong><br>
-                  <small class="text-muted"><%= t.location %></small>
-                </div>
-              </div>
-
-              <p class="text-muted"><%= t.message %></p>
-
-              <div>
-                <% for (let i=1; i<=5; i++){ %>
-                  <% if(i <= rating){ %>
-                    <i class="bi bi-star-fill star"></i>
-                  <% } else { %>
-                    <i class="bi bi-star star" style="opacity: 0.3;"></i>
-                  <% } %>
-                <% } %>
-              </div>
-            </div>
-          </div>
         <% }) %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section id="calculator" class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7">
+        <div class="card shadow-sm p-4">
+          <h5 class="mb-3">Laundry Price Calculator</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Select Service</label>
+            <select id="calcService" class="form-select">
+              <% services.forEach(s => { const p = Number(s.price)*100; %>
+                <option value="<%= p %>"><%= s.name %> — NPR <%= p.toLocaleString() %>/kg</option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Weight (kg)</label>
+            <input id="calcWeight" type="number" min="1" class="form-control">
+          </div>
+
+          <button id="calcBtn" class="btn btn-primary w-100">Calculate</button>
+          <div id="calcResult" class="alert alert-info mt-3 d-none text-center"></div>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CONTACT -->
-  <section id="contact" class="py-5">
-    <div class="container text-center">
-      <h3 class="fw-bold">Reach Us</h3>
-      <p class="text-muted">
-        Gaindakot-11, Nawalpur<br>
-        Call: +977 9825482289 • Email: santoshballu321@gmail.com
-      </p>
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-4 text-center">
+      <h2 class="fw-bold">What Our Customers Say</h2>
     </div>
-  </section>
 
-  <!-- FOOTER -->
-  <footer class="bg-dark text-light py-3 text-center">
-    © <%= new Date().getFullYear() %> Laundry Management System — Version 2.0
-  </footer>
+    <div class="row g-4">
+      <% testimonials.forEach(t => { %>
+        <div class="col-md-4">
+          <div class="testimonial-box">
+            <div class="d-flex align-items-center mb-3">
+              <img src="<%= t.image %>" class="avatar me-3">
+              <div>
+                <strong><%= t.name %></strong><br>
+                <small class="text-muted"><%= t.location %></small>
+              </div>
+            </div>
 
-  <!-- WhatsApp -->
-  <a class="whatsapp-float" href="https://wa.me/9779825482289" target="_blank">
-    <i class="bi bi-whatsapp"></i>
-  </a>
+            <p class="text-muted"><%= t.message %></p>
 
-  <!-- Scripts -->
-  <script>
-    document.getElementById('calcBtn').onclick = function(){
-      const price = Number(document.getElementById('calcService').value);
-      const kg = Number(document.getElementById('calcWeight').value);
+            <% const rating = t.rating || 5; %>
+            <div>
+              <% for (let i=1;i<=5;i++) { %>
+                <% if (i <= rating) { %>
+                  <i class="bi bi-star-fill star"></i>
+                <% } else { %>
+                  <i class="bi bi-star star" style="opacity:0.3"></i>
+                <% } %>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
 
-      if(!kg || kg <= 0){
-        alert("Enter valid weight.");
-        return;
-      }
+<!-- CONTACT -->
+<section id="contact-sec" class="py-5">
+  <div class="container text-center">
 
-      const total = price * kg;
-      const r = document.getElementById('calcResult');
-      r.classList.remove('d-none');
-      r.innerText = "Total: NPR " + total.toLocaleString();
-    };
-  </script>
+    <h3 class="fw-bold mb-3">Reach Us</h3>
+    <p class="text-muted mb-4">
+      Gaindakot-11, Nawalpur • Call: +977 9825482289 • Email: santoshballu321@gmail.com
+    </p>
+
+    <iframe
+      src="https://www.google.com/maps?q=Gaindakot%2011%20Nawalpur&output=embed"
+      style="width:100%;height:330px;border:0;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+    </iframe>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-light py-3 text-center">
+  © <%= new Date().getFullYear() %> Laundry Management System — Version 2.0
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a class="whatsapp-float" href="https://wa.me/9779825482289" target="_blank">
+  <i class="bi bi-whatsapp"></i>
+</a>
+
+<!-- POPUP -->
+<div id="popupMsg"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Calculator
+  document.getElementById('calcBtn').onclick = () => {
+    const price = Number(calcService.value);
+    const kg = Number(calcWeight.value);
+    if (!kg || kg <= 0) return alert("Enter valid weight.");
+
+    const total = price * kg;
+    calcResult.classList.remove("d-none");
+    calcResult.innerText = "Total: NPR " + total.toLocaleString();
+  };
+
+  // Notification popup messages (50 CLEAN)
+  const popupMessages = [
+"New user registered successfully",
+"A user from Gaindakot just created an account",
+"A new laundry order was placed",
+"Pickup request received",
+"Order has been moved to 'Washing'",
+"Order is now in 'Drying' stage",
+"Order is ready for ironing",
+"Order packing started",
+"Order updated by user",
+"Delivery request received",
+"Clothes ready for delivery",
+"Delivery completed successfully",
+"User left a 5-star review",
+"Testimonial added by a customer",
+"User updated profile information",
+"User changed pickup schedule",
+"New order from returning customer",
+"User confirmed delivery time",
+"Special instruction added by user",
+"Payment received for a laundry order",
+"User selected express service",
+"Order weight updated by user",
+"Delivery person is on the way",
+"Clothes picked up from customer",
+"Clothes delivered to customer",
+"User marked the order as received",
+"User requested price estimate",
+"User checked order status",
+"Pickup request scheduled",
+"Order has been assigned washing priority",
+"User resubmitted request",
+"Customer viewed service list",
+"Customer browsing washing services",
+"New user signed up from mobile device",
+"User requested urgent wash",
+"User saved contact information",
+"Order timeline viewed by customer",
+"Customer checked delivery schedule",
+"A returning customer placed another order",
+"User subscribed for notifications",
+"Payment verification completed",
+"Order scheduled for delivery today",
+"Customer updated delivery instructions",
+"Drying process completed for an order",
+"Ironing completed for an order",
+"User confirmed pickup availability",
+"Customer contacted support email",
+"Customer exploring calculator feature",
+"Order review added successfully",
+"Delivery confirmation SMS sent"
+  ];
+
+  function showRandomPopup(){
+    const msg = popupMessages[Math.floor(Math.random()*popupMessages.length)];
+    const box = document.getElementById('popupMsg');
+    box.innerText = msg;
+    box.style.display = 'block';
+
+    setTimeout(() => box.style.display = 'none', 4500);
+  }
+
+  setInterval(showRandomPopup, 25000); // every 25 sec
+</script>
 
 </body>
 </html>
