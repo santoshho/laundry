@@ -11,7 +11,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-    /* small layout fixes so cards look like before */
     .service-card {
       border-radius: 12px;
       padding: 16px;
@@ -55,9 +54,10 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.18);
       text-decoration: none;
     }
-    .star { color: #f6c84c; } /* gold */
+    .star { color: #f6c84c; }
   </style>
 </head>
+
 <body>
 
   <!-- NAVBAR -->
@@ -77,8 +77,8 @@
           <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
           <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
         </ul>
       </div>
     </div>
@@ -90,11 +90,7 @@
       <div class="row align-items-center min-vh-60">
         <div class="col-lg-6">
           <h1 class="fw-bold text-primary">Professional Laundry Services Made Easy</h1>
-          <p class="text-muted">Schedule pickups, track orders, and get fresh clothes delivered — all from one platform.</p>
-          <div class="mt-3">
-            <a href="/register" class="btn btn-primary btn-lg me-2"><i class="bi bi-person-plus me-2"></i>Get Started</a>
-            <a href="/login" class="btn btn-outline-primary btn-lg"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a>
-          </div>
+          <p class="text-muted">Schedule pickups, track orders, and get fresh clothes delivered easily.</p>
         </div>
 
         <div class="col-lg-6 text-center">
@@ -106,215 +102,158 @@
 
   <!-- SERVICES -->
   <section id="services" class="py-5 bg-light">
-    <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">Our Services</h2>
-          <p class="text-muted">Affordable, fast & reliable laundry care</p>
-        </div>
-      </div>
+    <div class="container text-center mb-4">
+      <h2 class="fw-bold">Our Services</h2>
+      <p class="text-muted">Affordable, fast & reliable laundry care</p>
+    </div>
 
+    <div class="container">
       <div class="row g-4">
-        <% /* If services exist we iterate. We'll compute displayPrice = service.price * 100 (adds 2 zeros) */ %>
-        <% if (typeof services !== 'undefined' && services && services.length > 0) { %>
-          <% services.forEach(function(s){ %>
+
+        <% if (services && services.length > 0) { %>
+          <% services.forEach(s => { %>
             <% const displayPrice = Number(s.price) * 100; %>
+
             <div class="col-md-6">
               <div class="service-card d-flex gap-3">
                 <div class="service-icon"><i class="bi bi-droplet"></i></div>
-                <div class="flex-grow-1">
-                  <h5 class="mb-1"><%= s.name %></h5>
-                  <p class="text-muted mb-2"><%= s.description %></p>
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-success fw-bold">NPR <%= displayPrice.toLocaleString() %>/kg</div>
-                    <a href="/user/new-request/<%= s.id %>" class="btn btn-sm btn-outline-primary">Order</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% }) %>
-        <% } else { %>
-          <!-- fallback services -->
-          <div class="col-md-6">
-            <div class="service-card d-flex gap-3">
-              <div class="service-icon"><i class="bi bi-droplet"></i></div>
-              <div class="flex-grow-1">
-                <h5 class="mb-1">Regular Wash</h5>
-                <p class="text-muted mb-2">Standard washing and drying.</p>
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="text-success fw-bold">NPR 500/kg</div>
-                  <a href="/register" class="btn btn-sm btn-outline-primary">Order</a>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="col-md-6">
-            <div class="service-card d-flex gap-3">
-              <div class="service-icon"><i class="bi bi-wind"></i></div>
-              <div class="flex-grow-1">
-                <h5 class="mb-1">Dry Cleaning</h5>
-                <p class="text-muted mb-2">Delicate & formal wear care.</p>
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="text-success fw-bold">NPR 2000/kg</div>
-                  <a href="/register" class="btn btn-sm btn-outline-primary">Order</a>
+                <div class="flex-grow-1">
+                  <h5><%= s.name %></h5>
+                  <p class="text-muted"><%= s.description %></p>
+
+                  <!-- Removed ORDER Button as requested -->
+                  <div class="text-success fw-bold">NPR <%= displayPrice.toLocaleString() %>/kg</div>
                 </div>
               </div>
             </div>
-          </div>
+
+          <% }) %>
         <% } %>
+
       </div>
     </div>
   </section>
 
   <!-- CALCULATOR -->
   <section id="calculator" class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-7">
-          <div class="card p-4 shadow-sm">
-            <h5 class="mb-3">Laundry Price Calculator</h5>
+    <div class="container col-md-6">
+      <div class="card p-4 shadow-sm">
+        <h5 class="fw-bold mb-3">Laundry Price Calculator</h5>
 
-            <div class="mb-3">
-              <label class="form-label">Select Service</label>
-              <select id="calcService" class="form-select">
-                <% if (typeof services !== 'undefined' && services && services.length > 0) { %>
-                  <% services.forEach(function(s){ %>
-                    <% const displayPrice = Number(s.price) * 100; %>
-                    <option value="<%= displayPrice %>"><%= s.name %> — NPR <%= displayPrice.toLocaleString() %>/kg</option>
-                  <% }) %>
-                <% } else { %>
-                  <option value="500">Regular Wash — NPR 500/kg</option>
-                  <option value="2000">Dry Cleaning — NPR 2000/kg</option>
-                <% } %>
-              </select>
-            </div>
+        <label class="form-label">Select Service</label>
+        <select id="calcService" class="form-select mb-3">
+          <% services.forEach(s => { %>
+            <% const p = s.price * 100; %>
+            <option value="<%= p %>"><%= s.name %> — NPR <%= p.toLocaleString() %>/kg</option>
+          <% }) %>
+        </select>
 
-            <div class="mb-3">
-              <label class="form-label">Weight (kg)</label>
-              <input id="calcWeight" type="number" min="1" class="form-control" placeholder="Enter weight in kg">
-            </div>
+        <label class="form-label">Weight (kg)</label>
+        <input type="number" id="calcWeight" class="form-control mb-3" min="1">
 
-            <div class="d-grid gap-2">
-              <button id="calcBtn" class="btn btn-primary">Calculate</button>
-              <div id="calcResult" class="alert alert-info d-none text-center"></div>
-            </div>
+        <button id="calcBtn" class="btn btn-primary w-100">Calculate</button>
 
-          </div>
-        </div>
+        <div id="calcResult" class="alert alert-info text-center d-none mt-3"></div>
       </div>
     </div>
   </section>
 
   <!-- TESTIMONIALS -->
   <section id="testimonials" class="py-5 bg-light">
+    <div class="container text-center mb-4">
+      <h2 class="fw-bold">What Our Customers Say</h2>
+    </div>
+
     <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">What Our Customers Say</h2>
-        </div>
-      </div>
-
       <div class="row g-4">
-        <% if (typeof testimonials !== 'undefined' && testimonials && testimonials.length > 0) { %>
-          <% testimonials.forEach(function(t){ %>
-            <% const rating = Number(t.rating || 5); %>
-            <div class="col-md-4">
-              <div class="testimonial-box">
-                <div class="d-flex align-items-center mb-3">
-                  <img src="<%= t.image || 'https://i.pravatar.cc/150' %>" class="avatar me-3" alt="avatar">
-                  <div>
-                    <strong><%= t.name %></strong><br>
-                    <small class="text-muted"><%= t.location || '' %></small>
-                  </div>
-                </div>
 
-                <p class="text-muted mb-2"><%= t.message %></p>
+        <% testimonials.forEach(t => { %>
+          <% const rating = Number(t.rating || 5); %>
+
+          <div class="col-md-4">
+            <div class="testimonial-box">
+              <div class="d-flex align-items-center mb-3">
+                <img src="<%= t.image %>" class="avatar me-3">
 
                 <div>
-                  <% for (let i=1;i<=5;i++) { %>
-                    <% if (i <= rating) { %>
-                      <i class="bi bi-star-fill star"></i>
-                    <% } else { %>
-                      <i class="bi bi-star star" style="opacity:0.25"></i>
-                    <% } %>
-                  <% } %>
+                  <strong><%= t.name %></strong><br>
+                  <small class="text-muted"><%= t.location %></small>
                 </div>
               </div>
-            </div>
-          <% }) %>
-        <% } else { %>
-          <!-- fallback -->
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="https://i.pravatar.cc/150?img=11" class="avatar me-3" alt="avatar">
-                <div><strong>Krish Regmi</strong><br><small class="text-muted">Gaindakot</small></div>
+
+              <p class="text-muted"><%= t.message %></p>
+
+              <!-- FIXED STAR LOOP -->
+              <div>
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <% if (i <= rating) { %>
+                    <i class="bi bi-star-fill star"></i>
+                  <% } else { %>
+                    <i class="bi bi-star star" style="opacity:0.3"></i>
+                  <% } %>
+                <% } %>
               </div>
-              <p class="text-muted mb-2">Fast pickup, clean clothes, and affordable rates. Best laundry in town!</p>
-              <div><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star star" style="opacity:0.25"></i></div>
+
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="https://i.pravatar.cc/150?img=32" class="avatar me-3" alt="avatar">
-                <div><strong>Amrita Rai</strong><br><small class="text-muted">Butwal</small></div>
-              </div>
-              <p class="text-muted mb-2">Loved the service! My clothes smell amazing and delivery is quick.</p>
-              <div><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i></div>
-            </div>
-          </div>
-        <% } %>
+        <% }) %>
+
       </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
-  <section id="contact" class="py-5">
+  <!-- CONTACT (Improved Layout) -->
+  <section id="contact" class="py-5 bg-white">
     <div class="container text-center">
-      <h3 class="fw-bold">Contact</h3>
-      <p class="text-muted">Call: +977 9825482289 • Email: santoshballu321@gmail.com</p>
+      <h3 class="fw-bold mb-3">Contact Us</h3>
+
+      <div class="row g-4 justify-content-center">
+
+        <div class="col-md-3">
+          <div class="p-4 bg-light rounded shadow-sm">
+            <i class="bi bi-telephone fs-2 text-primary"></i>
+            <h6 class="fw-bold mt-2">Call Us</h6>
+            <p class="mb-0">+977 9825482289</p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="p-4 bg-light rounded shadow-sm">
+            <i class="bi bi-envelope fs-2 text-primary"></i>
+            <h6 class="fw-bold mt-2">Email</h6>
+            <p class="mb-0">santoshballu321@gmail.com</p>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="bg-dark text-light py-3 text-center">
     © <%= new Date().getFullYear() %> Laundry Management System — Version 2.0
   </footer>
 
-  <!-- WhatsApp -->
-  <a class="whatsapp-float" href="https://wa.me/9779825482289" target="_blank"><i class="bi bi-whatsapp"></i></a>
+  <a class="whatsapp-float" href="https://wa.me/9779825482289" target="_blank">
+    <i class="bi bi-whatsapp"></i>
+  </a>
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Calculator logic: reads numeric value from option and multiplies by weight
-    document.getElementById('calcBtn').addEventListener('click', function(){
-      const price = Number(document.getElementById('calcService').value || 0);
-      const kg = Number(document.getElementById('calcWeight').value || 0);
+    document.getElementById('calcBtn').onclick = () => {
+      const price = Number(calcService.value);
+      const kg = Number(calcWeight.value);
 
-      if (!kg || kg <= 0) {
-        alert('Please enter a valid weight (kg).');
-        return;
-      }
+      if (!kg || kg <= 0) return alert("Enter valid weight");
 
-      const total = Math.round(price * kg); // already price includes *100 in option values
-      const el = document.getElementById('calcResult');
-      el.classList.remove('d-none');
-      el.innerText = 'Total: NPR ' + total.toLocaleString();
-    });
+      const total = price * kg;
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(a=> {
-      a.addEventListener('click', function(e){
-        e.preventDefault();
-        const t = document.querySelector(this.getAttribute('href'));
-        if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
-      });
-    });
+      calcResult.classList.remove('d-none');
+      calcResult.innerHTML = "Total: NPR " + total.toLocaleString();
+    };
   </script>
+
 </body>
 </html>
