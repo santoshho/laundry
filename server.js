@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -25,10 +26,21 @@ app.use(session({
 function readJSON(filename){
   const p = path.join(DATA_DIR, filename);
   if(!fs.existsSync(p)) return null;
-  try { return JSON.parse(fs.readFileSync(p,'utf8')||'null'); } catch(e){ return null; }
+  try {
+    const content = fs.readFileSync(p, 'utf8') || 'null';
+    return JSON.parse(content);
+  } catch(e){
+    console.error(`readJSON parse error for ${filename}:`, e);
+    return null;
+  }
 }
 function writeJSON(filename, data){
-  fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(data,null,2),'utf8');
+  try {
+    if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+    fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(data,null,2),'utf8');
+  } catch(e){
+    console.error(`writeJSON error for ${filename}:`, e);
+  }
 }
 
 // Ensure an admin user exists
@@ -47,7 +59,8 @@ function writeJSON(filename, data){
 function isAdminUser(req){
   if(!req.session || !req.session.user) return false;
   const admin = readJSON('admin.json');
-  return admin && (req.session.user.username === admin.username || req.session.user.isAdmin);
+  if(!admin) return false;
+  return (req.session.user.username === admin.username) || !!req.session.user.isAdmin;
 }
 
 app.use((req,res,next)=>{
@@ -92,9 +105,8 @@ app.use((req,res,next)=>{
   next();
 });
 
-
 // ------------------------------------------------------
-// FIXED HOME PAGE (THIS LINE FIXES YOUR INTERNAL ERROR)
+// HOME PAGE (stable)
 // ------------------------------------------------------
 app.get("/", (req, res) => {
   const services = readJSON("services.json") || [];
@@ -123,7 +135,6 @@ app.get("/", (req, res) => {
   res.render("index", { services, testimonials });
 });
 
-
 // ------------------------------------------------------
 // Simple admin login/logout
 // ------------------------------------------------------
@@ -145,7 +156,7 @@ app.post('/admin/logout', (req,res)=>{
 });
 
 function requireAdmin(req,res,next){
-  if(req.session && req.session.user) return next();
+  if(isAdminUser(req)) return next();
   return res.redirect('/admin/login');
 }
 
@@ -156,7 +167,6 @@ app.get('/admin/dashboard', requireAdmin, (req,res)=>{
   const orders = readJSON('orders.json') || [];
   res.send(`<h1>Admin Dashboard</h1><p>Orders: ${orders.length}</p>`);
 });
-
 
 // ------------------------------------------------------
 // USER ROUTES
@@ -171,13 +181,23 @@ app.get('/user/requests', (req,res)=>{
     return res.render('user/requests');
   res.status(404).send('Not found');
 });
+
+// ---------- FIXED: load order and pass it to the template ----------
 app.get('/user/request-details', (req,res)=>{
-  if(fs.existsSync(path.join(__dirname,'views','user','request-details.ejs')))
-    return res.render('user/request-details');
+  // read id from query param (?id=...)
+  const id = Number(req.query.id);
+  const orders = readJSON('orders.json') || [];
+  const order = orders.find(o => o.id === id);
+
+  // render the template with `order` (it will be undefined/null if not found)
+  if(fs.existsSync(path.join(__dirname,'views','user','request-details.ejs'))){
+    return res.render('user/request-details', { order });
+  }
   res.status(404).send('Not found');
 });
+// ------------------------------------------------------------------
 
-// AUTO RENDER
+/* AUTO RENDER for GET requests (useful fallback) */
 app.use((req,res,next)=>{
   if(req.method !== 'GET') return next();
   let p = req.path.replace(/^\//,'');
@@ -189,7 +209,6 @@ app.use((req,res,next)=>{
   if(fs.existsSync(v2)) return res.render(path.join(p,'index'));
   return next();
 });
-
 
 // ------------------------------------------------------
 // ORDERS & UPLOADS
@@ -294,7 +313,6 @@ app.post('/create-order', upload.single('attachment'), (req,res)=>{
   res.redirect('/order-success');
 });
 
-
 // ------------------------------------------------------
 // USER AUTH
 // ------------------------------------------------------
@@ -306,7 +324,7 @@ app.post('/login', (req, res) => {
   if (!user) return res.render('login', { error: 'Invalid email or password' });
 
   if (user.password === password || bcrypt.compareSync(password, user.password_hash || '')) {
-    req.session.user = { id: user.id, email: user.email, username: user.first_name + ' ' + user.last_name };
+    req.session.user = { id: user.id, email: user.email, username: (user.first_name||'') + ' ' + (user.last_name||'') };
     return res.redirect('/user/dashboard');
   }
 
@@ -356,7 +374,6 @@ app.post('/forgot-password', (req, res) => {
   });
 });
 
-
 // ------------------------------------------------------
 // NOTIFICATIONS API
 // ------------------------------------------------------
@@ -391,12 +408,10 @@ app.post('/api/notifications/:id/read', (req, res) => {
   res.status(404).json({ success: false });
 });
 
-
 // ------------------------------------------------------
 app.get('/order-success', (req, res) => {
   res.render('order-success');
 });
-
 
 app.post('*', (req,res)=>{
   const forms = readJSON('forms.json') || [];
