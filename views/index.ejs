@@ -1,542 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Laundry Management System</title>
-
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-
-  <style>
-    /* Layout fixes & components */
-    body { background:#f8f9fa; }
-    .hero {
-      padding: 5.5rem 0 3rem;
-    }
-    .hero .drop-icon {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin: 0 auto;
-      background: linear-gradient(180deg, rgba(13,110,253,0.08), rgba(13,110,253,0.03));
-      box-shadow: 0 12px 40px rgba(13,110,253,0.06);
-    }
-    .hero .drop-icon i { font-size: 6.5rem; color: #0d6efd; }
-    .hero-cards .card { border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
-    .service-card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 10px 26px rgba(0,0,0,0.04); height:100%; }
-    .service-icon { width:64px; height:64px; border-radius:10px; display:flex; align-items:center; justify-content:center; background: rgba(13,110,253,0.06); color:#0d6efd; font-size: 24px; }
-    .testimonial-box { background:#fff; border-radius:12px; padding:18px; box-shadow:0 10px 24px rgba(0,0,0,0.04); height:100%; }
-    .avatar { width:56px; height:56px; border-radius:50%; object-fit:cover; }
-    .star { color:#f6c84c; margin-right:2px; }
-    .whatsapp-float { position: fixed; bottom: 20px; right: 20px; width:60px; height:60px; border-radius:50%; background:#25D366; color:#fff; display:flex; align-items:center; justify-content:center; z-index:9999; box-shadow:0 10px 30px rgba(0,0,0,0.2); text-decoration:none }
-    /* popup toast (bottom-left) */
-    .site-toast {
-      position: fixed;
-      left: 22px;
-      bottom: 22px;
-      min-width: 260px;
-      max-width: 360px;
-      background: #fff;
-      border-radius:10px;
-      box-shadow: 0 12px 36px rgba(0,0,0,0.18);
-      padding:12px 14px;
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      z-index: 99999;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all .35s ease;
-    }
-    .site-toast.show { transform: translateY(0); opacity:1; }
-    .site-toast .icon { width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#0d6efd; color:#fff; font-size:18px; }
-    .site-toast .text { font-size:14px; color:#333; }
-    /* contact design */
-    .reach-card { border-radius:12px; background: linear-gradient(180deg, #fff, #fbfcff); box-shadow:0 12px 30px rgba(0,0,0,0.06); padding:20px; }
-    .map-wrap { border-radius:12px; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03); }
-    /* small gap fix (top) */
-    .top-gap { padding-top: 72px; } /* navbar fixed top spacing */
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laundry Service</title>
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
-<body class="top-gap">
+<body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
-        <i class="bi bi-droplet-half fs-3 text-primary"></i>
-        <span> Laundry System</span>
-      </a>
+    <%- include('partials/header') %>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="#calculator">Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
-          <li class="nav-item"><a class="nav-link" href="#reach">Reach Us</a></li>
-
-          <li class="nav-item ms-2"><a class="btn btn-outline-primary" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a></li>
-          <li class="nav-item ms-2"><a class="btn btn-primary text-white" href="/register"><i class="bi bi-person-plus me-1"></i> Register</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 pe-lg-5">
-          <h1 class="display-5 fw-bold text-dark">Professional Laundry Services Made Easy</h1>
-          <p class="lead text-muted mb-4">Pickup, track, wash and deliver — all from one platform. Fast, reliable and friendly service around Gaindakot.</p>
-          <div class="d-flex align-items-center gap-3">
-            <a class="btn btn-primary btn-lg" href="/register"><i class="bi bi-person-plus me-2"></i>Get Started</a>
-            <a class="btn btn-outline-primary btn-lg" href="/login"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a>
-          </div>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Fast & Reliable Laundry Service</h1>
+            <p>We pick up, clean, fold, and deliver your clothes — all at the best prices.</p>
+            <a href="/order" class="btn-primary">Place an Order</a>
         </div>
+    </section>
 
-        <div class="col-lg-6 text-center">
-          <div class="drop-icon mb-4">
-            <i class="bi bi-droplet-half"></i>
-          </div>
 
-          <!-- hero cards (4) -->
-          <div class="row g-3 hero-cards justify-content-center">
-            <div class="col-6 col-md-3">
-              <div class="card text-center p-3">
-                <div class="mb-2"><i class="bi bi-clock fs-2 text-success"></i></div>
-                <h6 class="mb-0">Quick Service</h6>
-              </div>
+    <!-- SERVICES SECTION -->
+    <section id="services" class="services-section">
+        <h2 class="section-title">Our Services</h2>
+
+        <div class="services-container">
+            <div class="service-card">
+                <img src="/images/wash.png" alt="Washing" />
+                <h3>Washing</h3>
+                <p>Premium fabric-friendly washing service.</p>
             </div>
 
-            <div class="col-6 col-md-3">
-              <div class="card text-center p-3">
-                <div class="mb-2"><i class="bi bi-truck fs-2 text-info"></i></div>
-                <h6 class="mb-0">Free Pickup</h6>
-              </div>
+            <div class="service-card">
+                <img src="/images/iron.png" alt="Ironing" />
+                <h3>Ironing</h3>
+                <p>Crisp, clean, and perfectly ironed clothes.</p>
             </div>
 
-            <div class="col-6 col-md-3">
-              <div class="card text-center p-3">
-                <div class="mb-2"><i class="bi bi-shield-check fs-2 text-warning"></i></div>
-                <h6 class="mb-0">Quality Care</h6>
-              </div>
+            <div class="service-card">
+                <img src="/images/delivery.png" alt="Delivery" />
+                <h3>Pickup & Delivery</h3>
+                <p>Fast home pickup and doorstep delivery.</p>
             </div>
-
-            <div class="col-6 col-md-3">
-              <div class="card text-center p-3">
-                <div class="mb-2"><i class="bi bi-phone fs-2 text-danger"></i></div>
-                <h6 class="mb-0">24/7 Support</h6>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- SERVICES -->
-  <section id="services" class="py-5">
-    <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">Our Services</h2>
-          <p class="text-muted">Affordable, fast & reliable laundry care — prices shown in NPR.</p>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section id="testimonials" class="testimonials-section">
+        <h2 class="section-title">What Our Customers Say</h2>
+
+        <div class="testimonial-container">
+            <% testimonials.forEach(t => { %>
+                <div class="testimonial-card">
+                    <div class="testimonial-image">
+                        <img src="<%= t.image %>" alt="<%= t.name %>">
+                    </div>
+                    <p class="testimonial-text">"<%= t.message %>"</p>
+                    <h3 class="testimonial-name"><%= t.name %></h3>
+                </div>
+            <% }) %>
         </div>
-      </div>
+    </section>
 
-      <div class="row g-4">
-        <% 
-          // services may be passed by server. fallbacks below.
-          const svcList = (typeof services !== 'undefined' && services && services.length) ? services : null;
-        %>
 
-        <% if (svcList) { %>
-          <% svcList.forEach(function(s){ 
-               // ensure numeric
-               const raw = Number(s.price || 0);
-               const displayPrice = Math.round(raw * 100); // add two zeros
-          %>
-            <div class="col-md-6">
-              <div class="service-card d-flex gap-3">
-                <div class="service-icon">
-                  <i class="bi bi-droplet"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <h5 class="mb-1"><%= s.name %></h5>
-                  <p class="text-muted mb-2"><%= s.description || '' %></p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-success fw-bold">NPR <%= displayPrice.toLocaleString() %>/kg</div>
-                    <!-- order buttons intentionally removed as requested -->
-                  </div>
-                </div>
-              </div>
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="contact-section">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="contact-container">
+            <div class="contact-box">
+                <h3>Phone</h3>
+                <p>+977 9800000000</p>
             </div>
-          <% }) %>
-        <% } else { %>
-          <!-- fallback static services -->
-          <div class="col-md-6">
-            <div class="service-card d-flex gap-3">
-              <div class="service-icon"><i class="bi bi-droplet"></i></div>
-              <div class="flex-grow-1">
-                <h5>Regular Wash</h5>
-                <p class="text-muted mb-2">Standard washing and drying for everyday clothes.</p>
-                <div class="text-success fw-bold">NPR 50,000/kg</div>
-              </div>
+            <div class="contact-box">
+                <h3>Email</h3>
+                <p>contact@laundry.com</p>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="service-card d-flex gap-3">
-              <div class="service-icon"><i class="bi bi-wind"></i></div>
-              <div class="flex-grow-1">
-                <h5>Dry Cleaning</h5>
-                <p class="text-muted mb-2">Professional dry-clean for delicate garments.</p>
-                <div class="text-success fw-bold">NPR 200,000/kg</div>
-              </div>
+            <div class="contact-box">
+                <h3>Location</h3>
+                <p>Kathmandu, Nepal</p>
             </div>
-          </div>
-        <% } %>
-      </div>
-    </div>
-  </section>
-
-  <!-- CALCULATOR -->
-  <section id="calculator" class="py-5 bg-light">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="card p-4">
-            <h5 class="mb-3">Laundry Price Calculator</h5>
-
-            <div class="row g-3">
-              <div class="col-md-7">
-                <label class="form-label">Select service</label>
-                <select id="calcService" class="form-select">
-                  <% if (svcList) { %>
-                    <% svcList.forEach(function(s){ const raw = Number(s.price||0); const displayPrice = Math.round(raw*100); %>
-                      <option value="<%= displayPrice %>"><%= s.name %> — NPR <%= displayPrice.toLocaleString() %>/kg</option>
-                    <% }) %>
-                  <% } else { %>
-                    <option value="50000">Regular Wash — NPR 50,000/kg</option>
-                    <option value="200000">Dry Clean — NPR 200,000/kg</option>
-                  <% } %>
-                </select>
-              </div>
-
-              <div class="col-md-3">
-                <label class="form-label">Weight (kg)</label>
-                <input id="calcWeight" type="number" min="1" class="form-control" placeholder="kg">
-              </div>
-
-              <div class="col-md-2 d-flex align-items-end">
-                <button id="calcBtn" class="btn btn-primary w-100">Calculate</button>
-              </div>
-            </div>
-
-            <div id="calcResult" class="mt-3 d-none alert alert-info text-center"></div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- TESTIMONIALS -->
-  <section id="testimonials" class="py-5">
-    <div class="container">
-      <div class="row mb-4">
-        <div class="col text-center">
-          <h2 class="fw-bold">What Our Customers Say</h2>
-          <p class="text-muted">Real feedback from our customers.</p>
-        </div>
-      </div>
 
-      <div class="row g-4">
-        <% 
-          // testimonials passed from server or fallback
-          const tlist = (typeof testimonials !== 'undefined' && testimonials && testimonials.length) ? testimonials : null;
-        %>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© 2025 Laundry Service. All rights reserved.</p>
+    </footer>
 
-        <% if (tlist) { %>
-          <% tlist.forEach(function(t){ const rating = Number(t.rating||5); %>
-            <div class="col-md-4">
-              <div class="testimonial-box">
-                <div class="d-flex align-items-center mb-3">
-                  <img src="<%= t.image || 'https://i.pravatar.cc/150' %>" class="avatar me-3" alt="avatar">
-                  <div>
-                    <strong><%= t.name %></strong><br>
-                    <small class="text-muted"><%= t.location || '' %></small>
-                  </div>
-                </div>
-                <p class="text-muted mb-2"><%= t.message %></p>
-                <div>
-                  <% for(let i=1;i<=5;i++){ %>
-                    <% if(i<=rating){ %>
-                      <i class="bi bi-star-fill star"></i>
-                    <% } else { %>
-                      <i class="bi bi-star star" style="opacity:0.25"></i>
-                    <% } %>
-                  <% } %>
-                </div>
-              </div>
-            </div>
-          <% }) %>
-        <% } else { %>
-          <!-- fallback -->
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="https://i.pravatar.cc/150?img=11" class="avatar me-3" alt="avatar">
-                <div><strong>Krish Regmi</strong><br><small class="text-muted">Gaindakot</small></div>
-              </div>
-              <p class="text-muted mb-2">Fast pickup, clean clothes, and affordable rates. Best laundry in town!</p>
-              <div><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star star" style="opacity:0.25"></i></div>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="https://i.pravatar.cc/150?img=32" class="avatar me-3" alt="avatar">
-                <div><strong>Amrita Rai</strong><br><small class="text-muted">Butwal</small></div>
-              </div>
-              <p class="text-muted mb-2">Loved the service! My clothes smell amazing and delivery is quick.</p>
-              <div><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i></div>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="testimonial-box">
-              <div class="d-flex align-items-center mb-3">
-                <img src="https://i.pravatar.cc/150?img=45" class="avatar me-3" alt="avatar">
-                <div><strong>Sujan Lama</strong><br><small class="text-muted">Kathmandu</small></div>
-              </div>
-              <p class="text-muted mb-2">Pickup and delivery always on time. Highly recommended.</p>
-              <div><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star-fill star"></i><i class="bi bi-star star" style="opacity:0.25"></i></div>
-            </div>
-          </div>
-        <% } %>
-      </div>
-    </div>
-  </section>
-
-  <!-- REACH US -->
-  <section id="reach" class="py-5 bg-light">
-    <div class="container">
-      <div class="row g-4 align-items-center">
-        <div class="col-lg-6">
-          <div class="reach-card">
-            <h4 class="fw-bold">Reach Us</h4>
-            <p class="text-muted">We are based in Gaindakot — get in touch via phone, email or visit us.</p>
-
-            <div class="row mt-3">
-              <div class="col-12 mb-3">
-                <div class="d-flex gap-3">
-                  <div class="p-3 bg-white rounded-3" style="box-shadow:0 6px 18px rgba(0,0,0,.04);">
-                    <i class="bi bi-telephone fs-4 text-primary"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Call</h6>
-                    <small class="text-muted">+977 9825482289</small>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-12 mb-3">
-                <div class="d-flex gap-3">
-                  <div class="p-3 bg-white rounded-3" style="box-shadow:0 6px 18px rgba(0,0,0,.04);">
-                    <i class="bi bi-envelope fs-4 text-primary"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Email</h6>
-                    <small class="text-muted">santoshballu321@gmail.com</small>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-12">
-                <div class="d-flex gap-3">
-                  <div class="p-3 bg-white rounded-3" style="box-shadow:0 6px 18px rgba(0,0,0,.04);">
-                    <i class="bi bi-geo-alt fs-4 text-primary"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Visit</h6>
-                    <small class="text-muted">Gaindakot-11, Nawalpur</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4">
-              <a href="https://wa.me/9779825482289" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp me-2"></i> Message on WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <div class="map-wrap">
-            <!-- Google Maps embed centered to Gaindakot-11, Nawalpur -->
-            <iframe
-              src="https://www.google.com/maps?q=Gaindakot-11%2C%20Nawalpur&output=embed"
-              width="100%" height="100%" style="min-height:280px;border:0;" allowfullscreen="" loading="lazy"></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="py-4 bg-dark text-light">
-    <div class="container text-center">
-      <small>© <%= new Date().getFullYear() %> Laundry Management System — Version 2.0</small>
-    </div>
-  </footer>
-
-  <!-- WhatsApp floating -->
-  <a class="whatsapp-float" href="https://wa.me/9779825482289" target="_blank" title="Chat on WhatsApp">
-    <i class="bi bi-whatsapp fs-4"></i>
-  </a>
-
-  <!-- Toast container (we'll reuse one element) -->
-  <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Single toast element inserted by JS -->
-  <div id="siteToast" class="site-toast" style="display:none">
-    <div class="icon"><i class="bi bi-info-lg"></i></div>
-    <div class="text"><strong id="toastTitle">Notice</strong><div id="toastBody" style="font-size:13px;color:#555;"></div></div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // ---------- Calculator ----------
-    (function(){
-      const btn = document.getElementById('calcBtn');
-      const sel = document.getElementById('calcService');
-      const kg = document.getElementById('calcWeight');
-      const res = document.getElementById('calcResult');
-
-      btn.addEventListener('click', function(){
-        const price = Number(sel.value || 0);
-        const weight = Number(kg.value || 0);
-        if (!weight || weight <= 0) {
-          alert('Please enter valid weight in kg.');
-          return;
-        }
-        const total = Math.round(price * weight);
-        res.classList.remove('d-none');
-        res.innerText = 'Total: NPR ' + total.toLocaleString();
-      });
-    })();
-
-    // ---------- Popup notifications (bottom-left) ----------
-    (function(){
-      // 50 sample messages (you can edit or extend)
-      const msgs = [
-        "New user Rampukar registered",
-        "New order #<%= Date.now() %> received",
-        "New request from Ram K.",
-        "Order #12345 moved to In Progress",
-        "Order #67890 completed",
-        "New user Sita registered",
-        "New order placed for Dry Cleaning",
-        "Pickup scheduled for tomorrow 10:00 AM",
-        "Delivery scheduled for today evening",
-        "Payment received for order #1001",
-        "New order from customer in Gaindakot",
-        "Customer Sandip submitted a request",
-        "Discount applied to order #2002",
-        "System backup completed",
-        "New message from customer",
-        "Order #3003 status updated to pending",
-        "Reminder: Change admin password",
-        "New review added by Anita K.",
-        "New user registered via site",
-        "Order #4044 requires attention",
-        "New request created from mobile",
-        "Promo code SUMMER applied",
-        "Order #5050 assigned to staff",
-        "Customer support ticket opened",
-        "New order payment pending",
-        "Order #6060 ready for pickup",
-        "Customer feedback received",
-        "Inventory reminder: detergent low",
-        "Order #7070 returned for rework",
-        "New pickup request approved",
-        "Order #8080 delivered",
-        "New user Ram registered",
-        "Order #9090 updated",
-        "New request received (express)",
-        "Delivery delay notice for order #1111",
-        "Order #1212 scheduled",
-        "New testimonial submitted",
-        "New user registered — welcome!",
-        "Order #1313 billed successfully",
-        "Pickup crew assigned",
-        "Order #1414 completed and invoiced",
-        "New corporate enquiry received",
-        "Order #1515 awaiting payment",
-        "New registration from Butwal",
-        "Order #1616 moved to QC",
-        "New user verified",
-        "New partnership enquiry",
-        "Order #1717 archived",
-        "System maintenance completed"
-      ];
-
-      const toastEl = document.getElementById('siteToast');
-      const titleEl = document.getElementById('toastTitle');
-      const bodyEl = document.getElementById('toastBody');
-
-      let idx = 0;
-
-      function showMsg(msg) {
-        titleEl.textContent = 'Notification';
-        bodyEl.textContent = msg;
-        toastEl.style.display = 'flex';
-        // animate in
-        setTimeout(()=> toastEl.classList.add('show'), 50);
-        // hide after 5.5s
-        setTimeout(()=> {
-          toastEl.classList.remove('show');
-          setTimeout(()=> toastEl.style.display = 'none', 350);
-        }, 5500);
-      }
-
-      // initial small delay then every 25 seconds
-      setTimeout(()=> {
-        // first show a message immediately
-        showMsg(msgs[Math.floor(Math.random()*msgs.length)]);
-        // subsequent every 25s
-        setInterval(()=> {
-          const m = msgs[Math.floor(Math.random()*msgs.length)];
-          showMsg(m);
-        }, 25000);
-      }, 1500);
-    })();
-
-    // ---------- smooth scroll for anchor links ----------
-    (function(){
-      document.querySelectorAll('a[href^="#"]').forEach(a=>{
-        a.addEventListener('click', function(e){
-          e.preventDefault();
-          const t = document.querySelector(this.getAttribute('href'));
-          if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
-        });
-      });
-    })();
-  </script>
 </body>
 </html>
