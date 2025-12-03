@@ -1,0 +1,73 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+
+    <h3><i class="bi bi-plus-circle"></i> Create New Order</h3>
+    <hr>
+
+    <form method="POST" action="/admin/orders/create">
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" name="customer" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input type="text" class="form-control" name="phone" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" name="address" required>
+        </div>
+
+        <!-- Select Service -->
+        <div class="mb-3">
+            <label class="form-label">Select Service</label>
+            <select class="form-select" name="service_id" id="serviceSelect" required>
+                <option value="">-- Choose --</option>
+                <% services.forEach(s => { %>
+                    <option value="<%= s.id %>" data-price="<%= s.price %>">
+                        <%= s.name %> (Rs <%= s.price %> / kg)
+                    </option>
+                <% }) %>
+            </select>
+        </div>
+
+        <!-- Weight -->
+        <div class="mb-3">
+            <label class="form-label">Weight (kg)</label>
+            <input type="number" class="form-control" name="weight" id="weight" min="1" required>
+        </div>
+
+        <!-- Auto Price -->
+        <div class="mb-3">
+            <label class="form-label">Total Price</label>
+            <input type="text" class="form-control" id="totalPrice" readonly>
+        </div>
+
+        <button class="btn btn-primary btn-lg">Create Order</button>
+        <a href="/admin/orders" class="btn btn-secondary ms-3">Cancel</a>
+
+    </form>
+</div>
+
+<script>
+    const serviceSelect = document.getElementById("serviceSelect");
+    const weightInput = document.getElementById("weight");
+    const totalPrice = document.getElementById("totalPrice");
+
+    function calculate() {
+        const price = Number(serviceSelect.selectedOptions[0]?.dataset?.price || 0);
+        const weight = Number(weightInput.value || 0);
+        totalPrice.value = price && weight ? (price * weight).toFixed(2) : "";
+    }
+
+    serviceSelect.addEventListener("change", calculate);
+    weightInput.addEventListener("input", calculate);
+</script>
+
+<%- include('../partials/footer') %>
