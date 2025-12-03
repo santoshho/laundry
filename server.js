@@ -80,6 +80,7 @@ app.use((req,res,next)=>{
 
 app.use((req,res,next)=>{
   try{
+    // load data files into locals so templates can use them
     res.locals.services = readJSON('services.json') || [];
     res.locals.orders = readJSON('orders.json') || [];
     res.locals.users = readJSON('users.json') || [];
@@ -106,10 +107,13 @@ app.use((req,res,next)=>{
 });
 
 // ------------------------------------------------------
-// HOME PAGE (stable)
+// HOME PAGE (stable) - only show available services to users
 // ------------------------------------------------------
 app.get("/", (req, res) => {
-  const services = readJSON("services.json") || [];
+  const servicesAll = readJSON("services.json") || [];
+
+  // filter available services only for public homepage (simple availability mode)
+  const services = (servicesAll && Array.isArray(servicesAll)) ? servicesAll.filter(s => s.available !== false) : [];
 
   const testimonials = [
     {
@@ -169,6 +173,50 @@ app.get('/admin/dashboard', requireAdmin, (req,res)=>{
 });
 
 // ------------------------------------------------------
+// ADMIN: list & toggle services (simple availability toggle - Feature 6A)
+// ------------------------------------------------------
+app.get('/admin/services', requireAdmin, (req, res) => {
+  const services = readJSON('services.json') || [];
+  if(fs.existsSync(path.join(__dirname,'views','admin','services.ejs'))){
+    return res.render('admin/services', { services });
+  }
+  // simple fallback view
+  let html = '<h1>Services</h1><ul>';
+  services.forEach((s, idx) => {
+    html += `<li>${s.name} - ${s.available === false ? '<strong>Unavailable</strong>' : '<strong>Available</strong>'} - <form style="display:inline" method="POST" action="/admin/service/${s.id || idx}/toggle"><button type="submit">Toggle</button></form></li>`;
+  });
+  html += '</ul><a href="/admin/dashboard">Back</a>';
+  res.send(html);
+});
+
+// Toggle availability of a service (POST)
+app.post('/admin/service/:id/toggle', requireAdmin, (req, res) => {
+  const services = readJSON('services.json') || [];
+  const sid = req.params.id;
+
+  // try to find by numeric id property first, then by index
+  let found = services.find(s => String(s.id) === String(sid));
+  if(!found){
+    const idx = Number(sid);
+    if(!isNaN(idx) && services[idx]) found = services[idx];
+  }
+
+  if(found){
+    found.available = !(found.available === true);
+    writeJSON('services.json', services);
+    req.session.notification = `Service "${found.name}" availability updated`;
+    req.session.notificationType = 'success';
+  } else {
+    req.session.notification = 'Service not found';
+    req.session.notificationType = 'danger';
+  }
+
+  // if there's a referer, go back there, otherwise admin services
+  if(req.headers.referer) return res.redirect(req.headers.referer);
+  return res.redirect('/admin/services');
+});
+
+// ------------------------------------------------------
 // USER ROUTES
 // ------------------------------------------------------
 app.get('/user/profile', (req,res)=>{
@@ -196,6 +244,26 @@ app.get('/user/request-details', (req,res)=>{
   res.status(404).send('Not found');
 });
 // ------------------------------------------------------------------
+
+// ------------------------------------------------------
+// USER: Order tracking page (Feature 13A)
+// Route: /user/order/:id/tracking
+// ------------------------------------------------------
+app.get('/user/order/:id/tracking', (req, res) => {
+  const id = Number(req.params.id);
+  const orders = readJSON('orders.json') || [];
+  const order = orders.find(o => o.id === id);
+
+  if(!order) return res.status(404).send('Order not found');
+
+  // render tracking view if exists
+  if(fs.existsSync(path.join(__dirname,'views','user','order-tracking.ejs'))){
+    return res.render('user/order-tracking', { order });
+  }
+
+  // fallback JSON
+  res.json({ order });
+});
 
 /* AUTO RENDER for GET requests (useful fallback) */
 app.use((req,res,next)=>{
@@ -248,13 +316,25 @@ app.get('/admin/order/:id', requireAdmin, (req,res)=>{
   return res.render('admin/order_view', { order });
 });
 
+// Update status (admin) — now adds status_history entry (Feature 13A)
 app.post('/admin/order/:id/status', requireAdmin, (req,res)=>{
   const id = Number(req.params.id);
   const orders = readJSON('orders.json') || [];
   const o = orders.find(x=>x.id===id);
   if(o){
-    o.status = req.body.status || o.status;
+    const newStatus = req.body.status || o.status;
+    o.status = newStatus;
     o.updated_at = new Date().toISOString();
+
+    // ensure status_history exists and push new entry
+    o.status_history = o.status_history || [];
+    o.status_history.push({
+      status: newStatus,
+      note: req.body.note || '',
+      updated_by: req.session.user ? (req.session.user.username || req.session.user.id) : 'system',
+      at: new Date().toISOString()
+    });
+
     writeJSON('orders.json', orders);
 
     const notifications = readJSON('notifications.json') || [];
@@ -280,16 +360,42 @@ app.post('/admin/order/:id/status', requireAdmin, (req,res)=>{
 
 app.post('/create-order', upload.single('attachment'), (req,res)=>{
   const orders = readJSON('orders.json') || [];
+
+  // simple server-side filtering: ensure selected service is available (if service selection provided)
+  // if your form posts a 'service_id' or 'service_name', validate it here.
+  // For now we accept input but add a guard: if service_id provided and service unavailable -> reject.
+  const services = readJSON('services.json') || [];
+  const serviceId = req.body.service_id || null;
+  if(serviceId){
+    const s = services.find(x => String(x.id) === String(serviceId));
+    if(s && s.available === false){
+      req.session.notification = 'Selected service is currently unavailable. Choose another.';
+      req.session.notificationType = 'danger';
+      if(req.headers.referer) return res.redirect(req.headers.referer);
+      return res.redirect('/');
+    }
+  }
+
   const newOrder = {
     id: Date.now(),
     name: req.body.name || '',
     phone: req.body.phone || '',
     address: req.body.address || '',
     items: req.body.items || '',
+    service_id: req.body.service_id || null,
     status: 'pending',
     created_at: new Date().toISOString(),
     attachment: req.file ? path.join('uploads', path.basename(req.file.path)) : null,
-    user_id: req.session.user ? req.session.user.id : null
+    user_id: req.session.user ? req.session.user.id : null,
+    // initialize status history for tracking (Feature 13A)
+    status_history: [
+      {
+        status: 'pending',
+        note: 'Order created',
+        updated_by: req.session.user ? (req.session.user.username || req.session.user.id) : 'guest',
+        at: new Date().toISOString()
+      }
+    ]
   };
   orders.push(newOrder);
   writeJSON('orders.json', orders);
