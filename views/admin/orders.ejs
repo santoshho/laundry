@@ -1,92 +1,195 @@
 <%- include('../partials/header') %>
 
 <div class="container mt-4">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>
-            <i class="bi bi-list-check me-2"></i>Manage Orders
-        </h2>
-        <div>
-            <a href="/admin/dashboard" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
-            <form method="POST" action="/admin/logout" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+        <h2><i class="bi bi-basket me-2"></i>Create New Order</h2>
+        <a href="/admin/orders" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+    </div>
+
+    <!-- ORDER FORM -->
+    <div class="card">
+        <div class="card-body">
+
+            <form id="orderForm" method="POST" action="/admin/order/create" enctype="multipart/form-data">
+
+                <!-- Customer Info -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" name="phone" required>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- SERVICE SELECTION -->
+                <h5>Add Services</h5>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Select Service</label>
+                        <select class="form-select" id="serviceSelect">
+                            <option value="">-- Select Service --</option>
+                            <% pricing.forEach(function(p) { %>
+                                <option value="<%= p.service %>" data-price="<%= p.price %>">
+                                    <%= p.service %> (Rs <%= p.price %>/kg)
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="weightInput">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary w-100" id="addServiceBtn">
+                            <i class="bi bi-plus-circle me-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PRICE PREVIEW -->
+                <p id="pricePreview" class="text-muted"></p>
+
+                <hr>
+
+                <!-- ADDED SERVICES TABLE -->
+                <h5>Order Items</h5>
+
+                <div id="itemsWrapper">
+                    <table class="table table-bordered d-none" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Weight (kg)</th>
+                                <th>Price (Rs)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- HIDDEN FIELD TO SEND ITEMS JSON -->
+                <input type="hidden" name="itemsJson" id="itemsJson">
+
+                <hr>
+
+                <!-- ATTACHMENT -->
+                <div class="mb-3">
+                    <label class="form-label">Attachment (optional)</label>
+                    <input type="file" class="form-control" name="attachment">
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-3">
+                    <i class="bi bi-check-lg me-2"></i>Create Order
                 </button>
+
             </form>
+
         </div>
     </div>
 
-    <!-- Orders Table -->
-    <div class="card">
-        <div class="card-body">
-            <% if (orders && orders.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th>Items</th>
-                                <th>Status</th>
-                                <th>Attachment</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach(function(order) { %>
-                                <tr>
-                                    <td>
-                                        <a href="/admin/order/<%= order.id %>" class="text-decoration-none fw-bold">
-                                            #<%= order.id %>
-                                        </a>
-                                    </td>
-                                    <td><%= order.name %></td>
-                                    <td><%= order.phone %></td>
-                                    <td><%= order.items %></td>
-                                    <td>
-                                        <span class="badge bg-<%= order.status === 'pending' ? 'warning' : order.status === 'done' ? 'success' : 'info' %>">
-                                            <%= order.status %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <% if (order.attachment) { %>
-                                            <a href="/<%= order.attachment %>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-paperclip"></i> File
-                                            </a>
-                                        <% } else { %>
-                                            <span class="text-muted">No file</span>
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <form method="POST" action="/admin/order/<%= order.id %>/status" class="d-inline">
-                                            <div class="input-group input-group-sm">
-                                                <select name="status" class="form-select">
-                                                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                                    <option value="in_progress" <%= order.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
-                                                    <option value="done" <%= order.status === 'done' ? 'selected' : '' %>>Done</option>
-                                                </select>
-                                                <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="bi bi-check"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } else { %>
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="text-muted mt-3">No orders found</h4>
-                    <p class="text-muted">No orders have been placed yet</p>
-                </div>
-            <% } %>
-        </div>
-    </div>
 </div>
+
+<script>
+    let items = [];
+
+    const serviceSelect = document.getElementById("serviceSelect");
+    const weightInput = document.getElementById("weightInput");
+    const pricePreview = document.getElementById("pricePreview");
+    const addServiceBtn = document.getElementById("addServiceBtn");
+    const itemsTable = document.getElementById("itemsTable");
+    const itemsTableBody = document.getElementById("itemsTableBody");
+    const itemsJson = document.getElementById("itemsJson");
+
+    // Show price preview when selecting service or weight
+    function updatePreview() {
+        let service = serviceSelect.value;
+        let price = serviceSelect.selectedOptions[0]?.dataset.price;
+        let weight = weightInput.value;
+
+        if (service && weight && price) {
+            pricePreview.innerHTML = 
+                `Total: Rs <strong>${(price * weight).toFixed(2)}</strong>`;
+        } else {
+            pricePreview.innerHTML = "";
+        }
+    }
+
+    serviceSelect.addEventListener("change", updatePreview);
+    weightInput.addEventListener("input", updatePreview);
+
+    // Add service to list
+    addServiceBtn.onclick = () => {
+        let service = serviceSelect.value;
+        let price = serviceSelect.selectedOptions[0]?.dataset.price;
+        let weight = weightInput.value;
+
+        if (!service || !weight || weight <= 0) {
+            alert("Please select service and enter weight.");
+            return;
+        }
+
+        let total = price * weight;
+
+        items.push({
+            service,
+            weight,
+            price,
+            total
+        });
+
+        renderItems();
+        updateHiddenField();
+
+        // Reset fields
+        weightInput.value = "";
+        serviceSelect.value = "";
+        pricePreview.innerHTML = "";
+    };
+
+    // Render items table
+    function renderItems() {
+        itemsTableBody.innerHTML = "";
+
+        items.forEach((item, index) => {
+            itemsTableBody.innerHTML += `
+                <tr>
+                    <td>${item.service}</td>
+                    <td>${item.weight} kg</td>
+                    <td>Rs ${item.total.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="removeItem(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        itemsTable.classList.toggle("d-none", items.length === 0);
+    }
+
+    function removeItem(i) {
+        items.splice(i, 1);
+        renderItems();
+        updateHiddenField();
+    }
+
+    function updateHiddenField() {
+        itemsJson.value = JSON.stringify(items);
+    }
+</script>
 
 <%- include('../partials/footer') %>
