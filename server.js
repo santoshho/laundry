@@ -65,7 +65,6 @@ function isAdminUser(req){
 }
 
 app.use((req,res,next)=>{
-  // Provide admin nav links so admin dashboard view can render them (if you modify the dashboard template)
   res.locals.adminLinks = [
     { href: '/admin/dashboard', label: 'Dashboard' },
     { href: '/admin/services', label: 'Services' },
@@ -192,7 +191,6 @@ app.get('/admin/dashboard', requireAdmin, (req,res)=>{
     return res.render('admin/dashboard');
 
   const orders = readJSON('orders.json') || [];
-  // Simple fallback admin page with link to pricing
   const html = `
     <h1>Admin Dashboard</h1>
     <p>Orders: ${orders.length}</p>
@@ -204,14 +202,13 @@ app.get('/admin/dashboard', requireAdmin, (req,res)=>{
 });
 
 // ------------------------------------------------------
-// ADMIN SERVICES (existing feature)
+// ADMIN SERVICES
 // ------------------------------------------------------
 app.get('/admin/services', requireAdmin, (req, res) => {
   const services = readJSON('services.json') || [];
   if(fs.existsSync(path.join(__dirname,'views','admin','services.ejs'))){
     return res.render('admin/services', { services });
   }
-  // fallback
   let html = '<h1>Services</h1><ul>';
   services.forEach((s, idx) => {
     html += `<li>${s.name} - ${s.available === false ? '<strong>Unavailable</strong>' : '<strong>Available</strong>'} - <form style="display:inline" method="POST" action="/admin/service/${s.id || idx}/toggle"><button type="submit">Toggle</button></form></li>`;
@@ -244,17 +241,14 @@ app.post('/admin/service/:id/toggle', requireAdmin, (req, res) => {
 });
 
 // ------------------------------------------------------
-//  ✅ STEP 3 — ADD PRICING MANAGEMENT (NEW)
+// ADMIN PRICING
 // ------------------------------------------------------
-// GET pricing page
 app.get("/admin/pricing", requireAdmin, (req, res) => {
-  // pricing_list kept for backwards-compatible EJS that expects pricing_list
   const pricing = readJSON("pricing.json") || [];
   const pricing_list = pricing;
   if(fs.existsSync(path.join(__dirname,'views','admin','pricing.ejs'))){
     return res.render("admin/pricing", { pricing, pricing_list });
   }
-  // fallback
   let html = '<h1>Pricing</h1><ul>';
   pricing.forEach(p => {
     html += `<li>${p.name} - ${p.price} ${p.unit || ''} 
@@ -265,19 +259,13 @@ app.get("/admin/pricing", requireAdmin, (req, res) => {
   res.send(html);
 });
 
-// POST handler to create / update / delete using the modal form
 app.post("/admin/pricing", requireAdmin, (req, res) => {
-  // expected fields:
-  // action = update_pricing | delete_pricing
-  // pricing_id (optional), service_type (or name), price_per_kg (or price), description, status
   const action = req.body.action || '';
   let pricing = readJSON("pricing.json") || [];
 
   if(action === 'update_pricing'){
-    // Normalize incoming fields (handle names used in EJS)
     const id = req.body.pricing_id ? Number(req.body.pricing_id) : null;
     const name = (req.body.service_type || req.body.name || '').trim();
-    // price may be posted as price_per_kg or price
     const priceRaw = req.body.price_per_kg || req.body.price || req.body.price_raw || '0';
     const price = Number(priceRaw) || 0;
     const description = req.body.description || '';
@@ -291,7 +279,6 @@ app.post("/admin/pricing", requireAdmin, (req, res) => {
     }
 
     if(id){
-      // update existing
       const idx = pricing.findIndex(p => Number(p.id) === Number(id));
       if(idx !== -1){
         pricing[idx].name = name;
@@ -304,12 +291,9 @@ app.post("/admin/pricing", requireAdmin, (req, res) => {
         req.session.notification = 'Pricing updated successfully.';
         req.session.notificationType = 'success';
         return res.redirect('/admin/pricing');
-      } else {
-        // id provided but not found -> create new fallback
       }
     }
 
-    // create new
     const newItem = {
       id: Date.now(),
       name,
@@ -340,14 +324,12 @@ app.post("/admin/pricing", requireAdmin, (req, res) => {
     return res.redirect('/admin/pricing');
   }
 
-  // unknown action — fallback: redirect
   return res.redirect('/admin/pricing');
 });
 
-// convenience delete route (used by fallback or explicit form)
 app.post("/admin/pricing/:id/delete", requireAdmin, (req, res) => {
   const id = Number(req.params.id);
-  let pricing = readJSON("pricing.json") || [];
+  let pricing = readJSON('pricing.json') || [];
   pricing = pricing.filter(p => Number(p.id) !== id);
   writeJSON('pricing.json', pricing);
   req.session.notification = 'Pricing item removed!';
@@ -356,7 +338,7 @@ app.post("/admin/pricing/:id/delete", requireAdmin, (req, res) => {
 });
 
 // ------------------------------------------------------
-// USER ROUTES (existing)
+// USER ROUTES
 // ------------------------------------------------------
 app.get('/user/profile', (req,res)=>{
   if(fs.existsSync(path.join(__dirname,'views','user','profile.ejs')))
@@ -370,7 +352,6 @@ app.get('/user/requests', (req,res)=>{
   res.status(404).send('Not found');
 });
 
-// fixed
 app.get('/user/request-details', (req,res)=>{
   const id = Number(req.query.id);
   const orders = readJSON('orders.json') || [];
@@ -383,7 +364,7 @@ app.get('/user/request-details', (req,res)=>{
 });
 
 // ------------------------------------------------------
-// USER ORDER TRACKING
+// ORDER TRACKING
 // ------------------------------------------------------
 app.get('/user/order/:id/tracking', (req, res) => {
   const id = Number(req.params.id);
