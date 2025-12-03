@@ -34,6 +34,7 @@ function readJSON(filename){
     return null;
   }
 }
+
 function writeJSON(filename, data){
   try {
     if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
@@ -43,7 +44,7 @@ function writeJSON(filename, data){
   }
 }
 
-// Ensure an admin user exists
+// Ensure admin exists
 (function ensureAdmin(){
   const admPath = path.join(DATA_DIR, 'admin.json');
   if(!fs.existsSync(admPath)){
@@ -80,7 +81,6 @@ app.use((req,res,next)=>{
 
 app.use((req,res,next)=>{
   try{
-    // load data files into locals so templates can use them
     res.locals.services = readJSON('services.json') || [];
     res.locals.orders = readJSON('orders.json') || [];
     res.locals.users = readJSON('users.json') || [];
@@ -89,31 +89,37 @@ app.use((req,res,next)=>{
     if(req.session.user){
       const notifications = readJSON('notifications.json') || [];
       const admin = isAdminUser(req);
-      
+
       if(admin){
         res.locals.notificationCount =
           notifications.filter(n => n.recipient_type === 'admin' && !n.read).length;
       } else {
         res.locals.notificationCount =
-          notifications.filter(n => n.recipient_type === 'user' && n.recipient_id === req.session.user.id && !n.read).length;
+          notifications.filter(n =>
+            n.recipient_type === 'user' &&
+            n.recipient_id === req.session.user.id &&
+            !n.read
+          ).length;
       }
     } else {
       res.locals.notificationCount = 0;
     }
-  }catch(e){
+
+  } catch(e){
     console.error('middleware load error', e);
   }
   next();
 });
 
 // ------------------------------------------------------
-// HOME PAGE (stable) - only show available services to users
+// HOME PAGE
 // ------------------------------------------------------
 app.get("/", (req, res) => {
   const servicesAll = readJSON("services.json") || [];
 
-  // filter available services only for public homepage (simple availability mode)
-  const services = (servicesAll && Array.isArray(servicesAll)) ? servicesAll.filter(s => s.available !== false) : [];
+  const services = (servicesAll && Array.isArray(servicesAll))
+    ? servicesAll.filter(s => s.available !== false)
+    : [];
 
   const testimonials = [
     {
@@ -140,21 +146,22 @@ app.get("/", (req, res) => {
 });
 
 // ------------------------------------------------------
-// Simple admin login/logout
+// ADMIN LOGIN
 // ------------------------------------------------------
-app.get('/admin/login', (req,res)=>{
-  res.render('admin/login');
-});
+app.get('/admin/login', (req,res)=> res.render('admin/login'));
+
 app.post('/admin/login', (req,res)=>{
   const { username, password } = req.body;
   const admin = readJSON('admin.json');
-  if(!admin) return res.send('Admin not configured');
+
   if(username === admin.username && bcrypt.compareSync(password, admin.password_hash)){
     req.session.user = { username: admin.username, isAdmin: true, id: 'admin' };
     return res.redirect('/admin/dashboard');
   }
+
   res.render('admin/login', { error: 'Invalid credentials' });
 });
+
 app.post('/admin/logout', (req,res)=>{
   req.session.destroy(()=> res.redirect('/'));
 });
@@ -164,37 +171,29 @@ function requireAdmin(req,res,next){
   return res.redirect('/admin/login');
 }
 
+// ------------------------------------------------------
+// ADMIN DASHBOARD
+// ------------------------------------------------------
 app.get('/admin/dashboard', requireAdmin, (req,res)=>{
-  if(fs.existsSync(path.join(__dirname,'views','admin','dashboard.ejs'))){
+  if(fs.existsSync(path.join(__dirname,'views','admin','dashboard.ejs')))
     return res.render('admin/dashboard');
-  }
+
   const orders = readJSON('orders.json') || [];
   res.send(`<h1>Admin Dashboard</h1><p>Orders: ${orders.length}</p>`);
 });
 
 // ------------------------------------------------------
-// ADMIN: list & toggle services (simple availability toggle - Feature 6A)
+// ADMIN SERVICES (existing feature)
 // ------------------------------------------------------
 app.get('/admin/services', requireAdmin, (req, res) => {
   const services = readJSON('services.json') || [];
-  if(fs.existsSync(path.join(__dirname,'views','admin','services.ejs'))){
-    return res.render('admin/services', { services });
-  }
-  // simple fallback view
-  let html = '<h1>Services</h1><ul>';
-  services.forEach((s, idx) => {
-    html += `<li>${s.name} - ${s.available === false ? '<strong>Unavailable</strong>' : '<strong>Available</strong>'} - <form style="display:inline" method="POST" action="/admin/service/${s.id || idx}/toggle"><button type="submit">Toggle</button></form></li>`;
-  });
-  html += '</ul><a href="/admin/dashboard">Back</a>';
-  res.send(html);
+  return res.render('admin/services', { services });
 });
 
-// Toggle availability of a service (POST)
 app.post('/admin/service/:id/toggle', requireAdmin, (req, res) => {
   const services = readJSON('services.json') || [];
   const sid = req.params.id;
 
-  // try to find by numeric id property first, then by index
   let found = services.find(s => String(s.id) === String(sid));
   if(!found){
     const idx = Number(sid);
@@ -204,50 +203,81 @@ app.post('/admin/service/:id/toggle', requireAdmin, (req, res) => {
   if(found){
     found.available = !(found.available === true);
     writeJSON('services.json', services);
+
     req.session.notification = `Service "${found.name}" availability updated`;
     req.session.notificationType = 'success';
-  } else {
-    req.session.notification = 'Service not found';
-    req.session.notificationType = 'danger';
   }
-
-  // if there's a referer, go back there, otherwise admin services
-  if(req.headers.referer) return res.redirect(req.headers.referer);
   return res.redirect('/admin/services');
 });
 
 // ------------------------------------------------------
-// USER ROUTES
+//  ✅ STEP 3 — ADD PRICING MANAGEMENT (NEW)
+// ------------------------------------------------------
+app.get("/admin/pricing", requireAdmin, (req, res) => {
+  const pricing = readJSON("pricing.json") || [];
+  res.render("admin/pricing", { pricing });
+});
+
+app.post("/admin/pricing/add", requireAdmin, (req, res) => {
+  let { name, price, unit } = req.body;
+  if (!name || !price)
+    return res.redirect("/admin/pricing");
+
+  const pricing = readJSON("pricing.json") || [];
+
+  pricing.push({
+    id: Date.now(),
+    name,
+    price,
+    unit: unit || "per kg",
+    created_at: new Date().toISOString()
+  });
+
+  writeJSON("pricing.json", pricing);
+  req.session.notification = "New pricing item added!";
+  res.redirect("/admin/pricing");
+});
+
+app.post("/admin/pricing/:id/delete", requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  let pricing = readJSON("pricing.json") || [];
+
+  pricing = pricing.filter(p => p.id !== id);
+
+  writeJSON("pricing.json", pricing);
+  req.session.notification = "Pricing item removed!";
+  res.redirect("/admin/pricing");
+});
+
+// ------------------------------------------------------
+// USER ROUTES (existing)
 // ------------------------------------------------------
 app.get('/user/profile', (req,res)=>{
   if(fs.existsSync(path.join(__dirname,'views','user','profile.ejs')))
     return res.render('user/profile');
   res.status(404).send('Not found');
 });
+
 app.get('/user/requests', (req,res)=>{
   if(fs.existsSync(path.join(__dirname,'views','user','requests.ejs')))
     return res.render('user/requests');
   res.status(404).send('Not found');
 });
 
-// ---------- FIXED: load order and pass it to the template ----------
+// fixed
 app.get('/user/request-details', (req,res)=>{
-  // read id from query param (?id=...)
   const id = Number(req.query.id);
   const orders = readJSON('orders.json') || [];
   const order = orders.find(o => o.id === id);
 
-  // render the template with `order` (it will be undefined/null if not found)
-  if(fs.existsSync(path.join(__dirname,'views','user','request-details.ejs'))){
+  if(fs.existsSync(path.join(__dirname,'views','user','request-details.ejs')))
     return res.render('user/request-details', { order });
-  }
+
   res.status(404).send('Not found');
 });
-// ------------------------------------------------------------------
 
 // ------------------------------------------------------
-// USER: Order tracking page (Feature 13A)
-// Route: /user/order/:id/tracking
+// USER ORDER TRACKING
 // ------------------------------------------------------
 app.get('/user/order/:id/tracking', (req, res) => {
   const id = Number(req.params.id);
@@ -256,48 +286,47 @@ app.get('/user/order/:id/tracking', (req, res) => {
 
   if(!order) return res.status(404).send('Order not found');
 
-  // render tracking view if exists
-  if(fs.existsSync(path.join(__dirname,'views','user','order-tracking.ejs'))){
+  if(fs.existsSync(path.join(__dirname,'views','user','order-tracking.ejs')))
     return res.render('user/order-tracking', { order });
-  }
 
-  // fallback JSON
   res.json({ order });
 });
 
-/* AUTO RENDER for GET requests (useful fallback) */
+// ----------------------- AUTO RENDER -------------------
 app.use((req,res,next)=>{
   if(req.method !== 'GET') return next();
-  let p = req.path.replace(/^\//,'');
+  let p = req.path.replace(/^\/+/,'');
   if(!p) p = 'index';
   if(p.endsWith('/')) p = p.slice(0,-1);
-  const v1 = path.join(__dirname, 'views', p + '.ejs');
-  if(fs.existsSync(v1)) return res.render(p);
-  const v2 = path.join(__dirname,'views', p, 'index.ejs');
-  if(fs.existsSync(v2)) return res.render(path.join(p,'index'));
-  return next();
+
+  const file1 = path.join(__dirname,'views', p + '.ejs');
+  const file2 = path.join(__dirname,'views', p, "index.ejs");
+
+  if(fs.existsSync(file1)) return res.render(p);
+  if(fs.existsSync(file2)) return res.render(path.join(p,'index'));
+  next();
 });
 
 // ------------------------------------------------------
-// ORDERS & UPLOADS
+// ORDERS + UPLOADS
 // ------------------------------------------------------
 const upload = multer({ dest: path.join(__dirname, 'public', 'uploads') });
 
 app.get('/admin/orders', requireAdmin, (req,res)=>{
   const orders = readJSON('orders.json') || [];
-  return res.render('admin/orders', { orders });
+  res.render('admin/orders', { orders });
 });
 
 app.get('/admin/users', requireAdmin, (req,res)=>{
   const users = readJSON('users.json') || [];
-  return res.render('admin/users', { users });
+  res.render('admin/users', { users });
 });
 
 app.get('/admin/request-details', requireAdmin, (req,res)=>{
   const id = Number(req.query.id);
   const orders = readJSON('orders.json') || [];
   const order = orders.find(o => o.id === id);
-  return res.render('admin/request-details', { order });
+  res.render('admin/request-details', { order });
 });
 
 app.get('/admin/user-details', requireAdmin, (req,res)=>{
@@ -305,7 +334,7 @@ app.get('/admin/user-details', requireAdmin, (req,res)=>{
   const users = readJSON('users.json') || [];
   const orders = readJSON('orders.json') || [];
   const user = users.find(u => u.id === id);
-  return res.render('admin/user-details', { user, orders });
+  res.render('admin/user-details', { user, orders });
 });
 
 app.get('/admin/order/:id', requireAdmin, (req,res)=>{
@@ -313,20 +342,20 @@ app.get('/admin/order/:id', requireAdmin, (req,res)=>{
   const orders = readJSON('orders.json') || [];
   const order = orders.find(o=>o.id===id);
   if(!order) return res.status(404).send('Order not found');
-  return res.render('admin/order_view', { order });
+  res.render('admin/order_view', { order });
 });
 
-// Update status (admin) — now adds status_history entry (Feature 13A)
+// STATUS UPDATE
 app.post('/admin/order/:id/status', requireAdmin, (req,res)=>{
   const id = Number(req.params.id);
   const orders = readJSON('orders.json') || [];
   const o = orders.find(x=>x.id===id);
+
   if(o){
     const newStatus = req.body.status || o.status;
     o.status = newStatus;
     o.updated_at = new Date().toISOString();
 
-    // ensure status_history exists and push new entry
     o.status_history = o.status_history || [];
     o.status_history.push({
       status: newStatus,
@@ -338,7 +367,7 @@ app.post('/admin/order/:id/status', requireAdmin, (req,res)=>{
     writeJSON('orders.json', orders);
 
     const notifications = readJSON('notifications.json') || [];
-    const msg = {
+    notifications.push({
       id: Date.now(),
       recipient_type: 'user',
       recipient_id: o.user_id,
@@ -348,31 +377,25 @@ app.post('/admin/order/:id/status', requireAdmin, (req,res)=>{
       order_id: o.id,
       read: false,
       created_at: new Date().toISOString()
-    };
-    notifications.push(msg);
+    });
     writeJSON('notifications.json', notifications);
-
-    req.session.notification = 'Order status updated successfully';
-    req.session.notificationType = 'success';
   }
+
   res.redirect('/admin/orders');
 });
 
+// CREATE ORDER
 app.post('/create-order', upload.single('attachment'), (req,res)=>{
   const orders = readJSON('orders.json') || [];
-
-  // simple server-side filtering: ensure selected service is available (if service selection provided)
-  // if your form posts a 'service_id' or 'service_name', validate it here.
-  // For now we accept input but add a guard: if service_id provided and service unavailable -> reject.
   const services = readJSON('services.json') || [];
+
   const serviceId = req.body.service_id || null;
   if(serviceId){
     const s = services.find(x => String(x.id) === String(serviceId));
     if(s && s.available === false){
-      req.session.notification = 'Selected service is currently unavailable. Choose another.';
+      req.session.notification = 'Selected service is unavailable.';
       req.session.notificationType = 'danger';
-      if(req.headers.referer) return res.redirect(req.headers.referer);
-      return res.redirect('/');
+      return res.redirect(req.headers.referer || '/');
     }
   }
 
@@ -387,7 +410,6 @@ app.post('/create-order', upload.single('attachment'), (req,res)=>{
     created_at: new Date().toISOString(),
     attachment: req.file ? path.join('uploads', path.basename(req.file.path)) : null,
     user_id: req.session.user ? req.session.user.id : null,
-    // initialize status history for tracking (Feature 13A)
     status_history: [
       {
         status: 'pending',
@@ -397,6 +419,7 @@ app.post('/create-order', upload.single('attachment'), (req,res)=>{
       }
     ]
   };
+
   orders.push(newOrder);
   writeJSON('orders.json', orders);
 
@@ -415,7 +438,6 @@ app.post('/create-order', upload.single('attachment'), (req,res)=>{
 
   req.session.notification = 'Your order has been submitted successfully!';
   req.session.notificationType = 'success';
-
   res.redirect('/order-success');
 });
 
@@ -427,10 +449,11 @@ app.post('/login', (req, res) => {
   const users = readJSON('users.json') || [];
 
   const user = users.find(u => u.email === email);
-  if (!user) return res.render('login', { error: 'Invalid email or password' });
+  if (!user)
+    return res.render('login', { error: 'Invalid email or password' });
 
   if (user.password === password || bcrypt.compareSync(password, user.password_hash || '')) {
-    req.session.user = { id: user.id, email: user.email, username: (user.first_name||'') + ' ' + (user.last_name||'') };
+    req.session.user = { id: user.id, email: user.email, username: user.first_name + ' ' + user.last_name };
     return res.redirect('/user/dashboard');
   }
 
@@ -449,7 +472,6 @@ app.post('/register', (req, res) => {
   if (password !== confirm_password) errors.push('Passwords do not match');
 
   if (users.find(u => u.email === email)) errors.push('Email already registered');
-
   if (errors.length > 0) return res.render('register', { errors });
 
   const newUser = {
@@ -466,22 +488,17 @@ app.post('/register', (req, res) => {
   writeJSON('users.json', users);
 
   req.session.user = { id: newUser.id, email: newUser.email, username: newUser.first_name + ' ' + newUser.last_name };
-
   res.redirect('/user/dashboard');
 });
 
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
-});
+app.post('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
 app.post('/forgot-password', (req, res) => {
-  res.render('forgot-password', {
-    message: 'If email exists, a reset link has been sent.'
-  });
+  res.render('forgot-password', { message: 'If email exists, a reset link has been sent.' });
 });
 
 // ------------------------------------------------------
-// NOTIFICATIONS API
+// NOTIFICATIONS
 // ------------------------------------------------------
 app.get('/api/notifications', (req, res) => {
   const notifications = readJSON('notifications.json') || [];
@@ -492,11 +509,15 @@ app.get('/api/notifications', (req, res) => {
     if(admin){
       filtered = notifications.filter(n => n.recipient_type === 'admin' && !n.read);
     } else {
-      filtered = notifications.filter(n => n.recipient_type === 'user' && n.recipient_id === req.session.user.id && !n.read);
+      filtered = notifications.filter(n =>
+        n.recipient_type === 'user' &&
+        n.recipient_id === req.session.user.id &&
+        !n.read
+      );
     }
   }
-  filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
+  filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   res.json({ notifications: filtered });
 });
 
@@ -521,14 +542,19 @@ app.get('/order-success', (req, res) => {
 
 app.post('*', (req,res)=>{
   const forms = readJSON('forms.json') || [];
-  forms.push({ path: req.path, body: req.body, created_at: new Date().toISOString() });
+  forms.push({
+    path: req.path,
+    body: req.body,
+    created_at: new Date().toISOString()
+  });
   writeJSON('forms.json', forms);
-  if(req.headers.referer) return res.redirect(req.headers.referer);
-  res.send('Form submitted.');
+
+  return res.redirect(req.headers.referer || '/');
 });
 
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   app.listen(PORT, ()=> console.log('Server listening on', PORT));
 }
+
 module.exports = app;
