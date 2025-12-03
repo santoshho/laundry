@@ -27,9 +27,10 @@
 <% } %>
 
 <div class="row g-4">
+
     <!-- Pricing Table -->
     <div class="col-lg-8">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
                 <h5><i class="bi bi-list me-2"></i>Service Pricing</h5>
             </div>
@@ -48,14 +49,14 @@
                 <% } else { %>
 
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Service Type</th>
                                 <th>Price (per KG)</th>
                                 <th>Description</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th width="110">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +73,7 @@
                                     <% } %>
                                 </td>
                                 <td>
+                                    <!-- EDIT BUTTON -->
                                     <button class="btn btn-sm btn-outline-primary"
                                         data-bs-toggle="modal"
                                         data-bs-target="#pricingModal"
@@ -83,6 +85,7 @@
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
+                                    <!-- DELETE BUTTON -->
                                     <form action="/admin/pricing/delete/<%= item.id %>" method="POST" class="d-inline">
                                         <button class="btn btn-sm btn-outline-danger"
                                             onclick="return confirm('Delete this service?')">
@@ -102,26 +105,27 @@
         </div>
     </div>
 
-    <!-- Tips -->
+    <!-- Tips Sidebar -->
     <div class="col-lg-4">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
                 <h5><i class="bi bi-lightbulb me-2"></i>Pricing Tips</h5>
             </div>
             <div class="card-body">
                 <ul>
                     <li>Research competitor pricing</li>
-                    <li>Use premium pricing for special services</li>
-                    <li>Update prices based on demand</li>
-                    <li>Offer bundle discounts</li>
-                    <li>Monitor usage to adjust pricing</li>
+                    <li>Premium pricing for express services</li>
+                    <li>Update prices based on material cost</li>
+                    <li>Offer bundle or bulk discounts</li>
+                    <li>Track popular services to adjust prices</li>
                 </ul>
             </div>
         </div>
     </div>
+
 </div>
 
-<!-- Modal -->
+<!-- MODAL -->
 <div class="modal fade" id="pricingModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -132,26 +136,27 @@
 
             <form method="POST" action="/admin/pricing/save">
                 <div class="modal-body">
+
                     <input type="hidden" name="id" id="service_id">
 
                     <div class="mb-3">
-                        <label>Service Type</label>
+                        <label class="form-label">Service Type</label>
                         <input type="text" id="service_type" name="service_type" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label>Price per KG</label>
+                        <label class="form-label">Price per KG</label>
                         <input type="number" id="price_per_kg" name="price_per_kg"
                                class="form-control" min="1" step="0.1" required>
                     </div>
 
                     <div class="mb-3">
-                        <label>Description</label>
+                        <label class="form-label">Description</label>
                         <textarea id="description" name="description" class="form-control"></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label>Status</label>
+                        <label class="form-label">Status</label>
                         <select id="status" name="status" class="form-select">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -171,10 +176,12 @@
 </div>
 
 <script>
+// Fill modal data for EDIT mode
 document.getElementById("pricingModal").addEventListener("show.bs.modal", e => {
     const btn = e.relatedTarget;
 
     if (btn && btn.getAttribute("data-id")) {
+        // Editing existing service
         document.getElementById("modalTitle").innerText = "Edit Service";
         document.getElementById("service_id").value = btn.getAttribute("data-id");
         document.getElementById("service_type").value = btn.getAttribute("data-type");
@@ -182,6 +189,7 @@ document.getElementById("pricingModal").addEventListener("show.bs.modal", e => {
         document.getElementById("description").value = btn.getAttribute("data-desc") || "";
         document.getElementById("status").value = btn.getAttribute("data-status");
     } else {
+        // Add new service
         document.getElementById("modalTitle").innerText = "Add New Service";
         document.getElementById("service_id").value = "";
         document.getElementById("service_type").value = "";
