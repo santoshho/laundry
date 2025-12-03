@@ -1,361 +1,205 @@
-// server.js
 const express = require('express');
 const path = require('path');
-const bodyParser = require('body-parser');
 const fs = require('fs');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const multer = require('multer');
-
+const bodyParser = require('body-parser');
 const app = express();
-const DATA_DIR = path.join(__dirname, 'data');
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
+// ------------------ CONFIG ------------------
+const DATA_DIR = path.join(__dirname, "data");
+const USERS_FILE = path.join(DATA_DIR, "users.json");
+const PRICING_FILE = path.join(DATA_DIR, "pricing.json");
+const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
+if (!fs.existsSync(PRICING_FILE)) fs.writeFileSync(PRICING_FILE, "[]");
+if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'change_this_secret',
+    secret: "supersecret123",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
   })
 );
 
-/* ---------------------- JSON READ & WRITE ---------------------- */
-function readJSON(filename) {
-  const p = path.join(DATA_DIR, filename);
-  if (!fs.existsSync(p)) return null;
-  try {
-    const content = fs.readFileSync(p, 'utf8') || 'null';
-    return JSON.parse(content);
-  } catch (e) {
-    console.error(`readJSON parse error for ${filename}:`, e);
-    return null;
-  }
+// ------------------ HELPERS ------------------
+function loadJSON(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-function writeJSON(filename, data) {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-    fs.writeFileSync(
-      path.join(DATA_DIR, filename),
-      JSON.stringify(data, null, 2),
-      'utf8'
-    );
-  } catch (e) {
-    console.error(`writeJSON error for ${filename}:`, e);
-  }
+function saveJSON(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-/* ---------------------- ENSURE ADMIN ---------------------- */
-(function ensureAdmin() {
-  const admPath = path.join(DATA_DIR, 'admin.json');
-  if (!fs.existsSync(admPath)) {
-    const pwd = process.env.ADMIN_PWD || 'admin';
-    const hash = bcrypt.hashSync(pwd, 8);
-    const admin = { username: 'admin', password_hash: hash };
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-    fs.writeFileSync(admPath, JSON.stringify(admin, null, 2), 'utf8');
-    console.log('Created default admin user.');
-  }
-})();
-
-function isAdminUser(req) {
-  if (!req.session || !req.session.user) return false;
-  const admin = readJSON('admin.json');
-  if (!admin) return false;
-  return (
-    req.session.user.username === admin.username || !!req.session.user.isAdmin
-  );
+function requireLogin(req, res, next) {
+  if (!req.session.user) return res.redirect("/login");
+  next();
 }
-
-/* ---------------------- GLOBAL LOCALS ---------------------- */
-app.use((req, res, next) => {
-  res.locals.adminLinks = [
-    { href: '/admin/dashboard', label: 'Dashboard' },
-    { href: '/admin/services', label: 'Services' },
-    { href: '/admin/pricing', label: 'Manage Pricing' },
-    { href: '/admin/orders', label: 'Orders' },
-    { href: '/admin/users', label: 'Users' },
-  ];
-
-  res.locals.user = req.session.user || null;
-  next();
-});
-
-/* Notifications */
-app.use((req, res, next) => {
-  if (req.session.notification) {
-    res.locals.notification = req.session.notification;
-    res.locals.notificationType = req.session.notificationType || 'success';
-    delete req.session.notification;
-    delete req.session.notificationType;
-  }
-  next();
-});
-
-/* Preload JSON for all views */
-app.use((req, res, next) => {
-  try {
-    res.locals.services = readJSON('services.json') || [];
-    res.locals.orders = readJSON('orders.json') || [];
-    res.locals.users = readJSON('users.json') || [];
-    res.locals.appconfig = readJSON('config.json') || {};
-
-    if (req.session.user) {
-      const notifications = readJSON('notifications.json') || [];
-      const admin = isAdminUser(req);
-
-      res.locals.notificationCount = notifications.filter((n) => {
-        if (admin) return n.recipient_type === 'admin' && !n.read;
-        return (
-          n.recipient_type === 'user' &&
-          n.recipient_id === req.session.user.id &&
-          !n.read
-        );
-      }).length;
-    } else {
-      res.locals.notificationCount = 0;
-    }
-  } catch (e) {
-    console.error('middleware load error', e);
-  }
-  next();
-});
-
-/* ---------------------- HOME PAGE ---------------------- */
-app.get('/', (req, res) => {
-  const servicesAll = readJSON('services.json') || [];
-  const services = servicesAll.filter((s) => s.available !== false);
-
-  const testimonials = [
-    {
-      name: 'Krish Regmi',
-      location: 'Pokhara',
-      image: 'https://i.pravatar.cc/150?img=11',
-      message: 'Super fast pickup and very clean clothes!',
-    },
-    {
-      name: 'Pukar Rai',
-      location: 'Butwal',
-      image: 'https://i.pravatar.cc/150?img=32',
-      message: 'Affordable prices and reliable service.',
-    },
-  ];
-
-  res.render('index', { services, testimonials });
-});
-
-/* ---------------------- ADMIN LOGIN ---------------------- */
-app.get('/admin/login', (req, res) => res.render('admin/login'));
-
-app.post('/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  const admin = readJSON('admin.json');
-
-  if (!admin) {
-    return res.render('admin/login', { error: 'Admin not configured' });
-  }
-
-  if (
-    username === admin.username &&
-    bcrypt.compareSync(password, admin.password_hash)
-  ) {
-    req.session.user = {
-      username: admin.username,
-      isAdmin: true,
-      id: 'admin',
-    };
-    return res.redirect('/admin/dashboard');
-  }
-
-  res.render('admin/login', { error: 'Invalid credentials' });
-});
-
-app.post('/admin/logout', (req, res) =>
-  req.session.destroy(() => res.redirect('/'))
-);
 
 function requireAdmin(req, res, next) {
-  if (isAdminUser(req)) return next();
-  return res.redirect('/admin/login');
+  if (!req.session.user || !req.session.user.isAdmin)
+    return res.redirect("/login");
+  next();
 }
 
-/* ---------------------- ADMIN DASHBOARD ---------------------- */
-app.get('/admin/dashboard', requireAdmin, (req, res) => {
-  res.render('admin/dashboard');
+// ------------------ ROUTES ------------------
+
+// HOME
+app.get("/", (req, res) => {
+  const pricing = loadJSON(PRICING_FILE);
+  res.render("index", { user: req.session.user, pricing });
 });
 
-/* ---------------------- ADMIN SERVICES ---------------------- */
-app.get('/admin/services', requireAdmin, (req, res) => {
-  const services = readJSON('services.json') || [];
-  res.render('admin/services', { services });
+// ----------- AUTH PAGES --------------
+app.get("/login", (req, res) => {
+  res.render("login", { error: null });
 });
 
-app.post('/admin/service/:id/toggle', requireAdmin, (req, res) => {
-  const services = readJSON('services.json') || [];
-  const sid = req.params.id;
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  let users = loadJSON(USERS_FILE);
 
-  let found = services.find((s) => String(s.id) === String(sid));
+  const user = users.find((u) => u.email === email);
+  if (!user) return res.render("login", { error: "User not found!" });
 
-  if (found) {
-    found.available = !found.available;
-    writeJSON('services.json', services);
-
-    req.session.notification = `Service "${found.name}" availability updated`;
-    req.session.notificationType = 'success';
-  }
-  return res.redirect('/admin/services');
-});
-
-/* ---------------------- PRICING ---------------------- */
-app.get('/admin/pricing', requireAdmin, (req, res) => {
-  const pricing = readJSON('pricing.json') || [];
-  res.render('admin/pricing', { pricing });
-});
-
-/* Base pricing route */
-app.post('/admin/pricing', requireAdmin, (req, res) => {
-  const { action } = req.body;
-  let pricing = readJSON('pricing.json') || [];
-
-  if (action === 'add') {
-    pricing.push({
-      id: Date.now(),
-      name: req.body.name.trim(),
-      price: Number(req.body.price),
-      unit: req.body.unit || 'per kg',
-      created_at: new Date().toISOString(),
-    });
-    writeJSON('pricing.json', pricing);
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.render("login", { error: "Incorrect password!" });
   }
 
-  if (action === 'delete') {
-    const id = Number(req.body.id);
-    pricing = pricing.filter((p) => p.id !== id);
-    writeJSON('pricing.json', pricing);
-  }
-
-  res.redirect('/admin/pricing');
+  req.session.user = user;
+  res.redirect("/dashboard");
 });
 
-/* FIX: Allow form posting to /admin/pricing/save also */
-app.post('/admin/pricing/save', requireAdmin, (req, res) => {
-  const { action } = req.body;
-  let pricing = readJSON('pricing.json') || [];
-
-  if (action === 'add') {
-    pricing.push({
-      id: Date.now(),
-      name: req.body.name.trim(),
-      price: Number(req.body.price),
-      unit: req.body.unit || 'per kg',
-      created_at: new Date().toISOString(),
-    });
-    writeJSON('pricing.json', pricing);
-  }
-
-  if (action === 'delete') {
-    const id = Number(req.body.id);
-    pricing = pricing.filter((p) => p.id !== id);
-    writeJSON('pricing.json', pricing);
-  }
-
-  res.redirect('/admin/pricing');
+// REGISTER PAGE
+app.get("/register", (req, res) => {
+  res.render("register", { error: null });
 });
 
-/* ---------------------- ORDER CREATE ---------------------- */
-app.get('/order/create', (req, res) => {
-  const pricing = readJSON('pricing.json') || [];
-  res.render('order-create', { pricing });
-});
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
 
-/* Create Order */
-const upload = multer({
-  dest: path.join(__dirname, 'public', 'uploads'),
-});
+  let users = loadJSON(USERS_FILE);
+  if (users.some((u) => u.email === email))
+    return res.render("register", { error: "Email already exists!" });
 
-app.post('/create-order', upload.single('attachment'), (req, res) => {
-  const orders = readJSON('orders.json') || [];
-  const pricing = readJSON('pricing.json') || [];
-
-  const selected = pricing.find((p) => String(p.id) === req.body.pricing_id);
-
-  const total =
-    selected && req.body.weight
-      ? Number(selected.price) * Number(req.body.weight)
-      : 0;
-
-  const newOrder = {
+  const newUser = {
     id: Date.now(),
-    name: req.body.name,
-    phone: req.body.phone,
-    address: req.body.address,
-    weight: req.body.weight,
-    pricing_id: req.body.pricing_id,
-    service_name: selected ? selected.name : '',
-    total_price: total,
-    status: 'pending',
-    attachment: req.file
-      ? path.join('uploads', path.basename(req.file.path))
-      : null,
-    created_at: new Date().toISOString(),
+    email,
+    password: bcrypt.hashSync(password, 10),
+    isAdmin: false,
   };
 
-  orders.push(newOrder);
-  writeJSON('orders.json', orders);
+  users.push(newUser);
+  saveJSON(USERS_FILE, users);
 
-  req.session.notification = 'Your order has been submitted successfully!';
-  req.session.notificationType = 'success';
-
-  res.redirect('/order-success');
+  res.redirect("/login");
 });
 
-/* ---------------------- ADMIN ORDERS ---------------------- */
-app.get('/admin/orders', requireAdmin, (req, res) => {
-  const orders = readJSON('orders.json') || [];
-  res.render('admin/orders', { orders });
-});
-
-app.post('/admin/order/:id/status', requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
-  const orders = readJSON('orders.json') || [];
-
-  const o = orders.find((x) => x.id === id);
-  if (o) {
-    o.status = req.body.status;
-    o.updated_at = new Date().toISOString();
-    writeJSON('orders.json', orders);
-  }
-  res.redirect('/admin/orders');
-});
-
-/* ---------------------- ORDER SUCCESS ---------------------- */
-app.get('/order-success', (req, res) => {
-  res.render('order-success');
-});
-
-/* ---------------------- CATCH ALL FORMS ---------------------- */
-app.post('*', (req, res) => {
-  const forms = readJSON('forms.json') || [];
-  forms.push({
-    path: req.path,
-    body: req.body,
-    created_at: new Date().toISOString(),
+// ----------- DASHBOARD --------------
+app.get("/dashboard", requireLogin, (req, res) => {
+  const pricing = loadJSON(PRICING_FILE);
+  res.render("dashboard", {
+    user: req.session.user,
+    pricing,
   });
-  writeJSON('forms.json', forms);
-
-  return res.redirect(req.headers.referer || '/');
 });
 
-/* ---------------------- START SERVER ---------------------- */
-const PORT = process.env.PORT || 3000;
-if (require.main === module) {
-  app.listen(PORT, () => console.log('Server listening on', PORT));
-}
+// LOGOUT
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
 
-module.exports = app;
+// ----------------------------------------------
+//                PRICING ROUTES
+// ----------------------------------------------
+
+// Admin Pricing Manager Page
+app.get("/admin/pricing", requireAdmin, (req, res) => {
+  const pricing = loadJSON(PRICING_FILE);
+  res.render("pricing", { pricing });
+});
+
+// Add / Edit Pricing
+app.post("/admin/pricing/save", requireAdmin, (req, res) => {
+  const { id, name, pricePerKg } = req.body;
+  let pricing = loadJSON(PRICING_FILE);
+
+  if (id) {
+    // Update existing
+    const item = pricing.find((p) => p.id == id);
+    if (item) {
+      item.name = name;
+      item.pricePerKg = parseFloat(pricePerKg);
+    }
+  } else {
+    // Add new
+    pricing.push({
+      id: Date.now(),
+      name,
+      pricePerKg: parseFloat(pricePerKg),
+    });
+  }
+
+  saveJSON(PRICING_FILE, pricing);
+  res.redirect("/admin/pricing");
+});
+
+// Delete pricing
+app.get("/admin/pricing/delete/:id", requireAdmin, (req, res) => {
+  let pricing = loadJSON(PRICING_FILE);
+  pricing = pricing.filter((p) => p.id != req.params.id);
+  saveJSON(PRICING_FILE, pricing);
+  res.redirect("/admin/pricing");
+});
+
+// ----------------------------------------------
+//                ORDER ROUTES
+// ----------------------------------------------
+
+// Show Create Order Page
+app.get("/order/create", requireLogin, (req, res) => {
+  const pricing = loadJSON(PRICING_FILE);
+  res.render("create-order", { pricing });
+});
+
+// Save Order
+app.post("/order/create", requireLogin, (req, res) => {
+  const { serviceId, weight } = req.body;
+
+  let pricing = loadJSON(PRICING_FILE);
+  const service = pricing.find((p) => p.id == serviceId);
+
+  if (!service)
+    return res.send("Invalid service!");
+
+  const amount = service.pricePerKg * parseFloat(weight);
+
+  let orders = loadJSON(ORDERS_FILE);
+  orders.push({
+    id: Date.now(),
+    userId: req.session.user.id,
+    serviceId,
+    serviceName: service.name,
+    weight,
+    amount,
+    createdAt: new Date(),
+  });
+
+  saveJSON(ORDERS_FILE, orders);
+
+  res.redirect("/dashboard");
+});
+
+// ------------------ START SERVER ------------------
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
