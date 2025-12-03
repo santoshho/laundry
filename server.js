@@ -16,6 +16,11 @@ const PRICING_FILE = path.join(DATA_DIR, "pricing.json");
 // Ensure data folder exists
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
+// Admin credentials
+const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_PASSWORD_HASH =
+    "$2a$10$k3x3g9MqU0lEVKcW9F6qeOiO1Y8vGZZoRmsx8bwyq9e8MLsBecJeK"; // password = admin123
+
 // View engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -34,20 +39,18 @@ app.use(
     })
 );
 
-// Multer storage (for uploading images if used later)
+// Multer (for future image uploads)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, "public/uploads"),
     filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
 const upload = multer({ storage });
 
-// ---------------------------
+// -----------------------------------
 // Utility
-// ---------------------------
+// -----------------------------------
 function loadPricing() {
-    if (!fs.existsSync(PRICING_FILE)) {
-        return [];
-    }
+    if (!fs.existsSync(PRICING_FILE)) return [];
     return JSON.parse(fs.readFileSync(PRICING_FILE, "utf8"));
 }
 
@@ -55,17 +58,17 @@ function savePricing(data) {
     fs.writeFileSync(PRICING_FILE, JSON.stringify(data, null, 2));
 }
 
-// ---------------------------
-// Authentication Middleware
-// ---------------------------
+// -----------------------------------
+// Auth Middleware
+// -----------------------------------
 function isAdmin(req, res, next) {
     if (req.session && req.session.admin) return next();
-    return res.redirect("/login");
+    return res.redirect("/admin/login");
 }
 
-// ---------------------------
+// -----------------------------------
 // ROUTES
-// ---------------------------
+// -----------------------------------
 
 // Home Page
 app.get("/", (req, res) => {
@@ -73,27 +76,20 @@ app.get("/", (req, res) => {
     res.render("index", { services });
 });
 
-// Login Page
-app.get("/login", (req, res) => {
+// Admin Login Page
+app.get("/admin/login", (req, res) => {
     res.render("login", { error: null });
 });
 
 // Handle Login
-app.post("/login", async (req, res) => {
+app.post("/admin/login", async (req, res) => {
     const { email, password } = req.body;
 
-    // Hardcoded admin for now
-    const adminUser = {
-        email: "admin@gmail.com",
-        passwordHash: await bcrypt.hash("admin123", 10)
-    };
-
-    if (email !== adminUser.email) {
+    if (email !== ADMIN_EMAIL) {
         return res.render("login", { error: "Invalid email" });
     }
 
-    const match = await bcrypt.compare(password, adminUser.passwordHash);
-
+    const match = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
     if (!match) {
         return res.render("login", { error: "Incorrect password" });
     }
@@ -103,9 +99,10 @@ app.post("/login", async (req, res) => {
 });
 
 // Logout
-app.get("/logout", (req, res) => {
-    req.session.destroy();
-    res.redirect("/");
+app.get("/admin/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/admin/login");
+    });
 });
 
 // Admin Dashboard
@@ -113,9 +110,9 @@ app.get("/admin", isAdmin, (req, res) => {
     res.render("admin/dashboard");
 });
 
-// ---------------------------
-// ADMIN: Pricing Management
-// ---------------------------
+// -----------------------------------
+// Pricing Management
+// -----------------------------------
 app.get("/admin/pricing", isAdmin, (req, res) => {
     const pricing = loadPricing();
     res.render("admin/pricing", { pricing });
@@ -138,17 +135,17 @@ app.post("/admin/pricing/add", isAdmin, (req, res) => {
 
 app.post("/admin/pricing/delete/:id", isAdmin, (req, res) => {
     const id = Number(req.params.id);
-    let pricing = loadPricing();
 
+    let pricing = loadPricing();
     pricing = pricing.filter(item => item.id !== id);
 
     savePricing(pricing);
     res.redirect("/admin/pricing");
 });
 
-// ---------------------------
+// -----------------------------------
 // Start Server
-// ---------------------------
+// -----------------------------------
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
