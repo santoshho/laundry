@@ -4,94 +4,82 @@
     <h2><i class="bi bi-currency-dollar me-2"></i>Manage Pricing</h2>
     <div>
         <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#pricingModal">
-            <i class="bi bi-plus-circle me-2"></i>Add New Service
+            <i class="bi bi-plus-circle me-2"></i>Add New Pricing
         </button>
         <a href="/admin/dashboard" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-        </a>
+            <i class="bi bi-arrow-left me-2"></i>Back</a>
     </div>
 </div>
 
 <!-- SUCCESS MESSAGE -->
 <% if (typeof success !== "undefined") { %>
 <div class="alert alert-success">
-    <i class="bi bi-check-circle me-2"></i><%= success %>
+    <%= success %>
 </div>
 <% } %>
 
 <!-- ERROR MESSAGE -->
 <% if (typeof error !== "undefined") { %>
 <div class="alert alert-danger">
-    <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+    <%= error %>
 </div>
 <% } %>
 
 <div class="row g-4">
-
-    <!-- Pricing Table -->
     <div class="col-lg-8">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h5><i class="bi bi-list me-2"></i>Service Pricing</h5>
+                <h5>Service Pricing</h5>
             </div>
             <div class="card-body">
 
                 <% if (!pricing || pricing.length === 0) { %>
-
                 <div class="text-center py-5">
                     <i class="bi bi-currency-dollar text-muted" style="font-size: 4rem;"></i>
                     <h4 class="text-muted mt-3">No pricing added yet</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pricingModal">
-                        <i class="bi bi-plus-circle me-2"></i>Add Service Pricing
+                        Add Pricing
                     </button>
                 </div>
-
                 <% } else { %>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>Service Type</th>
-                                <th>Price (per KG)</th>
-                                <th>Description</th>
-                                <th>Status</th>
+                                <th>Service</th>
+                                <th>Price</th>
+                                <th>Unit</th>
                                 <th width="110">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% pricing.forEach(item => { %>
                             <tr>
-                                <td><strong><%= item.service_type %></strong></td>
-                                <td class="fw-bold text-success">$<%= item.price_per_kg %></td>
-                                <td><%= item.description || "No description" %></td>
+                                <td><strong><%= item.name %></strong></td>
+                                <td class="fw-bold text-success">Rs <%= item.price %></td>
+                                <td><%= item.unit %></td>
                                 <td>
-                                    <% if (item.status === "active") { %>
-                                        <span class="badge bg-success">Active</span>
-                                    <% } else { %>
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    <% } %>
-                                </td>
-                                <td>
+
                                     <!-- EDIT BUTTON -->
                                     <button class="btn btn-sm btn-outline-primary"
                                         data-bs-toggle="modal"
                                         data-bs-target="#pricingModal"
                                         data-id="<%= item.id %>"
-                                        data-type="<%= item.service_type %>"
-                                        data-price="<%= item.price_per_kg %>"
-                                        data-desc="<%= item.description %>"
-                                        data-status="<%= item.status %>">
+                                        data-name="<%= item.name %>"
+                                        data-price="<%= item.price %>"
+                                        data-unit="<%= item.unit %>">
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
-                                    <!-- DELETE BUTTON -->
+                                    <!-- DELETE -->
                                     <form action="/admin/pricing/delete/<%= item.id %>" method="POST" class="d-inline">
                                         <button class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Delete this service?')">
+                                            onclick="return confirm('Delete this pricing?')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+
                                 </td>
                             </tr>
                             <% }) %>
@@ -100,67 +88,56 @@
                 </div>
 
                 <% } %>
-
             </div>
         </div>
     </div>
 
-    <!-- Tips Sidebar -->
+    <!-- Sidebar -->
     <div class="col-lg-4">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h5><i class="bi bi-lightbulb me-2"></i>Pricing Tips</h5>
+                <h5>Pricing Tips</h5>
             </div>
             <div class="card-body">
                 <ul>
-                    <li>Research competitor pricing</li>
-                    <li>Premium pricing for express services</li>
-                    <li>Update prices based on material cost</li>
-                    <li>Offer bundle or bulk discounts</li>
-                    <li>Track popular services to adjust prices</li>
+                    <li>Adjust prices based on demand</li>
+                    <li>Review competitor pricing</li>
+                    <li>Offer bundle discounts</li>
+                    <li>Set higher prices for urgent services</li>
+                    <li>Update seasonally</li>
                 </ul>
             </div>
         </div>
     </div>
-
 </div>
 
-<!-- MODAL -->
+<!-- ADD / EDIT MODAL -->
 <div class="modal fade" id="pricingModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
+
             <div class="modal-header">
-                <h5 id="modalTitle">Add New Service</h5>
+                <h5 id="modalTitle">Add New Pricing</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <form method="POST" action="/admin/pricing/save">
                 <div class="modal-body">
-
-                    <input type="hidden" name="id" id="service_id">
+                    <input type="hidden" name="id" id="pricing_id">
 
                     <div class="mb-3">
-                        <label class="form-label">Service Type</label>
-                        <input type="text" id="service_type" name="service_type" class="form-control" required>
+                        <label class="form-label">Service Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Price per KG</label>
-                        <input type="number" id="price_per_kg" name="price_per_kg"
-                               class="form-control" min="1" step="0.1" required>
+                        <label class="form-label">Price</label>
+                        <input type="number" id="price" name="price" class="form-control" min="1" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-control"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select id="status" name="status" class="form-select">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
+                        <label class="form-label">Unit</label>
+                        <input type="text" id="unit" name="unit" class="form-control" value="per kg">
                     </div>
 
                 </div>
@@ -176,26 +153,21 @@
 </div>
 
 <script>
-// Fill modal data for EDIT mode
 document.getElementById("pricingModal").addEventListener("show.bs.modal", e => {
     const btn = e.relatedTarget;
 
     if (btn && btn.getAttribute("data-id")) {
-        // Editing existing service
-        document.getElementById("modalTitle").innerText = "Edit Service";
-        document.getElementById("service_id").value = btn.getAttribute("data-id");
-        document.getElementById("service_type").value = btn.getAttribute("data-type");
-        document.getElementById("price_per_kg").value = btn.getAttribute("data-price");
-        document.getElementById("description").value = btn.getAttribute("data-desc") || "";
-        document.getElementById("status").value = btn.getAttribute("data-status");
+        document.getElementById("modalTitle").innerText = "Edit Pricing";
+        document.getElementById("pricing_id").value = btn.getAttribute("data-id");
+        document.getElementById("name").value = btn.getAttribute("data-name");
+        document.getElementById("price").value = btn.getAttribute("data-price");
+        document.getElementById("unit").value = btn.getAttribute("data-unit");
     } else {
-        // Add new service
-        document.getElementById("modalTitle").innerText = "Add New Service";
-        document.getElementById("service_id").value = "";
-        document.getElementById("service_type").value = "";
-        document.getElementById("price_per_kg").value = "";
-        document.getElementById("description").value = "";
-        document.getElementById("status").value = "active";
+        document.getElementById("modalTitle").innerText = "Add New Pricing";
+        document.getElementById("pricing_id").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("price").value = "";
+        document.getElementById("unit").value = "per kg";
     }
 });
 </script>
