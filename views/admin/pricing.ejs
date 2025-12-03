@@ -33,7 +33,7 @@
             </div>
             <div class="card-body">
 
-                <% if (!pricing || pricing.length === 0) { %>
+                <% if (!services || services.length === 0) { %>
                 <div class="text-center py-5">
                     <i class="bi bi-currency-dollar text-muted" style="font-size: 4rem;"></i>
                     <h4 class="text-muted mt-3">No pricing added yet</h4>
@@ -54,7 +54,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% pricing.forEach(item => { %>
+                            <% services.forEach(item => { %>
                             <tr>
                                 <td><strong><%= item.name %></strong></td>
                                 <td class="fw-bold text-success">Rs <%= item.price %></td>
