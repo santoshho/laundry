@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Regular Wash & Dry",
+    "price": 500,
+    "unit": "per kg"
+  },
+  {
+    "id": 2,
+    "name": "Dry Cleaning",
+    "price": 1500,
+    "unit": "per kg"
+  },
+  {
+    "id": 3,
+    "name": "Express Service",
+    "price": 800,
+    "unit": "per kg"
+  },
+  {
+    "id": 4,
+    "name": "Delicate Care",
+    "price": 1200,
+    "unit": "per kg"
+  }
+]
