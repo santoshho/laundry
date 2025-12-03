@@ -4,6 +4,7 @@ const fs = require('fs');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
+
 const app = express();
 
 // ------------------ CONFIG ------------------
@@ -55,8 +56,8 @@ function requireAdmin(req, res, next) {
 
 // HOME
 app.get("/", (req, res) => {
-  const pricing = loadJSON(PRICING_FILE);
-  res.render("index", { user: req.session.user, pricing });
+  const services = loadJSON(PRICING_FILE);  // <-- FIXED NAME
+  res.render("index", { user: req.session.user, services });
 });
 
 // ----------- AUTH ROUTES --------------
@@ -90,25 +91,28 @@ app.post("/register", (req, res) => {
   if (users.some((u) => u.email === email))
     return res.render("register", { error: "Email already exists!" });
 
-  const newUser = {
+  users.push({
     id: Date.now(),
     email,
     password: bcrypt.hashSync(password, 10),
     isAdmin: false,
-  };
+  });
 
-  users.push(newUser);
   saveJSON(USERS_FILE, users);
-
   res.redirect("/login");
 });
 
 // ----------- DASHBOARD --------------
 app.get("/dashboard", requireLogin, (req, res) => {
-  const pricing = loadJSON(PRICING_FILE);
+  const services = loadJSON(PRICING_FILE);
+  const orders = loadJSON(ORDERS_FILE);
+
+  const myOrders = orders.filter(o => o.userId === req.session.user.id);
+
   res.render("dashboard", {
     user: req.session.user,
-    pricing,
+    services,
+    orders: myOrders
   });
 });
 
@@ -122,62 +126,64 @@ app.get("/logout", (req, res) => {
 //                PRICING ROUTES
 // ----------------------------------------------
 
-// Admin Pricing Manager Page
+// Admin Pricing Page
 app.get("/admin/pricing", requireAdmin, (req, res) => {
-  const pricing = loadJSON(PRICING_FILE);
-  res.render("pricing", { pricing });
+  const services = loadJSON(PRICING_FILE);
+  res.render("pricing", { services });
 });
 
-// Add / Edit Pricing  **FIXED TO MATCH EJS**
+// Save Pricing
 app.post("/admin/pricing/save", requireAdmin, (req, res) => {
-  const { id, name, price, unit } = req.body;
-  let pricing = loadJSON(PRICING_FILE);
+  const { id, name, price } = req.body;
+
+  let services = loadJSON(PRICING_FILE);
 
   if (id) {
-    // Update
-    const item = pricing.find((p) => p.id == id);
-    if (item) {
-      item.name = name;
-      item.price = parseFloat(price);
-      item.unit = unit || "per kg";
+    // Update service
+    const s = services.find(p => p.id == id);
+    if (s) {
+      s.name = name;
+      s.price = parseFloat(price);
     }
   } else {
-    // Add new
-    pricing.push({
+    // Add new service
+    services.push({
       id: Date.now(),
       name,
-      price: parseFloat(price),
-      unit: unit || "per kg",
+      price: parseFloat(price)
     });
   }
 
-  saveJSON(PRICING_FILE, pricing);
+  saveJSON(PRICING_FILE, services);
   res.redirect("/admin/pricing");
 });
 
-// Delete pricing (POST because EJS uses POST)
+// Delete Pricing
 app.post("/admin/pricing/delete/:id", requireAdmin, (req, res) => {
-  let pricing = loadJSON(PRICING_FILE);
-  pricing = pricing.filter((p) => p.id != req.params.id);
-  saveJSON(PRICING_FILE, pricing);
+  let services = loadJSON(PRICING_FILE);
+  services = services.filter(s => s.id != req.params.id);
+  saveJSON(PRICING_FILE, services);
   res.redirect("/admin/pricing");
 });
 
 // ----------------------------------------------
 //                ORDER ROUTES
 // ----------------------------------------------
+
+// Order Create Page
 app.get("/order/create", requireLogin, (req, res) => {
-  const pricing = loadJSON(PRICING_FILE);
-  res.render("create-order", { pricing });
+  const services = loadJSON(PRICING_FILE);
+  res.render("create-order", { services });
 });
 
+// Order Submit
 app.post("/order/create", requireLogin, (req, res) => {
-  const { serviceId, weight } = req.body;
+  const { service_id, weight } = req.body;
 
-  let pricing = loadJSON(PRICING_FILE);
-  const service = pricing.find((p) => p.id == serviceId);
+  const services = loadJSON(PRICING_FILE);
+  const service = services.find(s => s.id == service_id);
 
-  if (!service) return res.send("Invalid service!");
+  if (!service) return res.send("Invalid service selected.");
 
   const amount = service.price * parseFloat(weight);
 
@@ -185,11 +191,11 @@ app.post("/order/create", requireLogin, (req, res) => {
   orders.push({
     id: Date.now(),
     userId: req.session.user.id,
-    serviceId,
+    serviceId: service.id,
     serviceName: service.name,
-    weight,
+    weight: parseFloat(weight),
     amount,
-    createdAt: new Date(),
+    createdAt: new Date()
   });
 
   saveJSON(ORDERS_FILE, orders);
