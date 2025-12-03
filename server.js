@@ -10,12 +10,12 @@ const app = express();
 // ------------------ CONFIG ------------------
 const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
-const PRICING_FILE = path.join(DATA_DIR, "pricing.json");
+const SERVICES_FILE = path.join(DATA_DIR, "pricing.json");   // services file
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
-if (!fs.existsSync(PRICING_FILE)) fs.writeFileSync(PRICING_FILE, "[]");
+if (!fs.existsSync(SERVICES_FILE)) fs.writeFileSync(SERVICES_FILE, "[]");
 if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
 
 app.set("view engine", "ejs");
@@ -54,9 +54,9 @@ function requireAdmin(req, res, next) {
 
 // ------------------ ROUTES ------------------
 
-// HOME
+// HOME — sends `services` for index.ejs
 app.get("/", (req, res) => {
-  const services = loadJSON(PRICING_FILE);  // <-- FIXED NAME
+  const services = loadJSON(SERVICES_FILE);
   res.render("index", { user: req.session.user, services });
 });
 
@@ -88,31 +88,29 @@ app.post("/register", (req, res) => {
   const { email, password } = req.body;
 
   let users = loadJSON(USERS_FILE);
+
   if (users.some((u) => u.email === email))
     return res.render("register", { error: "Email already exists!" });
 
-  users.push({
+  const newUser = {
     id: Date.now(),
     email,
     password: bcrypt.hashSync(password, 10),
     isAdmin: false,
-  });
+  };
 
+  users.push(newUser);
   saveJSON(USERS_FILE, users);
+
   res.redirect("/login");
 });
 
 // ----------- DASHBOARD --------------
 app.get("/dashboard", requireLogin, (req, res) => {
-  const services = loadJSON(PRICING_FILE);
-  const orders = loadJSON(ORDERS_FILE);
-
-  const myOrders = orders.filter(o => o.userId === req.session.user.id);
-
+  const services = loadJSON(SERVICES_FILE);
   res.render("dashboard", {
     user: req.session.user,
     services,
-    orders: myOrders
   });
 });
 
@@ -123,46 +121,49 @@ app.get("/logout", (req, res) => {
 });
 
 // ----------------------------------------------
-//                PRICING ROUTES
+//                SERVICE / PRICING ROUTES
 // ----------------------------------------------
 
-// Admin Pricing Page
+// Admin list
 app.get("/admin/pricing", requireAdmin, (req, res) => {
-  const services = loadJSON(PRICING_FILE);
+  const services = loadJSON(SERVICES_FILE);
   res.render("pricing", { services });
 });
 
-// Save Pricing
+// Add / Edit
 app.post("/admin/pricing/save", requireAdmin, (req, res) => {
-  const { id, name, price } = req.body;
+  const { id, name, price, unit } = req.body;
 
-  let services = loadJSON(PRICING_FILE);
+  let services = loadJSON(SERVICES_FILE);
 
   if (id) {
-    // Update service
-    const s = services.find(p => p.id == id);
+    // Update
+    const s = services.find((p) => p.id == id);
     if (s) {
       s.name = name;
       s.price = parseFloat(price);
+      s.unit = unit || "per kg";
     }
   } else {
-    // Add new service
+    // Add new
     services.push({
       id: Date.now(),
       name,
-      price: parseFloat(price)
+      price: parseFloat(price),
+      unit: unit || "per kg",
     });
   }
 
-  saveJSON(PRICING_FILE, services);
+  saveJSON(SERVICES_FILE, services);
   res.redirect("/admin/pricing");
 });
 
-// Delete Pricing
+// Delete
 app.post("/admin/pricing/delete/:id", requireAdmin, (req, res) => {
-  let services = loadJSON(PRICING_FILE);
-  services = services.filter(s => s.id != req.params.id);
-  saveJSON(PRICING_FILE, services);
+  let services = loadJSON(SERVICES_FILE);
+  services = services.filter((p) => p.id != req.params.id);
+  saveJSON(SERVICES_FILE, services);
+
   res.redirect("/admin/pricing");
 });
 
@@ -170,20 +171,18 @@ app.post("/admin/pricing/delete/:id", requireAdmin, (req, res) => {
 //                ORDER ROUTES
 // ----------------------------------------------
 
-// Order Create Page
 app.get("/order/create", requireLogin, (req, res) => {
-  const services = loadJSON(PRICING_FILE);
+  const services = loadJSON(SERVICES_FILE);
   res.render("create-order", { services });
 });
 
-// Order Submit
 app.post("/order/create", requireLogin, (req, res) => {
-  const { service_id, weight } = req.body;
+  const { serviceId, weight } = req.body;
 
-  const services = loadJSON(PRICING_FILE);
-  const service = services.find(s => s.id == service_id);
+  let services = loadJSON(SERVICES_FILE);
+  const service = services.find((p) => p.id == serviceId);
 
-  if (!service) return res.send("Invalid service selected.");
+  if (!service) return res.send("Invalid service!");
 
   const amount = service.price * parseFloat(weight);
 
@@ -191,11 +190,11 @@ app.post("/order/create", requireLogin, (req, res) => {
   orders.push({
     id: Date.now(),
     userId: req.session.user.id,
-    serviceId: service.id,
+    serviceId,
     serviceName: service.name,
-    weight: parseFloat(weight),
+    weight,
     amount,
-    createdAt: new Date()
+    createdAt: new Date(),
   });
 
   saveJSON(ORDERS_FILE, orders);
