@@ -1,13 +1,9 @@
 <%- include('../partials/header') %>
-<!-- Converted from PHP to EJS (best-effort). Check TODO comments for dynamic parts. -->
-<%-- TODO: converted PHP code removed. Original snippet: require_once &#x27;../config/config.php&#x27;; --%>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>
-        <i class="bi bi-currency-dollar me-2"></i>Manage Pricing
-    </h2>
+    <h2><i class="bi bi-currency-dollar me-2"></i>Manage Pricing</h2>
     <div>
-        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#pricingModal">
+        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#pricingModal">
             <i class="bi bi-plus-circle me-2"></i>Add New Service
         </button>
         <a href="/admin/dashboard" class="btn btn-outline-secondary">
@@ -16,302 +12,184 @@
     </div>
 </div>
 
-<%-- TODO: converted PHP code removed. Original snippet: if ($success_message): --%>
-    <div class="alert alert-success">
-        <i class="bi bi-check-circle me-2"></i>
-        <%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($success_message); --%>
-    </div>
-<%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+<!-- SUCCESS MESSAGE -->
+<% if (typeof success !== "undefined") { %>
+<div class="alert alert-success">
+    <i class="bi bi-check-circle me-2"></i><%= success %>
+</div>
+<% } %>
 
-<%-- TODO: converted PHP code removed. Original snippet: if (!empty($errors)): --%>
-    <div class="alert alert-danger">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <ul class="mb-0">
-            <%-- TODO: converted PHP code removed. Original snippet: foreach ($errors as $error): --%>
-                <li><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($error); --%></li>
-            <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
-        </ul>
-    </div>
-<%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+<!-- ERROR MESSAGE -->
+<% if (typeof error !== "undefined") { %>
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+</div>
+<% } %>
 
 <div class="row g-4">
-    <!-- Pricing List -->
+    <!-- Pricing Table -->
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-list me-2"></i>Service Pricing
-                </h5>
+                <h5><i class="bi bi-list me-2"></i>Service Pricing</h5>
             </div>
             <div class="card-body">
-                <%-- TODO: converted PHP code removed. Original snippet: if (empty($pricing_list)): --%>
-                    <div class="text-center py-5">
-                        <i class="bi bi-currency-dollar text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">No pricing configured</h4>
-                        <p class="text-muted">Add your first service pricing to get started</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pricingModal">
-                            <i class="bi bi-plus-circle me-2"></i>Add Service Pricing
-                        </button>
-                    </div>
-                <%-- TODO: converted PHP code removed. Original snippet: else: --%>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Service Type</th>
-                                    <th>Price per KG</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Usage</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%-- TODO: converted PHP code removed. Original snippet: foreach ($pricing_list as $pricing): --%>
-                                    <%-- TODO: converted PHP code removed. Original snippet: // Find usage stats for this service --%>
-                                    <tr>
-                                        <td>
-                                            <strong><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($pricing[&#x27;service_type&#x27;]); --%></strong>
-                                        </td>
-                                        <td>
-                                            <span class="fs-5 fw-bold text-success">
-                                                <%-- TODO: converted PHP code removed. Original snippet: echo format_currency($pricing[&#x27;price_per_kg&#x27;]); --%>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($pricing[&#x27;description&#x27;] ?: &#x27;No description&#x27;); --%>
-                                        </td>
-                                        <td>
-                                            <span class="badge <%-- TODO: converted PHP code removed. Original snippet: echo get_status_badge_class($pricing[&#x27;status&#x27;]); --%>">
-                                                <%-- TODO: converted PHP code removed. Original snippet: echo ucfirst($pricing[&#x27;status&#x27;]); --%>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <strong><%-- TODO: converted PHP code removed. Original snippet: echo $usage_count; --%></strong> requests
-                                                <%-- TODO: converted PHP code removed. Original snippet: if ($total_revenue &gt; 0): --%>
-                                                    <br>
-                                                    <small class="text-success"><%-- TODO: converted PHP code removed. Original snippet: echo format_currency($total_revenue); --%> revenue</small>
-                                                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <button type="button" class="btn btn-outline-primary" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#pricingModal"
-                                                        data-pricing-id="<%-- TODO: converted PHP code removed. Original snippet: echo $pricing[&#x27;id&#x27;]; --%>"
-                                                        data-service-type="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($pricing[&#x27;service_type&#x27;]); --%>"
-                                                        data-price="<%-- TODO: converted PHP code removed. Original snippet: echo $pricing[&#x27;price_per_kg&#x27;]; --%>"
-                                                        data-description="<%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($pricing[&#x27;description&#x27;]); --%>"
-                                                        data-status="<%-- TODO: converted PHP code removed. Original snippet: echo $pricing[&#x27;status&#x27;]; --%>"
-                                                        title="Edit">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <%-- TODO: converted PHP code removed. Original snippet: if ($usage_count == 0): --%>
-                                                    <form method="POST" class="d-inline">
-                                                        <input type="hidden" name="action" value="delete_pricing">
-                                                        <input type="hidden" name="pricing_id" value="<%-- TODO: converted PHP code removed. Original snippet: echo $pricing[&#x27;id&#x27;]; --%>">
-                                                        <button type="submit" class="btn btn-outline-danger" 
-                                                                onclick="return confirm('Are you sure you want to delete this pricing?')"
-                                                                title="Delete">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <%-- TODO: converted PHP code removed. Original snippet: endforeach; --%>
-                            </tbody>
-                        </table>
-                    </div>
-                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
+
+                <% if (!pricing || pricing.length === 0) { %>
+
+                <div class="text-center py-5">
+                    <i class="bi bi-currency-dollar text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">No pricing added yet</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pricingModal">
+                        <i class="bi bi-plus-circle me-2"></i>Add Service Pricing
+                    </button>
+                </div>
+
+                <% } else { %>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Service Type</th>
+                                <th>Price (per KG)</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% pricing.forEach(item => { %>
+                            <tr>
+                                <td><strong><%= item.service_type %></strong></td>
+                                <td class="fw-bold text-success">$<%= item.price_per_kg %></td>
+                                <td><%= item.description || "No description" %></td>
+                                <td>
+                                    <% if (item.status === "active") { %>
+                                        <span class="badge bg-success">Active</span>
+                                    <% } else { %>
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#pricingModal"
+                                        data-id="<%= item.id %>"
+                                        data-type="<%= item.service_type %>"
+                                        data-price="<%= item.price_per_kg %>"
+                                        data-desc="<%= item.description %>"
+                                        data-status="<%= item.status %>">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+
+                                    <form action="/admin/pricing/delete/<%= item.id %>" method="POST" class="d-inline">
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete this service?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <% } %>
+
             </div>
         </div>
     </div>
-    
-    <!-- Usage Statistics -->
+
+    <!-- Tips -->
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-bar-chart me-2"></i>Usage Statistics
-                </h5>
+                <h5><i class="bi bi-lightbulb me-2"></i>Pricing Tips</h5>
             </div>
             <div class="card-body">
-                <%-- TODO: converted PHP code removed. Original snippet: if (empty($usage_stats) || array_sum(array_column($usage_stats, &#x27;usage_count&#x27;)) == 0): --%>
-                    <div class="text-center py-4">
-                        <i class="bi bi-graph-up text-muted" style="font-size: 3rem;"></i>
-                        <h6 class="text-muted mt-3">No usage data yet</h6>
-                        <p class="text-muted mb-0">Statistics will appear as customers use your services</p>
-                    </div>
-                <%-- TODO: converted PHP code removed. Original snippet: else: --%>
-                    <%-- TODO: converted PHP code removed. Original snippet: $max_usage = max(array_column($usage_stats, &#x27;usage_count&#x27;)); --%>
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0"><%-- TODO: converted PHP code removed. Original snippet: echo htmlspecialchars($stat[&#x27;service_type&#x27;]); --%></h6>
-                                <span class="badge bg-primary"><%-- TODO: converted PHP code removed. Original snippet: echo $stat[&#x27;usage_count&#x27;]; --%></span>
-                            </div>
-                            <div class="progress mb-1">
-                                <div class="progress-bar" style="width: <%-- TODO: converted PHP code removed. Original snippet: echo ($stat[&#x27;usage_count&#x27;] / $max_usage) * 100; --%>%"></div>
-                            </div>
-                            <small class="text-muted">
-                                Revenue: <%-- TODO: converted PHP code removed. Original snippet: echo format_currency($stat[&#x27;total_revenue&#x27;]); --%>
-                            </small>
-                        </div>
-                    <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
-                <%-- TODO: converted PHP code removed. Original snippet: endif; --%>
-            </div>
-        </div>
-        
-        <!-- Pricing Tips -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Pricing Tips
-                </h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        <small>Research competitor pricing in your area</small>
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        <small>Consider premium pricing for specialty services</small>
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        <small>Update prices based on demand and costs</small>
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        <small>Offer bundle discounts for multiple services</small>
-                    </li>
-                    <li>
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        <small>Monitor usage statistics to optimize pricing</small>
-                    </li>
+                <ul>
+                    <li>Research competitor pricing</li>
+                    <li>Use premium pricing for special services</li>
+                    <li>Update prices based on demand</li>
+                    <li>Offer bundle discounts</li>
+                    <li>Monitor usage to adjust pricing</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Pricing Modal -->
+<!-- Modal -->
 <div class="modal fade" id="pricingModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="pricingModalTitle">Add New Service</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 id="modalTitle">Add New Service</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" id="pricingForm">
+
+            <form method="POST" action="/admin/pricing/save">
                 <div class="modal-body">
-                    <input type="hidden" name="action" value="update_pricing">
-                    <input type="hidden" name="pricing_id" id="pricing_id">
-                    
+                    <input type="hidden" name="id" id="service_id">
+
                     <div class="mb-3">
-                        <label for="service_type" class="form-label">Service Type</label>
-                        <input type="text" class="form-control" name="service_type" id="service_type" 
-                               placeholder="e.g., Regular Wash, Dry Cleaning" required>
+                        <label>Service Type</label>
+                        <input type="text" id="service_type" name="service_type" class="form-control" required>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label for="price_per_kg" class="form-label">Price per KG</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" class="form-control" name="price_per_kg" id="price_per_kg" 
-                                   min="0.01" max="1000" step="0.01" placeholder="0.00" required>
-                        </div>
+                        <label>Price per KG</label>
+                        <input type="number" id="price_per_kg" name="price_per_kg"
+                               class="form-control" min="1" step="0.1" required>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" name="description" id="description" rows="3" 
-                                  placeholder="Brief description of the service..."></textarea>
+                        <label>Description</label>
+                        <textarea id="description" name="description" class="form-control"></textarea>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" name="status" id="status" required>
+                        <label>Status</label>
+                        <select id="status" name="status" class="form-select">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
+
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="pricingSubmitBtn">Add Service</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary">Save</button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
 
-<%-- TODO: converted PHP code removed. Original snippet: include &#x27;../includes/footer.php&#x27;; --%>
-
 <script>
-// Handle pricing modal
-document.addEventListener('DOMContentLoaded', function() {
-    const pricingModal = document.getElementById('pricingModal');
-    const modalTitle = document.getElementById('pricingModalTitle');
-    const submitBtn = document.getElementById('pricingSubmitBtn');
-    
-    if (pricingModal) {
-        pricingModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            
-            if (button && button.hasAttribute('data-pricing-id')) {
-                // Edit mode
-                const pricingId = button.getAttribute('data-pricing-id');
-                const serviceType = button.getAttribute('data-service-type');
-                const price = button.getAttribute('data-price');
-                const description = button.getAttribute('data-description');
-                const status = button.getAttribute('data-status');
-                
-                modalTitle.textContent = 'Edit Service Pricing';
-                submitBtn.textContent = 'Update Service';
-                
-                document.getElementById('pricing_id').value = pricingId;
-                document.getElementById('service_type').value = serviceType;
-                document.getElementById('price_per_kg').value = price;
-                document.getElementById('description').value = description;
-                document.getElementById('status').value = status;
-            } else {
-                // Add mode
-                modalTitle.textContent = 'Add New Service';
-                submitBtn.textContent = 'Add Service';
-                
-                // Reset form
-                document.getElementById('pricingForm').reset();
-                document.getElementById('pricing_id').value = '';
-                document.getElementById('status').value = 'active';
-            }
-        });
-    }
-});
+document.getElementById("pricingModal").addEventListener("show.bs.modal", e => {
+    const btn = e.relatedTarget;
 
-// Form validation
-document.getElementById('pricingForm').addEventListener('submit', function(e) {
-    const serviceType = document.getElementById('service_type').value.trim();
-    const price = parseFloat(document.getElementById('price_per_kg').value);
-    
-    if (!serviceType) {
-        e.preventDefault();
-        showAlert('Service type is required.', 'danger');
-        return;
-    }
-    
-    if (price <= 0 || price > 1000) {
-        e.preventDefault();
-        showAlert('Price must be between $0.01 and $1000.', 'danger');
-        return;
+    if (btn && btn.getAttribute("data-id")) {
+        document.getElementById("modalTitle").innerText = "Edit Service";
+        document.getElementById("service_id").value = btn.getAttribute("data-id");
+        document.getElementById("service_type").value = btn.getAttribute("data-type");
+        document.getElementById("price_per_kg").value = btn.getAttribute("data-price");
+        document.getElementById("description").value = btn.getAttribute("data-desc") || "";
+        document.getElementById("status").value = btn.getAttribute("data-status");
+    } else {
+        document.getElementById("modalTitle").innerText = "Add New Service";
+        document.getElementById("service_id").value = "";
+        document.getElementById("service_type").value = "";
+        document.getElementById("price_per_kg").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("status").value = "active";
     }
 });
 </script>
-
 
 <%- include('../partials/footer') %>
