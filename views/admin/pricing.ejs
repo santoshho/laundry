@@ -12,17 +12,13 @@
 </div>
 
 <!-- SUCCESS MESSAGE -->
-<% if (typeof success !== "undefined") { %>
-<div class="alert alert-success">
-    <%= success %>
-</div>
+<% if (success) { %>
+<div class="alert alert-success"><%= success %></div>
 <% } %>
 
 <!-- ERROR MESSAGE -->
-<% if (typeof error !== "undefined") { %>
-<div class="alert alert-danger">
-    <%= error %>
-</div>
+<% if (error) { %>
+<div class="alert alert-danger"><%= error %></div>
 <% } %>
 
 <div class="row g-4">
@@ -60,8 +56,7 @@
                                 <td class="fw-bold text-success">Rs <%= item.price %></td>
                                 <td><%= item.unit %></td>
                                 <td>
-
-                                    <!-- EDIT BUTTON -->
+                                    <!-- EDIT -->
                                     <button class="btn btn-sm btn-outline-primary"
                                         data-bs-toggle="modal"
                                         data-bs-target="#pricingModal"
@@ -73,9 +68,9 @@
                                     </button>
 
                                     <!-- DELETE -->
-                                    <form action="/admin/pricing/delete/<%= item.id %>" method="POST" class="d-inline">
+                                    <form method="POST" action="/admin/pricing/delete/<%= item.id %>" class="d-inline">
                                         <button class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Delete this pricing?')">
+                                            onclick="return confirm('Delete this item?')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -92,19 +87,17 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
+    <!-- Right Sidebar -->
     <div class="col-lg-4">
         <div class="card shadow-sm">
-            <div class="card-header">
-                <h5>Pricing Tips</h5>
-            </div>
+            <div class="card-header"><h5>Pricing Tips</h5></div>
             <div class="card-body">
                 <ul>
                     <li>Adjust prices based on demand</li>
-                    <li>Review competitor pricing</li>
+                    <li>Review competitors</li>
                     <li>Offer bundle discounts</li>
-                    <li>Set higher prices for urgent services</li>
-                    <li>Update seasonally</li>
+                    <li>Charge more for urgent orders</li>
+                    <li>Update prices seasonally</li>
                 </ul>
             </div>
         </div>
@@ -123,6 +116,7 @@
 
             <form method="POST" action="/admin/pricing/save">
                 <div class="modal-body">
+
                     <input type="hidden" name="id" id="pricing_id">
 
                     <div class="mb-3">
@@ -132,7 +126,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Price</label>
-                        <input type="number" id="price" name="price" class="form-control" min="1" required>
+                        <input type="number" id="price" name="price" class="form-control" required min="1">
                     </div>
 
                     <div class="mb-3">
@@ -153,15 +147,15 @@
 </div>
 
 <script>
-document.getElementById("pricingModal").addEventListener("show.bs.modal", e => {
-    const btn = e.relatedTarget;
+document.getElementById("pricingModal").addEventListener("show.bs.modal", (ev) => {
+    const btn = ev.relatedTarget;
 
-    if (btn && btn.getAttribute("data-id")) {
+    if (btn && btn.dataset.id) {
         document.getElementById("modalTitle").innerText = "Edit Pricing";
-        document.getElementById("pricing_id").value = btn.getAttribute("data-id");
-        document.getElementById("name").value = btn.getAttribute("data-name");
-        document.getElementById("price").value = btn.getAttribute("data-price");
-        document.getElementById("unit").value = btn.getAttribute("data-unit");
+        document.getElementById("pricing_id").value = btn.dataset.id;
+        document.getElementById("name").value = btn.dataset.name;
+        document.getElementById("price").value = btn.dataset.price;
+        document.getElementById("unit").value = btn.dataset.unit;
     } else {
         document.getElementById("modalTitle").innerText = "Add New Pricing";
         document.getElementById("pricing_id").value = "";
