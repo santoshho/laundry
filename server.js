@@ -8,6 +8,7 @@ const multer = require("multer");
 
 const app = express();
 
+/* ----------- DIRECTORIES ----------- */
 const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const SERVICES_FILE = path.join(DATA_DIR, "services.json");
@@ -32,6 +33,7 @@ function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
+/* ----------- APP SETTINGS ----------- */
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -48,15 +50,15 @@ app.use(
 
 const upload = multer({ dest: UPLOAD_DIR });
 
-/* ----------- AUTH MIDDLEWARE ----------- */
+/* ----------- AUTH ----------- */
 function userAuth(req, res, next) {
   if (!req.session.user) return res.redirect("/login");
   next();
 }
 
 function adminAuth(req, res, next) {
-  if (req.session.admin) return next();
-  res.redirect("/admin/login");
+  if (!req.session.admin) return res.redirect("/admin/login");
+  next();
 }
 
 /* ----------- HOME PAGE ----------- */
@@ -134,7 +136,7 @@ app.post("/register", (req, res) => {
   res.redirect("/user/dashboard");
 });
 
-/* ----------- USER PAGES ----------- */
+/* ----------- USER AREA ----------- */
 app.get("/user/dashboard", userAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE).filter(
     o => o.user_id === req.session.user.id
@@ -191,7 +193,11 @@ function createOrder(req, res) {
 app.post("/create-order", upload.single("attachment"), userAuth, createOrder);
 app.post("/user/create-order", upload.single("attachment"), userAuth, createOrder);
 
-/* ----------- ADMIN AREA ----------- */
+/* ============================================================
+   ADMIN AREA — FIXED & COMPLETED
+   ============================================================ */
+
+/* ----------- ADMIN DASHBOARD ----------- */
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   const orders = readJSON(ORDERS_FILE);
@@ -200,12 +206,24 @@ app.get("/admin/dashboard", adminAuth, (req, res) => {
   res.render("admin/dashboard", { services, orders, users });
 });
 
-/* ADMIN USERS PAGE (NEW) */
+/* ----------- MANAGE USERS ----------- */
 app.get("/admin/users", adminAuth, (req, res) => {
   const users = readJSON(USERS_FILE);
   res.render("admin/users", { users });
 });
 
+/* ----------- USER DETAILS ----------- */
+app.get("/admin/user-details", adminAuth, (req, res) => {
+  const id = Number(req.query.id);
+  const users = readJSON(USERS_FILE);
+
+  const user = users.find(u => u.id === id);
+  if (!user) return res.send("User not found");
+
+  res.render("admin/user-details", { user });
+});
+
+/* ----------- MANAGE SERVICES ----------- */
 app.get("/admin/services", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("admin/services", { services });
@@ -227,6 +245,13 @@ app.post("/admin/services/add", adminAuth, (req, res) => {
   res.redirect("/admin/services");
 });
 
+/* ----------- ADMIN PRICING ----------- */
+app.get("/admin/pricing", adminAuth, (req, res) => {
+  const services = readJSON(SERVICES_FILE);
+  res.render("admin/pricing", { services });
+});
+
+/* ----------- ADMIN ORDERS ----------- */
 app.get("/admin/orders", adminAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE);
   res.render("admin/orders", { orders });
@@ -262,6 +287,6 @@ app.get("/admin/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/admin/login"));
 });
 
-/* ----------- SERVER START ----------- */
+/* ----------- START SERVER ----------- */
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log("Running on port " + port));
