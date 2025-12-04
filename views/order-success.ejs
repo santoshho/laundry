@@ -1,28 +1,44 @@
 <%- include('partials/header') %>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg border-0">
                 <div class="card-body text-center p-5">
+
+                    <!-- Success Icon -->
                     <div class="mb-4">
                         <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
                     </div>
+
+                    <!-- Title -->
                     <h1 class="text-success mb-3">Order Submitted Successfully!</h1>
+
+                    <!-- Subtitle -->
                     <p class="lead text-muted mb-4">
-                        Your laundry request has been received and will be processed soon.
+                        Your laundry request has been received and will be processed shortly.
                     </p>
+
+                    <!-- Buttons -->
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                        <a href="/user/dashboard" class="btn btn-primary">
-                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+
+                        <a href="/user/dashboard" class="btn btn-primary px-4">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            Go to Dashboard
                         </a>
-                        <a href="/user/new-request" class="btn btn-outline-primary">
-                            <i class="bi bi-plus-circle me-2"></i>Create Another Request
+
+                        <a href="/user/new-request" class="btn btn-outline-primary px-4">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create Another Request
                         </a>
-                        <a href="/" class="btn btn-outline-secondary">
-                            <i class="bi bi-house me-2"></i>Back to Home
+
+                        <a href="/" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-house me-2"></i>
+                            Back to Home
                         </a>
+
                     </div>
+
                 </div>
             </div>
         </div>
@@ -30,4 +46,3 @@
 </div>
 
 <%- include('partials/footer') %>
-
