@@ -119,18 +119,39 @@ app.post("/register", (req, res) => {
 });
 
 // ===============================
-// USER DASHBOARD
+// USER AUTH
 // ===============================
 function userAuth(req, res, next) {
   if (!req.session.user) return res.redirect("/login");
   next();
 }
 
+// ===============================
+// USER DASHBOARD
+// ===============================
 app.get("/user/dashboard", userAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE).filter(
     (order) => order.user_id === req.session.user.id
   );
   res.render("user/dashboard", { user: req.session.user, orders });
+});
+
+// ===============================
+// USER REQUEST DETAILS
+// ===============================
+app.get("/user/request-details/:id", userAuth, (req, res) => {
+  const orders = readJSON(ORDERS_FILE);
+  const order = orders.find((o) => o.id == req.params.id);
+
+  if (!order) return res.send("Order not found");
+
+  const service = readJSON(SERVICES_FILE).find((s) => s.id == order.service_id);
+
+  res.render("user/request-details", {
+    user: req.session.user,
+    order,
+    service
+  });
 });
 
 // ===============================
@@ -170,16 +191,24 @@ app.get("/logout", (req, res) => {
 // ADMIN AUTH
 // ===============================
 function adminAuth(req, res, next) {
-  if (!req.session.admin) return res.redirect("/login");
+  if (!req.session.admin) return res.redirect("/admin/login");
   next();
 }
+
+// ===============================
+// ADMIN LOGIN PAGE
+// ===============================
+app.get("/admin/login", (req, res) => {
+  res.render("admin/login", { error: null });
+});
 
 // ===============================
 // ADMIN DASHBOARD
 // ===============================
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
-  res.render("admin/dashboard", { services });
+  const orders = readJSON(ORDERS_FILE);
+  res.render("admin/dashboard", { services, orders });
 });
 
 // ===============================
@@ -210,7 +239,7 @@ app.post("/admin/services/add", adminAuth, (req, res) => {
 // ADMIN LOGOUT
 // ===============================
 app.get("/admin/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/login"));
+  req.session.destroy(() => res.redirect("/admin/login"));
 });
 
 // ===============================
