@@ -1,83 +1,63 @@
 <%- include('../partials/header') %>
 
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Admin Dashboard</h1>
-    <form method="POST" action="/admin/logout">
-      <button class="btn btn-outline-secondary">Logout</button>
-    </form>
-  </div>
+  <h1 class="mb-4">Admin Dashboard</h1>
 
   <div class="row g-4">
     <div class="col-md-4">
       <div class="card p-3">
-        <h5>Orders</h5>
-        <p class="display-6">
-          <%= (orders && orders.length) ? orders.length : 0 %>
-        </p>
+        <h5>Total Orders</h5>
+        <p class="display-6"><%= orders.length %></p>
         <a href="/admin/orders" class="btn btn-sm btn-primary">View Orders</a>
       </div>
     </div>
 
     <div class="col-md-4">
       <div class="card p-3">
-        <h5>Services</h5>
-        <p class="display-6"><%= (services && services.length) ? services.length : 0 %></p>
+        <h5>Total Services</h5>
+        <p class="display-6"><%= services.length %></p>
         <a href="/admin/services" class="btn btn-sm btn-primary">Manage Services</a>
       </div>
     </div>
 
     <div class="col-md-4">
       <div class="card p-3">
-        <h5>Users</h5>
-        <p class="display-6"><%= (users && users.length) ? users.length : 0 %></p>
-        <a href="/admin/users" class="btn btn-sm btn-primary">Manage Users</a>
+        <h5>Registered Users</h5>
+        <p class="display-6"><%= users.length %></p>
+        <a href="/admin/users" class="btn btn-sm btn-primary">View Users</a>
       </div>
     </div>
   </div>
 
   <hr class="my-4">
 
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card p-3">
-        <h5>Recent Orders</h5>
-        <% if (orders && orders.length) { %>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% orders.slice().reverse().slice(0,8).forEach(o => { %>
-                <tr>
-                  <td>#<%= o.id %></td>
-                  <td><%= o.name || o.user_id || 'Guest' %></td>
-                  <td><%= o.status || '-' %></td>
-                  <td><%= o.created_at ? new Date(o.created_at).toLocaleString() : '-' %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        <% } else { %>
-          <p>No orders yet.</p>
-        <% } %>
-      </div>
-    </div>
+  <h4>Recent Orders</h4>
 
-    <div class="col-lg-4">
-      <div class="card p-3">
-        <h5>Quick Actions</h5>
-        <a href="/admin/pricing" class="btn btn-sm btn-outline-primary w-100 mb-2">Manage Pricing</a>
-        <a href="/admin/services" class="btn btn-sm btn-outline-primary w-100 mb-2">Manage Services</a>
-        <a href="/admin/users" class="btn btn-sm btn-outline-primary w-100">View Users</a>
-      </div>
-    </div>
-  </div>
+  <% if (orders.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.slice().reverse().slice(0, 8).forEach(order => { %>
+          <tr>
+            <td>#<%= order.id %></td>
+            <td><%= order.name %></td>
+            <td><%= order.status %></td>
+            <td><%= new Date(order.created_at).toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>No orders yet.</p>
+  <% } %>
+
 </div>
 
 <%- include('../partials/footer') %>
