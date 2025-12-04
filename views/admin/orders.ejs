@@ -1,39 +1,47 @@
 <%- include('../partials/header') %>
 
-<div class="container mt-4">
-  <h1 class="mb-4">All Orders</h1>
+<div class="admin-wrapper">
 
-  <% if (orders.length > 0) { %>
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Customer</th>
-          <th>Phone</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% orders.slice().reverse().forEach(order => { %>
-          <tr>
-            <td>#<%= order.id %></td>
-            <td><%= order.name %></td>
-            <td><%= order.phone %></td>
-            <td><%= order.status %></td>
-            <td><%= new Date(order.created_at).toLocaleString() %></td>
-            <td>
-              <a href="/admin/request-details?id=<%= order.id %>" class="btn btn-sm btn-primary">View</a>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } else { %>
-    <p>No orders found.</p>
-  <% } %>
+  <div class="admin-content">
+    <div class="container mt-4">
+      <h1 class="mb-4">All Orders</h1>
+
+      <% if (orders.length > 0) { %>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.slice().reverse().forEach(order => { %>
+              <tr>
+                <td>#<%= order.id %></td>
+                <td><%= order.name %></td>
+                <td><%= order.phone %></td>
+                <td><%= order.status %></td>
+                <td><%= new Date(order.created_at).toLocaleString() %></td>
+                <td>
+                  <a href="/admin/request-details?id=<%= order.id %>" class="btn btn-sm btn-primary">View</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No orders found.</p>
+      <% } %>
+
+    </div>
+  </div>
+
+  <footer class="text-center py-3 bg-dark text-light">
+    <small>Laundry Management System · © 2025 · All rights reserved.</small>
+  </footer>
 
 </div>
-
-<%- include('../partials/footer') %>
