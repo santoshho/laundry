@@ -1,11 +1,11 @@
 [
   {
     "id": 1762402743668,
-    "first_name": "pukar",
-    "last_name": "desi",
-    "email": "pukar@pukar.com",
+    "first_name": "Demo",
+    "last_name": "User",
+    "email": "demo@gmail.com",
     "phone": "9813501563",
-    "password_hash": "$2a$08$ZwYGT8mFUukwP9Sh9j3cJ.s.Gww9t.WefqnZn4DAFC/T/USj5FMpK",
+    "password_hash": "$2a$08$N1QRXv4mMppTnF2VPgEhuu0pQO1mY0W0Tk2z6n8Gp7HzR9rc9OHvK",
     "created_at": "2025-11-06T04:19:03.711Z"
   }
 ]
