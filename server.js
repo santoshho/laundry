@@ -7,15 +7,26 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+// ===============================
+// FILE PATHS
+// ===============================
 const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const SERVICES_FILE = path.join(DATA_DIR, "services.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 
+// Create data folder if missing
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
+// Create JSON files if missing
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
+if (!fs.existsSync(SERVICES_FILE)) fs.writeFileSync(SERVICES_FILE, "[]");
+if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
+
+// ===============================
+// HELPERS
+// ===============================
 function readJSON(file) {
-  if (!fs.existsSync(file)) return [];
   return JSON.parse(fs.readFileSync(file));
 }
 
@@ -23,6 +34,9 @@ function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
+// ===============================
+// EXPRESS CONFIG
+// ===============================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -32,15 +46,21 @@ app.use(
   session({
     secret: "secret_key",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: true
   })
 );
 
+// ===============================
+// HOME PAGE
+// ===============================
 app.get("/", (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("index", { services, user: req.session.user });
 });
 
+// ===============================
+// LOGIN (ADMIN + USER)
+// ===============================
 app.get("/login", (req, res) => {
   res.render("login", { error: null });
 });
@@ -48,11 +68,13 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
+  // ADMIN LOGIN
   if (email === "admin" && password === "admin") {
     req.session.admin = true;
     return res.redirect("/admin/dashboard");
   }
 
+  // USER LOGIN
   const users = readJSON(USERS_FILE);
   const user = users.find((u) => u.email === email);
 
@@ -64,6 +86,9 @@ app.post("/login", (req, res) => {
   res.redirect("/user/dashboard");
 });
 
+// ===============================
+// USER REGISTER
+// ===============================
 app.get("/register", (req, res) => {
   res.render("register", { error: null });
 });
@@ -72,6 +97,7 @@ app.post("/register", (req, res) => {
   const { first_name, last_name, email, phone, password } = req.body;
 
   const users = readJSON(USERS_FILE);
+
   if (users.find((u) => u.email === email)) {
     return res.render("register", { error: "Email already exists" });
   }
@@ -82,8 +108,8 @@ app.post("/register", (req, res) => {
     last_name,
     email,
     phone,
-    password_hash: bcrypt.hashSync(password, 8),
-    created_at: new Date().toISOString(),
+    password_hash: bcrypt.hashSync(password, 10),
+    created_at: new Date().toISOString()
   };
 
   users.push(newUser);
@@ -92,27 +118,32 @@ app.post("/register", (req, res) => {
   res.redirect("/login");
 });
 
-app.get("/user/dashboard", (req, res) => {
+// ===============================
+// USER DASHBOARD
+// ===============================
+function userAuth(req, res, next) {
   if (!req.session.user) return res.redirect("/login");
+  next();
+}
 
+app.get("/user/dashboard", userAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE).filter(
-    (o) => o.user_id === req.session.user.id
+    (order) => order.user_id === req.session.user.id
   );
-
   res.render("user/dashboard", { user: req.session.user, orders });
 });
 
-app.get("/user/new-request", (req, res) => {
-  if (!req.session.user) return res.redirect("/login");
-
+// ===============================
+// USER NEW ORDER
+// ===============================
+app.get("/user/new-request", userAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("user/new-request", { user: req.session.user, services });
 });
 
-app.post("/user/create-order", (req, res) => {
-  if (!req.session.user) return res.redirect("/login");
-
+app.post("/user/create-order", userAuth, (req, res) => {
   const { items, service_id } = req.body;
+
   const orders = readJSON(ORDERS_FILE);
 
   orders.push({
@@ -121,27 +152,39 @@ app.post("/user/create-order", (req, res) => {
     service_id,
     items,
     status: "pending",
-    created_at: new Date().toISOString(),
+    created_at: new Date().toISOString()
   });
 
   writeJSON(ORDERS_FILE, orders);
   res.redirect("/user/dashboard");
 });
 
+// ===============================
+// LOGOUT
+// ===============================
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/"));
 });
 
+// ===============================
+// ADMIN AUTH
+// ===============================
 function adminAuth(req, res, next) {
   if (!req.session.admin) return res.redirect("/login");
   next();
 }
 
+// ===============================
+// ADMIN DASHBOARD
+// ===============================
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("admin/dashboard", { services });
 });
 
+// ===============================
+// ADMIN SERVICES
+// ===============================
 app.get("/admin/services", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("admin/services", { services });
@@ -156,16 +199,22 @@ app.post("/admin/services/add", adminAuth, (req, res) => {
     name,
     description,
     price,
-    status: "active",
+    status: "active"
   });
 
   writeJSON(SERVICES_FILE, services);
   res.redirect("/admin/services");
 });
 
+// ===============================
+// ADMIN LOGOUT
+// ===============================
 app.get("/admin/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/login"));
 });
 
+// ===============================
+// START SERVER
+// ===============================
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log("Server running on port " + port));
