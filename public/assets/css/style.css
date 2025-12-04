@@ -343,3 +343,14 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
     background: #0056b3;
 }
+
+/* Fix footer on admin pages */
+.admin-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-content {
+    flex: 1;
+}
