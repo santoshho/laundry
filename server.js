@@ -47,6 +47,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret-key",
@@ -69,14 +70,34 @@ function adminAuth(req, res, next) {
 
 // home
 app.get("/", (req, res) => {
-  const services = readJSON(SERVICES_FILE);
-  const pricing = readJSON(PRICING_FILE);
-  const testimonials = [
-    { name: "Rahul Sharma", location: "Pokhara", image: "https://i.pravatar.cc/150?img=11", message: "Super fast pickup and very clean clothes!" },
-    { name: "Anita KC", location: "Butwal", image: "https://i.pravatar.cc/150?img=32", message: "Affordable prices and reliable service." },
-    { name: "Sujan Lama", location: "Kathmandu", image: "https://i.pravatar.cc/150?img=45", message: "Pickup and delivery on time every time!" }
-  ];
-  res.render("index", { services, pricing, testimonials, user: req.session.user });
+  try {
+    const services = readJSON(SERVICES_FILE);
+    const pricing = readJSON(PRICING_FILE);
+    const testimonials = [
+      {
+        name: "Rahul Sharma",
+        location: "Pokhara",
+        image: "https://i.pravatar.cc/150?img=11",
+        message: "Super fast pickup and very clean clothes!"
+      },
+      {
+        name: "Anita KC",
+        location: "Butwal",
+        image: "https://i.pravatar.cc/150?img=32",
+        message: "Affordable prices and reliable service."
+      },
+      {
+        name: "Sujan Lama",
+        location: "Kathmandu",
+        image: "https://i.pravatar.cc/150?img=45",
+        message: "Pickup and delivery on time every time!"
+      }
+    ];
+    res.render("index", { services, pricing, testimonials, user: req.session.user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 // user auth
@@ -85,13 +106,10 @@ app.post("/login", (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) return res.render("login", { error: "Enter credentials" });
-
     const users = readJSON(USERS_FILE);
     const user = users.find(u => u.email === email);
     if (!user) return res.render("login", { error: "Invalid email or password" });
-
     if (!bcrypt.compareSync(password, user.password_hash || "")) return res.render("login", { error: "Invalid email or password" });
-
     req.session.user = user;
     res.redirect("/user/dashboard");
   } catch (e) {
@@ -105,14 +123,19 @@ app.post("/register", (req, res) => {
   try {
     const { first_name, last_name, email, phone, password, confirm_password } = req.body;
     if (!password || password !== confirm_password) return res.render("register", { error: "Passwords do not match" });
-
     const users = readJSON(USERS_FILE);
     if (users.find(u => u.email === email)) return res.render("register", { error: "Email already registered" });
-
-    const newUser = { id: Date.now(), first_name, last_name, email, phone, password_hash: bcrypt.hashSync(password, 10), created_at: new Date().toISOString() };
+    const newUser = {
+      id: Date.now(),
+      first_name,
+      last_name,
+      email,
+      phone,
+      password_hash: bcrypt.hashSync(password, 10),
+      created_at: new Date().toISOString()
+    };
     users.push(newUser);
     writeJSON(USERS_FILE, users);
-
     req.session.user = newUser;
     res.redirect("/user/dashboard");
   } catch (e) {
@@ -123,26 +146,46 @@ app.post("/register", (req, res) => {
 
 // user pages
 app.get("/user/dashboard", userAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE).filter(o => o.user_id === req.session.user.id);
-  res.render("user/dashboard", { user: req.session.user, orders });
+  try {
+    const orders = readJSON(ORDERS_FILE).filter(o => o.user_id === req.session.user.id);
+    res.render("user/dashboard", { user: req.session.user, orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 app.get("/user/requests", userAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE).filter(o => o.user_id === req.session.user.id);
-  res.render("user/requests", { user: req.session.user, orders });
+  try {
+    const orders = readJSON(ORDERS_FILE).filter(o => o.user_id === req.session.user.id);
+    res.render("user/requests", { user: req.session.user, orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 app.get("/user/request-details", userAuth, (req, res) => {
-  const id = Number(req.query.id);
-  const order = readJSON(ORDERS_FILE).find(o => Number(o.id) === id);
-  if (!order) return res.status(404).send("Order not found");
-  res.render("user/request-details", { user: req.session.user, order });
+  try {
+    const id = Number(req.query.id);
+    const order = readJSON(ORDERS_FILE).find(o => Number(o.id) === id);
+    if (!order) return res.status(404).send("Order not found");
+    res.render("user/request-details", { user: req.session.user, order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 app.get("/user/new-request", userAuth, (req, res) => {
-  const services = readJSON(SERVICES_FILE);
-  const pricing = readJSON(PRICING_FILE);
-  res.render("user/new-request", { user: req.session.user, services, pricing });
+  try {
+    const services = readJSON(SERVICES_FILE);
+    const pricing = readJSON(PRICING_FILE);
+    res.render("user/new-request", { user: req.session.user, services, pricing });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 function createOrderHandler(req, res) {
@@ -166,7 +209,15 @@ function createOrderHandler(req, res) {
     writeJSON(ORDERS_FILE, orders);
     // add admin notification
     const notifs = readJSON(NOTIFICATIONS_FILE);
-    notifs.push({ id: Date.now(), recipient_type: "admin", title: "New Order", message: `Order #${newOrder.id}`, order_id: newOrder.id, read: false, created_at: new Date().toISOString() });
+    notifs.push({
+      id: Date.now(),
+      recipient_type: "admin",
+      title: "New Order",
+      message: `Order #${newOrder.id}`,
+      order_id: newOrder.id,
+      read: false,
+      created_at: new Date().toISOString()
+    });
     writeJSON(NOTIFICATIONS_FILE, notifs);
     res.redirect("/user/dashboard");
   } catch (e) {
@@ -179,7 +230,9 @@ app.post("/create-order", upload.single("attachment"), userAuth, createOrderHand
 app.post("/user/create-order", upload.single("attachment"), userAuth, createOrderHandler);
 
 // logout
-app.get("/logout", (req, res) => { req.session.destroy(() => res.redirect("/")); });
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/"));
+});
 
 // admin auth & login
 app.get("/admin/login", (req, res) => res.render("admin/login", { error: null }));
@@ -198,16 +251,25 @@ app.post("/admin/login", (req, res) => {
 });
 
 // admin logout
-app.post("/admin/logout", (req, res) => { req.session.destroy(() => res.redirect("/admin/login")); });
-app.get("/admin/logout", (req, res) => { req.session.destroy(() => res.redirect("/admin/login")); });
+app.post("/admin/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/admin/login"));
+});
+app.get("/admin/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/admin/login"));
+});
 
 // admin dashboard and pages
 app.get("/admin/dashboard", adminAuth, (req, res) => {
-  const services = readJSON(SERVICES_FILE);
-  const pricing = readJSON(PRICING_FILE);
-  const orders = readJSON(ORDERS_FILE);
-  const users = readJSON(USERS_FILE);
-  res.render("admin/dashboard", { services, pricing, orders, users });
+  try {
+    const services = readJSON(SERVICES_FILE);
+    const pricing = readJSON(PRICING_FILE);
+    const orders = readJSON(ORDERS_FILE);
+    const users = readJSON(USERS_FILE);
+    res.render("admin/dashboard", { services, pricing, orders, users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 // pricing pages
@@ -219,7 +281,6 @@ app.get("/admin/pricing", adminAuth, (req, res) => {
 app.post("/admin/pricing", adminAuth, (req, res) => {
   const action = req.body.action || "update_pricing";
   let pricing = readJSON(PRICING_FILE) || [];
-
   if (action === "update_pricing") {
     const id = req.body.pricing_id ? Number(req.body.pricing_id) : null;
     const name = (req.body.name || "").trim();
@@ -228,11 +289,9 @@ app.post("/admin/pricing", adminAuth, (req, res) => {
     const unit = req.body.unit || "per kg";
     const description = req.body.description || "";
     const status = req.body.status || "active";
-
     if (!name || price <= 0) {
       return res.redirect("/admin/pricing");
     }
-
     if (id) {
       const idx = pricing.findIndex(p => Number(p.id) === Number(id));
       if (idx !== -1) {
@@ -246,13 +305,11 @@ app.post("/admin/pricing", adminAuth, (req, res) => {
         return res.redirect("/admin/pricing");
       }
     }
-
     const newItem = { id: Date.now(), name, price, unit, description, status, created_at: new Date().toISOString() };
     pricing.push(newItem);
     writeJSON(PRICING_FILE, pricing);
     return res.redirect("/admin/pricing");
   }
-
   if (action === "delete_pricing") {
     const id = Number(req.body.pricing_id || req.body.id || 0);
     if (!id) return res.redirect("/admin/pricing");
@@ -260,7 +317,6 @@ app.post("/admin/pricing", adminAuth, (req, res) => {
     writeJSON(PRICING_FILE, pricing);
     return res.redirect("/admin/pricing");
   }
-
   res.redirect("/admin/pricing");
 });
 
