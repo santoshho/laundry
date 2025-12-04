@@ -1,131 +1,39 @@
 <%- include('../partials/header') %>
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>
-            <i class="bi bi-list-check me-2"></i>Manage Orders
-        </h2>
-        <div>
-            <a href="/admin/dashboard" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
-            <form method="POST" action="/admin/logout" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                </button>
-            </form>
-        </div>
-    </div>
+  <h1 class="mb-4">All Orders</h1>
 
-    <!-- Orders Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
+  <% if (orders.length > 0) { %>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.slice().reverse().forEach(order => { %>
+          <tr>
+            <td>#<%= order.id %></td>
+            <td><%= order.name %></td>
+            <td><%= order.phone %></td>
+            <td><%= order.status %></td>
+            <td><%= new Date(order.created_at).toLocaleString() %></td>
+            <td>
+              <a href="/admin/request-details?id=<%= order.id %>" class="btn btn-sm btn-primary">View</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>No orders found.</p>
+  <% } %>
 
-            <% if (orders && orders.length > 0) { %>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th>Service</th>
-                                <th>Weight (KG)</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Attachment</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <% orders.forEach(function(order) { %>
-                                <tr>
-                                    <td>
-                                        <a href="/admin/order/<%= order.id %>" class="fw-bold text-decoration-none">
-                                            #<%= order.id %>
-                                        </a>
-                                    </td>
-
-                                    <td><%= order.name %></td>
-                                    <td><%= order.phone %></td>
-                                    <td><%= order.address %></td>
-
-                                    <!-- SERVICE NAME -->
-                                    <td>
-                                        <% 
-                                            const service = services.find(s => s.id == order.service_id); 
-                                        %>
-                                        <%= service ? service.name : 'N/A' %>
-                                    </td>
-
-                                    <!-- WEIGHT -->
-                                    <td><%= order.items %> KG</td>
-
-                                    <!-- TOTAL PRICE -->
-                                    <td>
-                                        <% 
-                                            const priceItem = pricing.find(p => p.id == order.service_id);
-                                            let total = 0;
-                                            if (priceItem) total = (order.items * priceItem.price).toFixed(2);
-                                        %>
-                                        Rs. <%= total %>
-                                    </td>
-
-                                    <!-- STATUS BADGE -->
-                                    <td>
-                                        <span class="badge bg-<%= order.status === 'pending' ? 'warning' : order.status === 'done' ? 'success' : 'info' %>">
-                                            <%= order.status %>
-                                        </span>
-                                    </td>
-
-                                    <!-- ATTACHMENT -->
-                                    <td>
-                                        <% if (order.attachment) { %>
-                                            <a href="/<%= order.attachment %>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-paperclip"></i> View
-                                            </a>
-                                        <% } else { %>
-                                            <span class="text-muted">No file</span>
-                                        <% } %>
-                                    </td>
-
-                                    <!-- ACTIONS -->
-                                    <td>
-                                        <form method="POST" action="/admin/order/<%= order.id %>/status" class="d-inline">
-                                            <div class="input-group input-group-sm">
-                                                <select name="status" class="form-select">
-                                                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                                    <option value="in_progress" <%= order.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
-                                                    <option value="done" <%= order.status === 'done' ? 'selected' : '' %>>Done</option>
-                                                </select>
-                                                <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="bi bi-check"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </td>
-
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-
-            <% } else { %>
-
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="text-muted mt-3">No orders found</h4>
-                    <p class="text-muted">No orders have been placed yet</p>
-                </div>
-
-            <% } %>
-
-        </div>
-    </div>
 </div>
 
 <%- include('../partials/footer') %>
