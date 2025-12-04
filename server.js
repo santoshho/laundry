@@ -70,8 +70,8 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { first_name, last_name, email, phone, password } = req.body;
-  const users = readJSON(USERS_FILE);
 
+  const users = readJSON(USERS_FILE);
   if (users.find((u) => u.email === email)) {
     return res.render("register", { error: "Email already exists" });
   }
@@ -92,83 +92,44 @@ app.post("/register", (req, res) => {
   res.redirect("/login");
 });
 
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/"));
-});
-
-function userAuth(req, res, next) {
+app.get("/user/dashboard", (req, res) => {
   if (!req.session.user) return res.redirect("/login");
-  next();
-}
 
-app.get("/user/dashboard", userAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE).filter(
     (o) => o.user_id === req.session.user.id
   );
+
   res.render("user/dashboard", { user: req.session.user, orders });
 });
 
-app.get("/user/requests", userAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE).filter(
-    (o) => o.user_id === req.session.user.id
-  );
-  res.render("user/requests", { user: req.session.user, orders });
-});
+app.get("/user/new-request", (req, res) => {
+  if (!req.session.user) return res.redirect("/login");
 
-app.get("/user/new-request", userAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("user/new-request", { user: req.session.user, services });
 });
 
-app.post("/user/new-request", userAuth, (req, res) => {
-  const { service_id, items, note } = req.body;
+app.post("/user/create-order", (req, res) => {
+  if (!req.session.user) return res.redirect("/login");
 
-  const services = readJSON(SERVICES_FILE);
-  const service = services.find((s) => s.id == service_id);
-
+  const { items, service_id } = req.body;
   const orders = readJSON(ORDERS_FILE);
 
   orders.push({
     id: Date.now(),
     user_id: req.session.user.id,
     service_id,
-    service_name: service ? service.name : "",
     items,
-    note,
     status: "pending",
     created_at: new Date().toISOString(),
   });
 
   writeJSON(ORDERS_FILE, orders);
-
-  res.redirect("/user/requests");
+  res.redirect("/user/dashboard");
 });
 
-app.get("/user/request-details", userAuth, (req, res) => {
-  const id = req.query.id;
-  const orders = readJSON(ORDERS_FILE);
-  const order = orders.find((o) => o.id == id);
-
-  if (!order || order.user_id !== req.session.user.id)
-    return res.send("Not allowed");
-
-  res.render("user/request-details", { user: req.session.user, order });
-});
-
-app.post("/user/cancel-request", userAuth, (req, res) => {
-  const id = req.body.id;
-  const orders = readJSON(ORDERS_FILE);
-
-  const order = orders.find((o) => o.id == id);
-
-  if (!order || order.user_id !== req.session.user.id) return res.send("No");
-
-  if (order.status !== "pending") return res.send("Cannot cancel");
-
-  const updated = orders.filter((o) => o.id != id);
-  writeJSON(ORDERS_FILE, updated);
-
-  res.redirect("/user/requests");
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/"));
 });
 
 function adminAuth(req, res, next) {
@@ -177,47 +138,8 @@ function adminAuth(req, res, next) {
 }
 
 app.get("/admin/dashboard", adminAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE);
   const services = readJSON(SERVICES_FILE);
-  res.render("admin/dashboard", { orders, services });
-});
-
-app.get("/admin/orders", adminAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE);
-  res.render("admin/orders", { orders });
-});
-
-app.get("/admin/order-details", adminAuth, (req, res) => {
-  const id = req.query.id;
-  const orders = readJSON(ORDERS_FILE);
-  const services = readJSON(SERVICES_FILE);
-  const order = orders.find((o) => o.id == id);
-
-  res.render("admin/order-details", { order, services });
-});
-
-app.post("/admin/update-status", adminAuth, (req, res) => {
-  const { id, status } = req.body;
-
-  const orders = readJSON(ORDERS_FILE);
-  const order = orders.find((o) => o.id == id);
-
-  if (order) {
-    order.status = status;
-    writeJSON(ORDERS_FILE, orders);
-  }
-
-  res.redirect("/admin/order-details?id=" + id);
-});
-
-app.post("/admin/delete-order", adminAuth, (req, res) => {
-  const id = req.body.id;
-  const orders = readJSON(ORDERS_FILE);
-
-  const updated = orders.filter((o) => o.id != id);
-  writeJSON(ORDERS_FILE, updated);
-
-  res.redirect("/admin/orders");
+  res.render("admin/dashboard", { services });
 });
 
 app.get("/admin/services", adminAuth, (req, res) => {
@@ -227,8 +149,8 @@ app.get("/admin/services", adminAuth, (req, res) => {
 
 app.post("/admin/services/add", adminAuth, (req, res) => {
   const { name, description, price } = req.body;
-  const services = readJSON(SERVICES_FILE);
 
+  const services = readJSON(SERVICES_FILE);
   services.push({
     id: Date.now(),
     name,
