@@ -20,15 +20,16 @@ if (!fs.existsSync(SERVICES_FILE)) fs.writeFileSync(SERVICES_FILE, "[]");
 if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-function readJSON(f) {
+function readJSON(file) {
   try {
-    return JSON.parse(fs.readFileSync(f, "utf8") || "[]");
+    return JSON.parse(fs.readFileSync(file, "utf8") || "[]");
   } catch {
     return [];
   }
 }
-function writeJSON(f, data) {
-  fs.writeFileSync(f, JSON.stringify(data, null, 2));
+
+function writeJSON(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
 app.set("view engine", "ejs");
@@ -47,22 +48,24 @@ app.use(
 
 const upload = multer({ dest: UPLOAD_DIR });
 
+/* ----------- AUTH MIDDLEWARE ----------- */
 function userAuth(req, res, next) {
   if (!req.session.user) return res.redirect("/login");
   next();
 }
+
 function adminAuth(req, res, next) {
   if (req.session.admin) return next();
   res.redirect("/admin/login");
 }
 
+/* ----------- HOME PAGE ----------- */
 app.get("/", (req, res) => {
   const services = readJSON(SERVICES_FILE);
   res.render("index", { user: req.session.user, services });
 });
 
-/* ---------------- USER LOGIN ---------------- */
-
+/* ----------- USER LOGIN ----------- */
 app.get("/login", (req, res) => {
   res.render("login", { error: null });
 });
@@ -81,8 +84,7 @@ app.post("/login", (req, res) => {
   res.redirect("/user/dashboard");
 });
 
-/* ---------------- ADMIN LOGIN (admin/admin) ---------------- */
-
+/* ----------- ADMIN LOGIN ----------- */
 app.get("/admin/login", (req, res) => {
   res.render("admin/login", { error: null });
 });
@@ -98,8 +100,7 @@ app.post("/admin/login", (req, res) => {
   res.render("admin/login", { error: "Invalid admin credentials" });
 });
 
-/* ---------------- REGISTER ---------------- */
-
+/* ----------- REGISTER ----------- */
 app.get("/register", (req, res) => {
   res.render("register", { error: null });
 });
@@ -133,8 +134,7 @@ app.post("/register", (req, res) => {
   res.redirect("/user/dashboard");
 });
 
-/* ---------------- USER PAGES ---------------- */
-
+/* ----------- USER PAGES ----------- */
 app.get("/user/dashboard", userAuth, (req, res) => {
   const orders = readJSON(ORDERS_FILE).filter(
     o => o.user_id === req.session.user.id
@@ -161,8 +161,7 @@ app.get("/user/new-request", userAuth, (req, res) => {
   res.render("user/new-request", { user: req.session.user, services });
 });
 
-/* ---------------- CREATE ORDER ---------------- */
-
+/* ----------- CREATE ORDER ----------- */
 function createOrder(req, res) {
   const { name, phone, address, items, service_id } = req.body;
 
@@ -192,12 +191,19 @@ function createOrder(req, res) {
 app.post("/create-order", upload.single("attachment"), userAuth, createOrder);
 app.post("/user/create-order", upload.single("attachment"), userAuth, createOrder);
 
-/* ---------------- ADMIN AREA ---------------- */
-
+/* ----------- ADMIN AREA ----------- */
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
   const orders = readJSON(ORDERS_FILE);
-  res.render("admin/dashboard", { services, orders });
+  const users = readJSON(USERS_FILE);
+
+  res.render("admin/dashboard", { services, orders, users });
+});
+
+/* ADMIN USERS PAGE (NEW) */
+app.get("/admin/users", adminAuth, (req, res) => {
+  const users = readJSON(USERS_FILE);
+  res.render("admin/users", { users });
 });
 
 app.get("/admin/services", adminAuth, (req, res) => {
@@ -247,8 +253,7 @@ app.post("/admin/order/:id/status", adminAuth, (req, res) => {
   res.redirect("/admin/orders");
 });
 
-/* ---------------- LOGOUT ---------------- */
-
+/* ----------- LOGOUT ----------- */
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/"));
 });
@@ -257,7 +262,6 @@ app.get("/admin/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/admin/login"));
 });
 
-/* ---------------- SERVER ---------------- */
-
+/* ----------- SERVER START ----------- */
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log("Running on port " + port));
