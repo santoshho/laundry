@@ -1,3 +1,7 @@
+//////////////////////////////////////////////////////////////////
+// LAUNDRY SYSTEM – FULLY FIXED SERVER.JS
+//////////////////////////////////////////////////////////////////
+
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -12,14 +16,15 @@ const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const PRICING_FILE = path.join(DATA_DIR, "pricing.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+const SERVICES_FILE = path.join(DATA_DIR, "services.json");
 
-// Ensure data folder exists
+// Ensure folder
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
-// Load helper
+// File helpers
 function load(file) {
     if (!fs.existsSync(file)) return [];
-    return JSON.parse(fs.readFileSync(file, "utf8"));
+    return JSON.parse(fs.readFileSync(file));
 }
 function save(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2));
@@ -27,34 +32,63 @@ function save(file, data) {
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Sessions
+// Session
 app.use(
     session({
         secret: "laundry_secret_123",
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: false,
     })
 );
 
-// Protect admin routes
+////////////////////////////////////////////////////////////////////
+// FIX 1 — Create Admin User
+////////////////////////////////////////////////////////////////////
+function ensureAdmin() {
+    let users = load(USERS_FILE);
+
+    let admin = users.find(u => u.email === "admin@laundry.com");
+
+    if (!admin) {
+        users.push({
+            id: Date.now(),
+            first_name: "Admin",
+            last_name: "",
+            email: "admin@laundry.com",
+            password_hash: bcrypt.hashSync("admin", 10),
+            admin: true
+        });
+
+        save(USERS_FILE, users);
+    }
+}
+ensureAdmin();
+
+// Auth middleware
 function adminAuth(req, res, next) {
     if (!req.session.admin) return res.redirect("/admin/login");
     next();
 }
 
-/* ============================================================
-   USER ROUTES
-============================================================ */
+////////////////////////////////////////////////////////////////////
+// USER ROUTES
+////////////////////////////////////////////////////////////////////
 
-// HOME
+// HOME PAGE
 app.get("/", (req, res) => {
-    res.render("index", { user: req.session.user || null });
+    const pricing = load(PRICING_FILE);
+    const services = load(SERVICES_FILE); // for SC1 list
+
+    res.render("index", {
+        services,
+        pricing,
+        user: req.session.user,
+    });
 });
 
 // LOGIN PAGE
@@ -71,9 +105,9 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
     const { first_name, last_name, email, phone, password } = req.body;
 
-    let users = load(USERS_FILE);
+    const users = load(USERS_FILE);
 
-    if (users.find((u) => u.email === email)) {
+    if (users.find(u => u.email === email)) {
         return res.render("register", { error: "Email already exists!" });
     }
 
@@ -86,7 +120,8 @@ app.post("/register", (req, res) => {
         email,
         phone,
         password_hash: hashed,
-        created_at: new Date().toISOString(),
+        admin: false,
+        created_at: new Date(),
     });
 
     save(USERS_FILE, users);
@@ -97,53 +132,28 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
 
-    let users = load(USERS_FILE);
-    const user = users.find((u) => u.email === email);
+    const users = load(USERS_FILE);
+    const user = users.find(u => u.email === email);
 
-    if (!user) {
-        return res.render("login", { error: "Invalid email!" });
-    }
+    if (!user) return res.render("login", { error: "Email does not exist." });
 
     if (!bcrypt.compareSync(password, user.password_hash)) {
-        return res.render("login", { error: "Incorrect password!" });
+        return res.render("login", { error: "Incorrect password." });
     }
 
     req.session.user = user;
     res.redirect("/");
 });
 
-// USER LOGOUT
+// LOGOUT
 app.get("/logout", (req, res) => {
     req.session.destroy();
     res.redirect("/");
 });
 
-/* ============================================================
-   ADMIN SECTION
-============================================================ */
-
-// DEFAULT ADMIN USER (admin / admin)
-function ensureAdminUser() {
-    let users = load(USERS_FILE);
-
-    let admin = users.find((u) => u.admin);
-
-    if (!admin) {
-        users.push({
-            id: 1,
-            first_name: "Admin",
-            last_name: "User",
-            email: "admin@laundry.com",
-            phone: "",
-            password_hash: bcrypt.hashSync("admin", 10),
-            admin: true,
-            created_at: new Date().toISOString(),
-        });
-
-        save(USERS_FILE, users);
-    }
-}
-ensureAdminUser();
+////////////////////////////////////////////////////////////////////
+// ADMIN ROUTES
+////////////////////////////////////////////////////////////////////
 
 // ADMIN LOGIN PAGE
 app.get("/admin/login", (req, res) => {
@@ -154,8 +164,8 @@ app.get("/admin/login", (req, res) => {
 app.post("/admin/login", (req, res) => {
     const { email, password } = req.body;
 
-    let users = load(USERS_FILE);
-    const admin = users.find((u) => u.email === email && u.admin);
+    const users = load(USERS_FILE);
+    const admin = users.find(u => u.email === email && u.admin);
 
     if (!admin) {
         return res.render("admin/login", { error: "Admin not found!" });
@@ -169,7 +179,7 @@ app.post("/admin/login", (req, res) => {
     res.redirect("/admin/dashboard");
 });
 
-// ADMIN DASHBOARD
+// DASHBOARD
 app.get("/admin/dashboard", adminAuth, (req, res) => {
     const pricing = load(PRICING_FILE);
     const orders = load(ORDERS_FILE);
@@ -180,9 +190,9 @@ app.get("/admin/dashboard", adminAuth, (req, res) => {
     });
 });
 
-/* ============================================================
-   PRICING MANAGEMENT
-============================================================ */
+////////////////////////////////////////////////////////////////////
+// PRICING
+////////////////////////////////////////////////////////////////////
 
 app.get("/admin/pricing", adminAuth, (req, res) => {
     const pricing = load(PRICING_FILE);
@@ -192,14 +202,14 @@ app.get("/admin/pricing", adminAuth, (req, res) => {
 app.post("/admin/pricing", adminAuth, (req, res) => {
     const { pricing_id, name, price, unit } = req.body;
 
-    let pricing = load(PRICING_FILE);
+    const pricing = load(PRICING_FILE);
 
     if (pricing_id) {
-        const item = pricing.find((p) => p.id == pricing_id);
-        if (item) {
-            item.name = name;
-            item.price = price;
-            item.unit = unit;
+        let p = pricing.find(x => x.id == pricing_id);
+        if (p) {
+            p.name = name;
+            p.price = price;
+            p.unit = unit;
         }
     } else {
         pricing.push({
@@ -216,25 +226,16 @@ app.post("/admin/pricing", adminAuth, (req, res) => {
 
 app.post("/admin/pricing/:id/delete", adminAuth, (req, res) => {
     let pricing = load(PRICING_FILE);
-    pricing = pricing.filter((p) => p.id != req.params.id);
-
+    pricing = pricing.filter(p => p.id != req.params.id);
     save(PRICING_FILE, pricing);
+
     res.redirect("/admin/pricing");
 });
 
-/* ============================================================
-   ORDERS MANAGEMENT
-============================================================ */
-
-app.get("/admin/orders", adminAuth, (req, res) => {
-    const orders = load(ORDERS_FILE);
-    res.render("admin/orders", { orders });
-});
-
-/* ============================================================
-   START SERVER
-============================================================ */
+////////////////////////////////////////////////////////////////////
+// START SERVER
+////////////////////////////////////////////////////////////////////
 
 app.listen(PORT, () =>
-    console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Server running at http://localhost:${PORT}`)
 );
