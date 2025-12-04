@@ -11,12 +11,30 @@
     --dark-color: #212529;
 }
 
+/* ------------------ */
+/* BASIC LAYOUT FIX   */
+/* ------------------ */
+
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Hero Section */
+/* Footer always at bottom */
+footer {
+    margin-top: auto;
+}
+
+/* ------------------ */
+/* Hero Section       */
+/* ------------------ */
+
 .hero-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -29,7 +47,10 @@ body {
     min-height: 75vh;
 }
 
-/* Authentication Pages */
+/* ------------------ */
+/* Authentication     */
+/* ------------------ */
+
 .auth-container {
     min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -56,7 +77,10 @@ body {
     color: var(--primary-color);
 }
 
-/* Cards */
+/* ------------------ */
+/* Cards              */
+/* ------------------ */
+
 .card {
     border: none;
     border-radius: 10px;
@@ -68,7 +92,10 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Buttons */
+/* ------------------ */
+/* Buttons            */
+/* ------------------ */
+
 .btn {
     border-radius: 8px;
     padding: 0.5rem 1.5rem;
@@ -86,7 +113,10 @@ body {
     transform: translateY(-2px);
 }
 
-/* Form Controls */
+/* ------------------ */
+/* Form Controls      */
+/* ------------------ */
+
 .form-control {
     border-radius: 8px;
     border: 2px solid #e9ecef;
@@ -99,7 +129,6 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-/* Input Groups */
 .input-group-text {
     background-color: #f8f9fa;
     border: 2px solid #e9ecef;
@@ -112,13 +141,19 @@ body {
     font-weight: 700;
 }
 
-/* Feature Icons */
+/* ------------------ */
+/* Feature Icons      */
+/* ------------------ */
+
 .feature-icon i {
     font-size: 3rem;
     margin-bottom: 1rem;
 }
 
-/* Service Items */
+/* ------------------ */
+/* Service Items      */
+/* ------------------ */
+
 .service-item {
     padding: 1.5rem;
     border-radius: 10px;
@@ -132,51 +167,46 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Animations */
+/* ------------------ */
+/* Animations         */
+/* ------------------ */
+
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
     animation: fadeIn 0.6s ease-out;
 }
 
-/* Dashboard Styles */
+/* ------------------ */
+/* Dashboard          */
+/* ------------------ */
+
 .dashboard-card {
     border-left: 4px solid var(--primary-color);
 }
 
-.dashboard-card.success {
-    border-left-color: var(--success-color);
-}
+.dashboard-card.success { border-left-color: var(--success-color); }
+.dashboard-card.warning { border-left-color: var(--warning-color); }
+.dashboard-card.danger  { border-left-color: var(--danger-color); }
+.dashboard-card.info    { border-left-color: var(--info-color); }
 
-.dashboard-card.warning {
-    border-left-color: var(--warning-color);
-}
+/* ------------------ */
+/* Status Badges      */
+/* ------------------ */
 
-.dashboard-card.danger {
-    border-left-color: var(--danger-color);
-}
-
-.dashboard-card.info {
-    border-left-color: var(--info-color);
-}
-
-/* Status Badges */
 .badge {
     font-size: 0.75rem;
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
 }
 
-/* Tables */
+/* ------------------ */
+/* Tables             */
+/* ------------------ */
+
 .table {
     border-radius: 10px;
     overflow: hidden;
@@ -189,7 +219,10 @@ body {
     font-weight: 600;
 }
 
-/* Sidebar */
+/* ------------------ */
+/* Sidebar            */
+/* ------------------ */
+
 .sidebar {
     background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
@@ -210,34 +243,43 @@ body {
     color: white;
 }
 
-/* Responsive */
+/* ------------------ */
+/* Responsive         */
+/* ------------------ */
+
 @media (max-width: 768px) {
     .hero-section {
         min-height: 60vh;
         text-align: center;
     }
-    
+
     .auth-card {
         margin: 0.5rem;
         padding: 1.5rem;
     }
-    
+
     .service-item {
         text-align: center;
     }
-    
+
     .service-item:hover {
         transform: none;
     }
 }
 
-/* Loading Spinner */
+/* ------------------ */
+/* Loading Spinner    */
+/* ------------------ */
+
 .spinner-border-sm {
     width: 1rem;
     height: 1rem;
 }
 
-/* Notifications */
+/* ------------------ */
+/* Notifications      */
+/* ------------------ */
+
 .notification-item {
     border-left: 4px solid var(--info-color);
     background-color: #f8f9fa;
@@ -251,7 +293,10 @@ body {
     border-left-color: var(--primary-color);
 }
 
-/* File Upload */
+/* ------------------ */
+/* File Upload        */
+/* ------------------ */
+
 .file-upload-area {
     border: 2px dashed #dee2e6;
     border-radius: 10px;
@@ -264,7 +309,10 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Progress Bars */
+/* ------------------ */
+/* Progress Bars      */
+/* ------------------ */
+
 .progress {
     height: 8px;
     border-radius: 4px;
@@ -274,7 +322,10 @@ body {
     border-radius: 4px;
 }
 
-/* Custom Scrollbar */
+/* ------------------ */
+/* Scrollbar          */
+/* ------------------ */
+
 ::-webkit-scrollbar {
     width: 8px;
 }
