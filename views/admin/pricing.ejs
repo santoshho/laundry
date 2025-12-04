@@ -1,169 +1,134 @@
-<%- include('../partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+    <title>Manage Pricing</title>
+</head>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-currency-dollar me-2"></i>Manage Pricing</h2>
-    <div>
-        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#pricingModal">
-            <i class="bi bi-plus-circle me-2"></i>Add New Pricing
-        </button>
-        <a href="/admin/dashboard" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Back</a>
-    </div>
-</div>
+<body>
+    <%- include('../partials/sidebar'); %>
 
-<!-- SUCCESS MESSAGE -->
-<% if (success) { %>
-<div class="alert alert-success"><%= success %></div>
-<% } %>
+    <main class="main-content">
+        <div class="container mt-4">
 
-<!-- ERROR MESSAGE -->
-<% if (error) { %>
-<div class="alert alert-danger"><%= error %></div>
-<% } %>
+            <h2 class="mb-4">Manage Pricing</h2>
 
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h5>Service Pricing</h5>
-            </div>
-            <div class="card-body">
+            <!-- Pricing Table -->
+            <div class="card shadow">
+                <div class="card-body">
 
-                <% if (!services || services.length === 0) { %>
-                <div class="text-center py-5">
-                    <i class="bi bi-currency-dollar text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="text-muted mt-3">No pricing added yet</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pricingModal">
-                        Add Pricing
-                    </button>
-                </div>
-                <% } else { %>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <th>Service</th>
+                                <th>#</th>
+                                <th>Service Name</th>
                                 <th>Price</th>
                                 <th>Unit</th>
-                                <th width="110">Actions</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <% services.forEach(item => { %>
-                            <tr>
-                                <td><strong><%= item.name %></strong></td>
-                                <td class="fw-bold text-success">Rs <%= item.price %></td>
-                                <td><%= item.unit %></td>
-                                <td>
-                                    <!-- EDIT -->
-                                    <button class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#pricingModal"
-                                        data-id="<%= item.id %>"
-                                        data-name="<%= item.name %>"
-                                        data-price="<%= item.price %>"
-                                        data-unit="<%= item.unit %>">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                            <% pricing.forEach((item, index) => { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= item.name %></td>
+                                    <td>Rs <%= item.price %></td>
+                                    <td><%= item.unit %></td>
 
-                                    <!-- DELETE -->
-                                    <form method="POST" action="/admin/pricing/delete/<%= item.id %>" class="d-inline">
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Delete this item?')">
-                                            <i class="bi bi-trash"></i>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary"
+                                            onclick="openEditModal('<%= item.id %>', '<%= item.name %>', '<%= item.price %>', '<%= item.unit %>')">
+                                            Edit
                                         </button>
-                                    </form>
 
-                                </td>
-                            </tr>
+                                        <form action="/admin/pricing/<%= item.id %>/delete" method="POST" class="d-inline">
+                                            <button class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this pricing?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
                             <% }) %>
                         </tbody>
                     </table>
-                </div>
 
-                <% } %>
+                    <!-- Add New Pricing Button -->
+                    <button class="btn btn-success mt-3" onclick="openNewModal()">Add New Pricing</button>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- PRICING MODAL -->
+    <div class="modal fade" id="pricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form method="POST" action="/admin/pricing">
+                    <input type="hidden" name="action" value="update_pricing">
+                    <input type="hidden" name="pricing_id" id="pricing_id">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Edit Pricing</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Service Name</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" id="price" name="price" class="form-control" min="1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Unit</label>
+                            <input type="text" id="unit" name="unit" class="form-control" value="per kg">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+
+                </form>
+
             </div>
         </div>
     </div>
 
-    <!-- Right Sidebar -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-header"><h5>Pricing Tips</h5></div>
-            <div class="card-body">
-                <ul>
-                    <li>Adjust prices based on demand</li>
-                    <li>Review competitors</li>
-                    <li>Offer bundle discounts</li>
-                    <li>Charge more for urgent orders</li>
-                    <li>Update prices seasonally</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+    <script>
+        function openEditModal(id, name, price, unit) {
+            document.getElementById("modalTitle").innerText = "Edit Pricing";
+            document.getElementById("pricing_id").value = id;
+            document.getElementById("name").value = name;
+            document.getElementById("price").value = price;
+            document.getElementById("unit").value = unit;
 
-<!-- ADD / EDIT MODAL -->
-<div class="modal fade" id="pricingModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+            new bootstrap.Modal(document.getElementById('pricingModal')).show();
+        }
 
-            <div class="modal-header">
-                <h5 id="modalTitle">Add New Pricing</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+        function openNewModal() {
+            document.getElementById("modalTitle").innerText = "Add New Pricing";
+            document.getElementById("pricing_id").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("price").value = "";
+            document.getElementById("unit").value = "per kg";
 
-            <form method="POST" action="/admin/pricing/save">
-                <div class="modal-body">
+            new bootstrap.Modal(document.getElementById('pricingModal')).show();
+        }
+    </script>
 
-                    <input type="hidden" name="id" id="pricing_id">
-
-                    <div class="mb-3">
-                        <label class="form-label">Service Name</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Price</label>
-                        <input type="number" id="price" name="price" class="form-control" required min="1">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Unit</label>
-                        <input type="text" id="unit" name="unit" class="form-control" value="per kg">
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary">Save</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-document.getElementById("pricingModal").addEventListener("show.bs.modal", (ev) => {
-    const btn = ev.relatedTarget;
-
-    if (btn && btn.dataset.id) {
-        document.getElementById("modalTitle").innerText = "Edit Pricing";
-        document.getElementById("pricing_id").value = btn.dataset.id;
-        document.getElementById("name").value = btn.dataset.name;
-        document.getElementById("price").value = btn.dataset.price;
-        document.getElementById("unit").value = btn.dataset.unit;
-    } else {
-        document.getElementById("modalTitle").innerText = "Add New Pricing";
-        document.getElementById("pricing_id").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("price").value = "";
-        document.getElementById("unit").value = "per kg";
-    }
-});
-</script>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/scripts'); %>
+</body>
+</html>
