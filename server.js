@@ -4,6 +4,7 @@ const fs = require("fs");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const multer = require("multer");
 
 const app = express();
 
@@ -11,62 +12,110 @@ const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const SERVICES_FILE = path.join(DATA_DIR, "services.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+const UPLOAD_DIR = path.join(__dirname, "public", "uploads");
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
 if (!fs.existsSync(SERVICES_FILE)) fs.writeFileSync(SERVICES_FILE, "[]");
 if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-function readJSON(file) { return JSON.parse(fs.readFileSync(file)); }
-function writeJSON(file, data) { fs.writeFileSync(file, JSON.stringify(data, null, 2)); }
+function readJSON(f) {
+  try {
+    return JSON.parse(fs.readFileSync(f, "utf8") || "[]");
+  } catch {
+    return [];
+  }
+}
+function writeJSON(f, data) {
+  fs.writeFileSync(f, JSON.stringify(data, null, 2));
+}
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-app.use(session({
-  secret: "secret_key",
-  resave: false,
-  saveUninitialized: true
-}));
+app.use(
+  session({
+    secret: "secret-key",
+    resave: false,
+    saveUninitialized: true
+  })
+);
+
+const upload = multer({ dest: UPLOAD_DIR });
+
+function userAuth(req, res, next) {
+  if (!req.session.user) return res.redirect("/login");
+  next();
+}
+function adminAuth(req, res, next) {
+  if (req.session.admin) return next();
+  res.redirect("/admin/login");
+}
 
 app.get("/", (req, res) => {
   const services = readJSON(SERVICES_FILE);
-  res.render("index", { services, user: req.session.user });
+  res.render("index", { user: req.session.user, services });
 });
 
-app.get("/login", (req, res) => res.render("login", { error: null }));
+/* ---------------- USER LOGIN ---------------- */
+
+app.get("/login", (req, res) => {
+  res.render("login", { error: null });
+});
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
+
   const users = readJSON(USERS_FILE);
   const user = users.find(u => u.email === email);
-  if (!user || !bcrypt.compareSync(password, user.password_hash || "")) {
-    return res.render("login", { error: "Invalid email or password" });
-  }
+
+  if (!user) return res.render("login", { error: "Invalid login" });
+  if (!bcrypt.compareSync(password, user.password_hash))
+    return res.render("login", { error: "Invalid login" });
+
   req.session.user = user;
   res.redirect("/user/dashboard");
 });
 
-app.get("/admin/login", (req, res) => res.render("admin/login", { error: null }));
+/* ---------------- ADMIN LOGIN (admin/admin) ---------------- */
 
-app.post("/admin/login", (req, res) => {
-  const username = req.body.username || req.body.email || req.body.user || "";
-  const password = req.body.password || "";
-  if ((username === "admin" || username === "admin@laundry.com") && password === "admin") {
-    req.session.admin = { username: "admin" };
-    return res.redirect("/admin/dashboard");
-  }
-  return res.render("admin/login", { error: "Admin not found or invalid password" });
+app.get("/admin/login", (req, res) => {
+  res.render("admin/login", { error: null });
 });
 
-app.get("/register", (req, res) => res.render("register", { error: null }));
+app.post("/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === "admin" && password === "admin") {
+    req.session.admin = true;
+    return res.redirect("/admin/dashboard");
+  }
+
+  res.render("admin/login", { error: "Invalid admin credentials" });
+});
+
+/* ---------------- REGISTER ---------------- */
+
+app.get("/register", (req, res) => {
+  res.render("register", { error: null });
+});
 
 app.post("/register", (req, res) => {
-  const { first_name, last_name, email, phone, password } = req.body;
+  const { first_name, last_name, email, phone, password, confirm_password } =
+    req.body;
+
   const users = readJSON(USERS_FILE);
-  if (users.find(u => u.email === email)) return res.render("register", { error: "Email already exists" });
+
+  if (password !== confirm_password)
+    return res.render("register", { error: "Passwords do not match" });
+
+  if (users.find(u => u.email === email))
+    return res.render("register", { error: "Email already registered" });
+
   const newUser = {
     id: Date.now(),
     first_name,
@@ -76,19 +125,35 @@ app.post("/register", (req, res) => {
     password_hash: bcrypt.hashSync(password, 10),
     created_at: new Date().toISOString()
   };
+
   users.push(newUser);
   writeJSON(USERS_FILE, users);
-  res.redirect("/login");
+
+  req.session.user = newUser;
+  res.redirect("/user/dashboard");
 });
 
-function userAuth(req, res, next) {
-  if (!req.session.user) return res.redirect("/login");
-  next();
-}
+/* ---------------- USER PAGES ---------------- */
 
 app.get("/user/dashboard", userAuth, (req, res) => {
-  const orders = readJSON(ORDERS_FILE).filter(o => o.user_id === req.session.user.id);
+  const orders = readJSON(ORDERS_FILE).filter(
+    o => o.user_id === req.session.user.id
+  );
   res.render("user/dashboard", { user: req.session.user, orders });
+});
+
+app.get("/user/requests", userAuth, (req, res) => {
+  const orders = readJSON(ORDERS_FILE).filter(
+    o => o.user_id === req.session.user.id
+  );
+  res.render("user/requests", { user: req.session.user, orders });
+});
+
+app.get("/user/request-details", userAuth, (req, res) => {
+  const id = Number(req.query.id);
+  const order = readJSON(ORDERS_FILE).find(o => o.id === id);
+  if (!order) return res.send("Order not found");
+  res.render("user/request-details", { user: req.session.user, order });
 });
 
 app.get("/user/new-request", userAuth, (req, res) => {
@@ -96,59 +161,38 @@ app.get("/user/new-request", userAuth, (req, res) => {
   res.render("user/new-request", { user: req.session.user, services });
 });
 
-/* accept /create-order to match form action in your template */
-app.post("/create-order", userAuth, (req, res) => {
+/* ---------------- CREATE ORDER ---------------- */
+
+function createOrder(req, res) {
   const { name, phone, address, items, service_id } = req.body;
+
   const orders = readJSON(ORDERS_FILE);
+
+  const file = req.file ? "uploads/" + req.file.filename : null;
+
   const newOrder = {
     id: Date.now(),
-    user_id: req.session.user.id,
-    name: name || (req.session.user.first_name + " " + (req.session.user.last_name||"")),
-    phone: phone || req.session.user.phone || "",
-    address: address || "",
-    items: items || "",
-    service_id: service_id || null,
+    user_id: req.session.user ? req.session.user.id : null,
+    name,
+    phone,
+    address,
+    items,
+    service_id,
+    attachment: file,
     status: "pending",
     created_at: new Date().toISOString()
   };
+
   orders.push(newOrder);
   writeJSON(ORDERS_FILE, orders);
+
   res.redirect("/user/dashboard");
-});
-
-/* keep /user/create-order as well (if some templates use that) */
-app.post("/user/create-order", userAuth, (req, res) => {
-  const { items, service_id } = req.body;
-  const orders = readJSON(ORDERS_FILE);
-  orders.push({
-    id: Date.now(),
-    user_id: req.session.user.id,
-    service_id,
-    items,
-    status: "pending",
-    created_at: new Date().toISOString()
-  });
-  writeJSON(ORDERS_FILE, orders);
-  res.redirect("/user/dashboard");
-});
-
-/* view single order details (so links like /user/request-details?id=... work) */
-app.get("/user/request-details", userAuth, (req, res) => {
-  const id = Number(req.query.id);
-  const orders = readJSON(ORDERS_FILE);
-  const order = orders.find(o => o.id === id && o.user_id === req.session.user.id);
-  if (!order) return res.status(404).send("Order not found");
-  res.render("user/request-details", { order, user: req.session.user });
-});
-
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/"));
-});
-
-function adminAuth(req, res, next) {
-  if (!req.session.admin) return res.redirect("/admin/login");
-  next();
 }
+
+app.post("/create-order", upload.single("attachment"), userAuth, createOrder);
+app.post("/user/create-order", upload.single("attachment"), userAuth, createOrder);
+
+/* ---------------- ADMIN AREA ---------------- */
 
 app.get("/admin/dashboard", adminAuth, (req, res) => {
   const services = readJSON(SERVICES_FILE);
@@ -164,14 +208,56 @@ app.get("/admin/services", adminAuth, (req, res) => {
 app.post("/admin/services/add", adminAuth, (req, res) => {
   const { name, description, price } = req.body;
   const services = readJSON(SERVICES_FILE);
-  services.push({ id: Date.now(), name, description, price, status: "active" });
+
+  services.push({
+    id: Date.now(),
+    name,
+    description,
+    price,
+    status: "active"
+  });
+
   writeJSON(SERVICES_FILE, services);
   res.redirect("/admin/services");
+});
+
+app.get("/admin/orders", adminAuth, (req, res) => {
+  const orders = readJSON(ORDERS_FILE);
+  res.render("admin/orders", { orders });
+});
+
+app.get("/admin/request-details", adminAuth, (req, res) => {
+  const id = Number(req.query.id);
+  const order = readJSON(ORDERS_FILE).find(o => o.id === id);
+  if (!order) return res.send("Order not found");
+  res.render("admin/request-details", { order });
+});
+
+app.post("/admin/order/:id/status", adminAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const orders = readJSON(ORDERS_FILE);
+  const order = orders.find(o => o.id === id);
+
+  if (order) {
+    order.status = req.body.status;
+    order.updated_at = new Date().toISOString();
+    writeJSON(ORDERS_FILE, orders);
+  }
+
+  res.redirect("/admin/orders");
+});
+
+/* ---------------- LOGOUT ---------------- */
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/"));
 });
 
 app.get("/admin/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/admin/login"));
 });
 
+/* ---------------- SERVER ---------------- */
+
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log("Server running on port " + port));
+app.listen(port, () => console.log("Running on port " + port));
