@@ -4,7 +4,9 @@
   <h1 class="mb-4">Admin Dashboard</h1>
 
   <div class="row g-4">
-    <div class="col-md-4">
+
+    <!-- Total Orders -->
+    <div class="col-md-6">
       <div class="card p-3">
         <h5>Total Orders</h5>
         <p class="display-6"><%= orders.length %></p>
@@ -12,21 +14,15 @@
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card p-3">
-        <h5>Total Services</h5>
-        <p class="display-6"><%= services.length %></p>
-        <a href="/admin/services" class="btn btn-sm btn-primary">Manage Services</a>
-      </div>
-    </div>
-
-    <div class="col-md-4">
+    <!-- Registered Users -->
+    <div class="col-md-6">
       <div class="card p-3">
         <h5>Registered Users</h5>
         <p class="display-6"><%= users.length %></p>
         <a href="/admin/users" class="btn btn-sm btn-primary">View Users</a>
       </div>
     </div>
+
   </div>
 
   <hr class="my-4">
